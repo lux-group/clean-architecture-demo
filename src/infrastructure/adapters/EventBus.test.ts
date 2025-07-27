@@ -1,7 +1,7 @@
 import { Event } from "~/domain/adapters"
 import { EventBus } from "./EventBus"
 
-describe("DomainEventBus", () => {
+describe("EventBus", () => {
   let eventBus: EventBus
 
   beforeEach(() => {
