@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Demo</title>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", () => {
+      const providerSelect = document.getElementById("providerSelect")
+      const signInButton = document.getElementById("signInButton")
+      const signOutButton = document.getElementById("signOutButton")
+      const tokenButton = document.getElementById("tokenButton")
+      const tokenLabel = document.getElementById("tokenLabel")
+
+      let token = undefined
+
+      const signIn = () => {
+        const provider = providerSelect.value // Use selected provider
+        const redirectUri = encodeURIComponent(window.location.origin)
+        window.location.href = `/auth/external/sign-in?redirect_uri=${redirectUri}&provider=${provider}`
+      }
+
+      const signOut = () => {
+        const redirectUri = encodeURIComponent(window.location.origin)
+        window.location.href = `/auth/external/sign-out?redirect_uri=${redirectUri}`
+      }
+
+      const getToken = () => {
+        fetch("/oauth2/token", {
+            method: "POST",
+            credentials: "include",
+            headers: { "content-type": "application/x-www-form-urlencoded" },
+            body: "grant_type=urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              throw new Error("Failed to token")
+            }
+          }).then(data => {
+            token = data
+            updateStatus()
+          }).catch(error => {
+            token = undefined
+            updateStatus()
+          })
+      }
+
+      const updateStatus = () => {
+        providerSelect.style.display = token ? "none" : "inline"
+        signInButton.style.display = token ? "none" : "inline"
+        signOutButton.style.display = token ? "inline" : "none"
+        tokenButton.style.display = token ? "inline" : "none"
+        tokenLabel.style.display = token ? "inline" : "none"
+        tokenLabel.innerText = token ? token?.access_token : "-"
+      }
+
+      signInButton.addEventListener("click", () => signIn())
+      signOutButton.addEventListener("click", () => signOut())
+      tokenButton.addEventListener("click", () => getToken())
+      
+      updateStatus()
+      getToken()
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Welcome to the Frontend Application</h1>
+  <select id="providerSelect">
+    <option value="Entra">Entra</option>
+    <option value="Google">Google</option>
+  </select>
+  <button id="signInButton">Sign In</button>
+  <button id="signOutButton">Sign Out</button>
+  <button id="tokenButton">Get Access Token</button>
+  <p>Token: <span id="tokenLabel">-</span></p>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  isEnabled     Boolean  @map("is_enabled")
+  brand         String
+  givenName     String   @map("given_name")
+  surname       String
+  email         String
+  emailVerified Boolean  @map("email_verified")
+  phone         String?
+  country       String?
+  city          String?
+  postcode      String?
+  passwordHash  String?  @map("password_hash")
+  roles         String[]
+
+  // Relations
+  identities UserIdentity[]
+  sessions   Session[]
+
+  @@unique([brand, email], name: "unique_brand_email")
+  @@map("users")
+}
+
+model UserIdentity {
+  id                     String @id @default(uuid())
+  userId                 String @map("user_id")
+  identityProviderId     String @map("identity_provider_id")
+  identifierClaimValue   String @map("identifier_claim_value")
+
+  // Relations
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identityProvider IdentityProvider @relation(fields: [identityProviderId], references: [id], onDelete: Cascade)
+
+  @@unique([identityProviderId, identifierClaimValue], name: "unique_identity_provider_claim")
+  @@map("user_identities")
+}
+
+model Session {
+  id                          String    @id @default(uuid())
+  createdAt                   DateTime  @default(now()) @map("created_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
+  lastRefreshAt               DateTime  @map("last_refresh_at")
+  expiresAt                   DateTime  @map("expires_at")
+  terminatedAt                DateTime? @map("terminated_at")
+  status                      String    // ACTIVE, EXPIRED, TERMINATED_BY_USER, TERMINATED_BY_ADMIN, TERMINATED_BY_PROVIDER
+  nonce                       String
+  userId                      String    @map("user_id")
+  identityProviderId          String?   @map("identity_provider_id")
+  identityProviderSessionId   String?   @map("identity_provider_session_id")
+  idToken                     String?   @map("id_token")
+  refreshToken                String?   @map("refresh_token")
+
+  // Relations
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identityProvider IdentityProvider? @relation(fields: [identityProviderId], references: [id], onDelete: SetNull)
+
+  @@unique([identityProviderSessionId])
+  @@map("sessions")
+}
+
+model IdentityProvider {
+  id                    String   @id @default(uuid())
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  name                  String   @unique
+  issuerUrl             String   @map("issuer_url")
+  audience              String
+  identifierClaimName   String   @map("identifier_claim_name")
+
+  // Auth Settings (JSON fields)
+  authSettingsType            String?   @map("auth_settings_type")
+  authSettingsBrand           String?   @map("auth_settings_brand")
+  authSettingsClientId        String?   @map("auth_settings_client_id")
+  authSettingsClientSecret    String?   @map("auth_settings_client_secret")
+  authSettingsRedirectUrls    String[]  @map("auth_settings_redirect_urls")
+  authSettingsAutoLinkUsers   Boolean?  @map("auth_settings_auto_link_users")
+  authSettingsAutoCreateUsers Boolean?  @map("auth_settings_auto_create_users")
+
+  // Relations
+  userIdentities UserIdentity[]
+  sessions       Session[]
+
+  @@unique([issuerUrl, audience], name: "unique_issuer_audience")
+  @@map("identity_providers")
+}
+
+model SigningKey {
+  id                   String   @id @default(uuid())
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  publicKey            String   @map("public_key")
+  privateKey           String?  @map("private_key")
+
+  @@map("signing_keys")
+}

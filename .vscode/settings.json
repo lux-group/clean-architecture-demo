@@ -1,0 +1,11 @@
+{
+  "cSpell.words": [
+    "awilix",
+    "entra",
+    "frontchannel",
+    "PKCE"
+  ],
+  "jest.runMode": {
+    "type": "on-demand"
+  }
+}
