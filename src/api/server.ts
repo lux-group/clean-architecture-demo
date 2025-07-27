@@ -25,10 +25,10 @@ export default function createServer(container: AwilixContainer) {
 
   return express()
     .use(helmet(helmetOptions))
-    .use("/", express.static(__dirname + "/public"))
     .use(cookieParser())
     .use(express.json())
-
+    
+    .use("/", express.static(__dirname + "/public"))
     .use("/admin", registerAdminRoutes(container))
     .use("/auth", registerAuthenticationRoutes(container))
     .use("/oauth2", registerAuthorizationRoutes(container))

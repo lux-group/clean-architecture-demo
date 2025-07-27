@@ -12,7 +12,7 @@ export default function registerPrismaRepositories(container: AwilixContainer) {
 
   container.register({
     prismaClient: asValue(prismaClient),
-    unitOfWork: asClass(PrismaUnitOfWork).singleton(),
+    unitOfWork: asClass(PrismaUnitOfWork).transient(),
     identityProviderRepository: asClass(PrismaIdentityProviderRepository).singleton(),
     sessionRepository: asClass(PrismaSessionRepository).singleton(),
     signingKeyRepository: asClass(PrismaSigningKeyRepository).singleton(),
