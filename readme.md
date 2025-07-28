@@ -30,7 +30,7 @@ The key difference between the traditional layered architecture usually adopted 
 
 In traditional layered architecture, dependencies typically flow downwards - from the core business logic to external layers like database or clients for other APIs.
 
-In Clean Architecture, all dependencies flow inward, ensuring that the core domain and business rules remain independent of external services, technologies, and interfaces. This results in components with higher cohesion, less coupling, and clearer separation of concerns.
+**In Clean Architecture, all dependencies flow inward, ensuring that the core domain and business rules remain independent of external services, technologies, and interfaces.** This results in components with higher cohesion, less coupling, and clearer separation of concerns.
 
 ![Clean Architecture Diagram](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
 
@@ -38,9 +38,9 @@ In Clean Architecture, all dependencies flow inward, ensuring that the core doma
 
 | Folder | Responsibility |
 | --- | --- |
-| 📁 [api](/src/api) | HTTP API presentation layer |
-| 📁 [application](/src/application) | Application use case implementations<br/>They orchestrate business logic in the domain but don't contain business logic. |
-| 📁 [domain](/src/domain) | |
+| 📁 [api](/src/api) | HTTP API presentation layer using Express |
+| 📁 [application](/src/application) | Application use case implementations<br/>They orchestrate business logic in the domain but don't contain business logic.<br/>This project implements common handlers for commands and queries but it could also use [CQRS](https://aussiecommerce.atlassian.net/wiki/x/BwC01) |
+| 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) but other [styles](https://aussiecommerce.atlassian.net/wiki/x/EYDp0w) like Transaction Script are also possible. |
 | &nbsp;&nbsp; 📁 [adapters](/src/domain/adapters) | Interfaces for infrastructure services used by domain services.<br/>Their implementations can be found in [/infrastructure/adapters](/src/infrastructure/adapters). |
 | &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the applications business rules without any dependencies on data stores or external services. |
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
@@ -56,7 +56,7 @@ In Clean Architecture, all dependencies flow inward, ensuring that the core doma
 | &nbsp;&nbsp; 📁 [repositories](/src/infrastructure/repositories) | Domain repository implementations |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [memory](/src/infrastructure/repositories/memory) | In-memory repositories |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [prisma](/src/infrastructure/repositories/prisma) | Prisma repositories |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) (pending) | Redis caching decorator repositories |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Pending - Redis caching decorator repositories |
 | 📁 [lib](/src/lib) | Common utility libraries (no domain logic) |
 
 ## Important Principles & Patterns
@@ -92,7 +92,10 @@ container.register({
 ```
 
 ### Domain Model
-The [/domain](/src/domain) folder contains a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) to encapsulate the business logic, avoid code duplication, to make the code expressive and self-explaining, and to enable easier unit testing.
+The [/domain](/src/domain) folder contains the applications's "core" inform of a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) to encapsulate the business logic, avoid code duplication, to make the code expressive and self-explaining, and to enable easier unit testing.
+
+## Comparison with typical LE Architecture
+Pending
 
 ## Test Strategy
 ### Unit Tests
