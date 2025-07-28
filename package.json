@@ -6,10 +6,9 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "test:component": "jest --select-projects=component",
-    "test:integration": "jest --select-projects=integration",
     "test:unit": "jest --select-projects=unit",
-    "test:coverage": "jest --select-projects=component integration unit --coverage"
+    "test:integration": "jest --select-projects=integration",
+    "test:coverage": "jest --select-projects=unit integration --coverage"
   },
   "author": "",
   "license": "ISC",
