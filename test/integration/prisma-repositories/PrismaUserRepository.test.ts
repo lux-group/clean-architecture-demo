@@ -35,7 +35,7 @@ describe("PrismaUserRepository", () => {
   }
 
   beforeAll(async () => {
-    prismaClient = createPrismaClient(process.env.DATABASE_URL!) 
+    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!) 
     userRepository = new PrismaUserRepository(prismaClient)
 
     identityProviderId = randomUUID()

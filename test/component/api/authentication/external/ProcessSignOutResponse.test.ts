@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals"
 import request from "supertest"
-import { getTestContext, TestContext } from "@test/integration/internal/support/TestContext"
+import { getTestContext, TestContext } from "@test/component/support/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-out-callback", () => {
@@ -23,4 +23,7 @@ describe("[POST] /auth/external/sign-out-callback", () => {
     expect(response).toHaveStatus(302)
     expect(response.headers.location).toBe(identityProvider.authSettings!.redirectUrls[0])
   })
+
+  // More scenarios can be added here:
+  // - Missing state
 })

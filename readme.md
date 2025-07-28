@@ -108,8 +108,8 @@ This project contains unit tests for:
 - Infrastructure Services
 - Utility Libraries
 
-### Internal Integration Tests (aka. Component Tests)
-[Internal Integration Tests](/test/integration/internal) (in progress) are used to verify the full application behavior including the units that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases.
+### Component Tests (aka. Internal Integration Tests)
+[Component Tests](/test/component) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases.
 
 ### External Integration Tests
-[External Integration Tests](/test/integration/external) verify the behavior of integrations with external services or infrastructure.
+[External Integration Tests](/test/integration) verify the behavior of integrations with external services or infrastructure.

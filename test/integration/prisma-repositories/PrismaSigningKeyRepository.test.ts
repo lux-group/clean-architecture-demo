@@ -26,7 +26,7 @@ describe("PrismaSigningKeyRepository", () => {
   }
 
   beforeAll(() => {
-    prismaClient = createPrismaClient(process.env.DATABASE_URL!)
+    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!)
     encryptionProvider = new MockEncryptionProvider()
     signingKeyRepository = new PrismaSigningKeyRepository(prismaClient, encryptionProvider)
   })

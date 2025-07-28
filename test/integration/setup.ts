@@ -9,8 +9,11 @@ export default async () => {
   const postgres = await new PostgreSqlContainer("postgres:17.4").start()
   globals.__POSTGRES__ = postgres
 
-  process.env.DATABASE_READONLY_URL = postgres.getConnectionUri()
-  process.env.DATABASE_URL = postgres.getConnectionUri()
+  const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
+  execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
 
-  execSync("npx prisma migrate deploy", { env: process.env, stdio: "inherit" })
+  // We cannot use the DATABASE_URL environment variable here because it is
+  // used by components tests and the two Postgres instances will interfere
+  // if the tests run at the same time.
+  process.env.PRISMA_TEST_DATABASE_URL = postgres.getConnectionUri()
 }

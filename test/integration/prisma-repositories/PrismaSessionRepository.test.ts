@@ -32,7 +32,7 @@ describe("PrismaSessionRepository", () => {
   }
 
   beforeAll(async () => {
-    prismaClient = createPrismaClient(process.env.DATABASE_URL!)
+    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!)
     encryptionProvider = new MockEncryptionProvider()
     sessionRepository = new PrismaSessionRepository(prismaClient, encryptionProvider)
 

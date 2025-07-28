@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals"
 import request from "supertest"
-import { getTestContext, TestContext } from "@test/integration/internal/support/TestContext"
+import { getTestContext, TestContext } from "@test/component/support/TestContext"
 import { IdentityProvider, SessionStatus } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-out", () => {
@@ -37,4 +37,29 @@ describe("[POST] /auth/external/sign-out", () => {
     session = await context.data.getSession(session.id)
     expect(session.status).toBe(SessionStatus.TerminatedByUser)
   })
+
+  it("should return 400 when redirect_uri is not allowed", async () => {
+    const user = await context.data.createUser({})
+    let session = await context.data.createSession({ userId: user.id, identityProviderId: identityProvider.id }, 1)
+    const cookie = context.data.createAuthSessionCookie(session)
+
+    const response = await request(context.server)
+      .get("/auth/external/sign-out?redirect_uri=https://host.com/not-allowed")
+      .set("Cookie", [`auth-session=${cookie}`])
+      .send()
+
+    expect(response).toHaveStatus(400)
+  })
+
+  it("should return 401 when session cookie is missing", async () => {
+    const response = await request(context.server)
+      .get(`/auth/external/sign-out?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
+      .send()
+
+    expect(response).toHaveStatus(401)
+  })
+
+  // Additional scenarios can be added here:
+  // - Missing redirect URL
+  // - Session already terminated
 })
