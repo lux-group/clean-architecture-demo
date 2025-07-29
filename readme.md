@@ -49,17 +49,17 @@ In traditional layered architecture, dependencies typically flow downwards - fro
 | &nbsp;&nbsp; 📁 [services](/src/application/services) | Domain services shared by multiple use cases where logic does not fit into an entity. |
 | 📁 [infrastructure](/src/infrastructure) | Contains the concrete implementation of all interfaces and repositories. |
 | &nbsp;&nbsp; 📁 [adapters](/src/infrastructure/adapters) | Domain adapter implementations. |
-| &nbsp;&nbsp; 📁 [auth](/src/infrastructure/auth) | OAuth2 Clients for various IDPs - Entra ID and Google (implemented) and Facebook and Apple (Pending) |
+| &nbsp;&nbsp; 📁 [auth](/src/infrastructure/auth) | OAuth2 Clients for OIDC (Entra ID, Google), Facebook, Apple |
 | &nbsp;&nbsp; 📁 [config](/src/infrastructure/config) | Application configuration |
 | &nbsp;&nbsp; 📁 [crypto](/src/infrastructure/crypto) | Cryptography utility services |
 | &nbsp;&nbsp; 📁 [logging](/src/infrastructure/logging) | Logger - currently just a simple console logger implementation |
 | &nbsp;&nbsp; 📁 [repositories](/src/infrastructure/repositories) | Domain repository implementations |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [memory](/src/infrastructure/repositories/memory) | In-memory repositories |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [prisma](/src/infrastructure/repositories/prisma) | Prisma repositories |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Pending - Redis caching decorator repositories |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Redis caching decorator repositories |
 | 📁 [lib](/src/lib) | Common utility libraries (no domain logic) |
 
-## Important Principles & Patterns
+## Demonstrated Principles & Patterns
 
 ### Dependency Inversion
 The key to Clean Architecture is the application of the Dependency Inversion principle to make infrastructure dependant on the core (domain) instead of the other way.
@@ -90,6 +90,9 @@ container.register({
   logger: asClass(ConsoleLogger).singleton()
 })
 ```
+
+### Decorator Pattern
+The [Redis Repositories](/src/infrastructure//repositories/redis) are implemented as decorators for [Prisma Repositories](/src/infrastructure//repositories/prisma). This means, they both implement the same [Repository Interface](/src/domain//repositories/) but the Redis repositories sit on top of the Prisma Repositories and proxy requests through to Prisma but add caching.
 
 ### Domain Model
 The [/domain](/src/domain) folder contains the applications's "core" inform of a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) to encapsulate the business logic, avoid code duplication, to make the code expressive and self-explaining, and to enable easier unit testing.

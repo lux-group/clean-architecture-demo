@@ -212,19 +212,13 @@ describe("PrismaUserRepository", () => {
     it("should delete an existing user", async () => {
       const original = await createUser({}, 1)
 
-      await userRepository.delete(original.id)
+      await userRepository.delete(original)
 
       const deletedUser = await userRepository.tryGetById(original.id)
       expect(deletedUser).toBeUndefined()
 
       const remainingIdentities = await prismaClient.userIdentity.findMany({ where: { userId: original.id }})
       expect(remainingIdentities).toHaveLength(0)
-    })
-
-    it("should not throw error when deleting non-existent user", async () => {
-      await expect(userRepository.delete("non-existent-id"))
-        .rejects
-        .toThrow()
     })
   })
 })

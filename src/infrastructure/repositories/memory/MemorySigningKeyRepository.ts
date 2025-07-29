@@ -7,7 +7,5 @@ export class MemorySigningKeyRepository extends MemoryRepository<SigningKey> imp
     super("Signing key")
   }
 
-  getActiveSigningKey = () => Promise.resolve(Object.values(this.store).find(s => !!s.privateKey)!)
   tryGetActiveSigningKey = () => Promise.resolve(Object.values(this.store).find(s => !!s.privateKey))
-  tryGetValidationKeyById = (id: string) => this.tryGet({ id })
 }

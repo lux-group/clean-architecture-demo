@@ -11,6 +11,6 @@ export class DeleteIdentityProviderUseCase {
 
   async execute(input: DeleteIdentityProviderInput): Promise<void> {
     const identityProvider = await this.identityProviderRepository.getById(input.id)
-    await this.identityProviderRepository.delete(identityProvider.id)
+    await this.identityProviderRepository.delete(identityProvider)
   }
 }

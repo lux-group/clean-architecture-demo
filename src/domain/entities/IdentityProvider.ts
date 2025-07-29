@@ -43,9 +43,6 @@ export class IdentityProvider extends Entity<IdentityProviderProps> {
     super(props)
   }
 
-  get id() { return this.props.id }
-  get createdAt() { return this.props.createdAt }
-  get updatedAt() { return this.props.updatedAt }
   get name() { return this.props.name }
   get issuerUrl() { return this.props.issuerUrl }
   get audience() { return this.props.audience }

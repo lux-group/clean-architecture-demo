@@ -11,6 +11,6 @@ export class DeleteUserUseCase {
 
   async execute(input: DeleteUserInput): Promise<void> {
     const user = await this.userRepository.getById(input.id)
-    await this.userRepository.delete(user.id)
+    await this.userRepository.delete(user)
   }
 }

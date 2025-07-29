@@ -33,16 +33,12 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
     return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
   }
 
-  async getByName(name: string): Promise<IdentityProvider> {
+  async tryGetByName(name: string): Promise<IdentityProvider | undefined> {
     const identityProvider = await this.prismaClient.identityProvider.findUnique({
       where: { name }
     })
 
-    if (!identityProvider) {
-      throw new NotFoundError(`Identity provider with name ${name} not found.`)
-    }
-
-    return this.mapToIdentityProvider(identityProvider)
+    return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
   }
 
   async tryGetByIssuerUrlAndAudience(issuerUrl: string, audience: string): Promise<IdentityProvider | undefined> {
@@ -73,9 +69,9 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
     identityProvider.commit()
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.identityProvider.delete({
-      where: { id }
+      where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt }
     })
   }
 

@@ -12,6 +12,6 @@ export class DeleteSigningKeyUseCase {
   async execute(input: DeleteSigningKeyInput): Promise<void> {
     const signingKey = await this.signingKeyRepository.getById(input.id)
     signingKey.ensureCanDelete()
-    await this.signingKeyRepository.delete(signingKey.id)
+    await this.signingKeyRepository.delete(signingKey)
   }
 }

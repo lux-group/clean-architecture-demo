@@ -1,5 +1,6 @@
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { AuthClientFactory, SignInState } from "~/domain/adapters"
+import { InvalidOperationError } from "~/domain/errors"
 
 export interface CreateSignInRequestInput {
   identityProviderName: string
@@ -18,7 +19,11 @@ export class CreateSignInRequestUseCase {
   ) {}
 
   async execute(input: CreateSignInRequestInput): Promise<CreateSignInRequestOutput> {
-    const idp = await this.identityProviderRepository.getByName(input.identityProviderName)
+    const idp = await this.identityProviderRepository.tryGetByName(input.identityProviderName)
+    if (!idp) {
+      throw new InvalidOperationError(`Identity provider with name ${input.identityProviderName} not found`)
+    }
+
     idp.verifyRedirectUrl(input.redirectUrl)
     
     const client = this.authClientFactory.createClient(idp)

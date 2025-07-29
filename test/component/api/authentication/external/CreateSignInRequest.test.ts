@@ -46,7 +46,7 @@ describe("[POST] /auth/external/sign-in", () => {
       .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=invalid`)
       .send()
 
-    expect(response).toHaveStatus(404)
+    expect(response).toHaveStatus(400)
   })
 
   // More scenarios can be added here:

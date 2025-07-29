@@ -1,7 +1,7 @@
 import { ZodError, ZodObject } from "zod"
 import { ValidationError } from "../errors"
 
-type EntityProps = Readonly<{
+export type EntityProps = Readonly<{
   id: string
   createdAt: Date
   updatedAt: Date
@@ -33,16 +33,15 @@ export abstract class Entity<Props extends EntityProps> {
     this._originalUpdatedAt = props.updatedAt
   }
 
-  // Timestamp for optimistic concurrency control
+  get id() { return this.props.id }
+  get createdAt() { return this.props.createdAt }
+  get updatedAt() { return this.props.updatedAt }
   get originalUpdatedAt() { return this._originalUpdatedAt }
-
   get props(): Props { return this._props }
+
+  protected set props(value: Props) { this._props = value }
 
   commit() {
     this._originalUpdatedAt = this._props.updatedAt
-  }
-
-  protected set props(value: Props) {
-    this._props = value
   }
 }

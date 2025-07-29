@@ -12,7 +12,10 @@ export class AuthorizationService {
   ) {}
 
   async issueAccessToken(user: User, impersonatedByUser?: User, session?: Session, audience?: string, scope?: string): Promise<TokenResponse> {
-    const signingKey = await this.signingKeyRepository.getActiveSigningKey()
+    const signingKey = await this.signingKeyRepository.tryGetActiveSigningKey()
+    if (!signingKey || !signingKey.privateKey) {
+      throw new Error("No active signing key found.")
+    }
 
     if (audience) {
       throw new AuthorizationError("OAuth2 parameter 'audience' is not supported.")

@@ -6,6 +6,7 @@ import registerApplicationUseCases from "~/application/module"
 import registerDomainServices from "~/domain/services/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
+import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
 import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
 import { TestMockContext } from "./TestMockContext"
@@ -29,6 +30,7 @@ const createTestContainer = async () => {
   registerDomainServices(container)
   registerInfrastructureServices(container)
   registerPrismaRepositories(container)
+  registerRedisDecoratorRepositories(container)
   return container
 }
 

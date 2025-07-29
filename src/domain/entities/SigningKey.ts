@@ -19,9 +19,6 @@ export class SigningKey extends Entity<SigningKeyProps> {
     super(props)
   }
 
-  get id() { return this.props.id }
-  get createdAt() { return this.props.createdAt }
-  get updatedAt() { return this.props.updatedAt }
   get publicKey() { return this.props.publicKey }
   get privateKey() { return this.props.privateKey }
 

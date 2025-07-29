@@ -35,14 +35,6 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     return signingKey ? this.mapToSigningKey(signingKey) : undefined
   }
 
-  async getActiveSigningKey(): Promise<SigningKey> {
-    const signingKey = await this.tryGetActiveSigningKey()
-    if (!signingKey) {
-      throw new NotFoundError(`Active signing key not found.`)
-    }
-    return signingKey
-  }
-
   async tryGetActiveSigningKey(): Promise<SigningKey | undefined> {
     const signingKey = await this.prismaClient.signingKey.findFirst({
       where: {
@@ -51,14 +43,6 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
         }
       },
       orderBy: { createdAt: "desc" }
-    })
-
-    return signingKey ? this.mapToSigningKey(signingKey) : undefined
-  }
-
-  async tryGetValidationKeyById(id: string): Promise<SigningKey | undefined> {
-    const signingKey = await this.prismaClient.signingKey.findUnique({
-      where: { id }
     })
 
     return signingKey ? this.mapToSigningKey(signingKey) : undefined
@@ -79,9 +63,9 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     signingKey.commit()
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(signingKey: SigningKey): Promise<void> {
     await this.prismaClient.signingKey.delete({
-      where: { id }
+      where: { id: signingKey.id, updatedAt: signingKey.originalUpdatedAt },
     })
   }
 

@@ -56,6 +56,12 @@ export class PrismaSessionRepository implements SessionRepository {
     session.commit()
   }
 
+  async delete(session: Session): Promise<void> {
+    await this.prismaClient.session.delete({
+      where: { id: session.id, updatedAt: session.originalUpdatedAt }
+    })
+  }
+
   private mapToSession(s: PrismaSession): Session {
     return new Session({
       id: s.id,

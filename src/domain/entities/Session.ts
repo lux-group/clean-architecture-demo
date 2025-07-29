@@ -37,9 +37,6 @@ export class Session extends Entity<SessionProps> {
     super(props)
   }
 
-  get id() { return this.props.id }
-  get createdAt() { return this.props.createdAt }
-  get updatedAt() { return this.props.updatedAt }
   get lastRefreshAt() { return this.props.lastRefreshAt }
   get expiresAt() { return this.props.expiresAt }
   get terminatedAt() { return this.props.terminatedAt }
