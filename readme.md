@@ -27,8 +27,7 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 # Code Structure
 | Folder | Responsibility |
 | --- | --- |
-| 📁 [api](/src/api) | HTTP API presentation layer using Express |
-| 📁 [application](/src/application) | Application use case implementations<br/>They orchestrate business logic in the domain but don't contain business logic.<br/>This project implements common handlers for commands and queries but it could also use [CQRS](https://aussiecommerce.atlassian.net/wiki/x/BwC01) |
+| 📁 [app](/src/app) | Application use case implementations and triggers (API, Jobs)<br/>They orchestrate business logic in the domain but don't contain business logic.<br/>This project implements common handlers for commands and queries but it could also use [CQRS](https://aussiecommerce.atlassian.net/wiki/x/BwC01) |
 | 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) but other [styles](https://aussiecommerce.atlassian.net/wiki/x/EYDp0w) like Transaction Script are also possible. |
 | &nbsp;&nbsp; 📁 [adapters](/src/domain/adapters) | Interfaces for infrastructure services used by domain services.<br/>Their implementations can be found in [/infrastructure/adapters](/src/infrastructure/adapters). |
 | &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the applications business rules without any dependencies on data stores or external services. |
