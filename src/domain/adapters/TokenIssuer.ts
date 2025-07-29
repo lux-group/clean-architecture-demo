@@ -1,8 +1,6 @@
-import { User } from "~/domain/entities"
+import { SigningKey, User } from "~/domain/entities"
 
 export interface TokenRequest {
-  readonly signingKeyId: string
-  readonly signingPrivateKey: string
   readonly audience?: string
   readonly sessionId?: string
   readonly scopes?: string[]
@@ -14,6 +12,12 @@ export interface TokenResponse {
   readonly expiresIn: number
 }
 
+export interface TokenIssuerConfig {
+  readonly path: string
+  readonly lifetimeSeconds: number
+  readonly audience: string
+}
+
 export interface TokenIssuer {
-  createAccessTokenV2(user: User, request: TokenRequest): TokenResponse
+  createAccessToken(user: User, signingKey: SigningKey, request: TokenRequest): TokenResponse
 }

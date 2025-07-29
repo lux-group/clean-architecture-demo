@@ -48,9 +48,7 @@ export class AuthorizationService {
       claims
     })
 
-    return this.tokenIssuer.createAccessTokenV2(user, {
-      signingKeyId: signingKey.id,
-      signingPrivateKey: signingKey.privateKey!,
+    return this.tokenIssuer.createAccessToken(user, signingKey, {
       sessionId: session?.id,
       audience,
       claims

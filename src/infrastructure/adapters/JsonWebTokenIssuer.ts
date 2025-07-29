@@ -1,13 +1,8 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
 import { UUIDToShort } from "~/lib/ShortUUID"
-import { User } from "~/domain/entities"
-import { TokenIssuer, TokenRequest, TokenResponse } from "~/domain/adapters"
-
-interface TokenIssuerConfig {
-  readonly lifetimeSeconds: number
-  readonly audience: string
-}
+import { SigningKey, User } from "~/domain/entities"
+import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/domain/adapters"
 
 export class JsonWebTokenIssuer implements TokenIssuer {
   constructor(
@@ -15,12 +10,12 @@ export class JsonWebTokenIssuer implements TokenIssuer {
     private readonly tokenIssuerConfig: TokenIssuerConfig,
   ) {}
 
-  createAccessTokenV2(user: User, request: TokenRequest): TokenResponse {
+  createAccessToken(user: User, signingKey: SigningKey, request: TokenRequest): TokenResponse {
     const now = Math.round(Date.now() / 1000)
     const claims: Record<string, unknown> = {
       ver: "2.0",
       jti: UUIDToShort(randomUUID()),
-      iss: this.baseUrl + "/oauth2",
+      iss: this.baseUrl + this.tokenIssuerConfig.path,
       aud: request.audience ?? this.tokenIssuerConfig.audience,
       sub: user.id,
       sid: request.sessionId,
@@ -32,9 +27,9 @@ export class JsonWebTokenIssuer implements TokenIssuer {
 
     // We shorten the key ID to save size.
     // Make sure the same thing is done in the JWKS endpoint.
-    const kid = UUIDToShort(request.signingKeyId)
+    const kid = UUIDToShort(signingKey.id)
 
-    const accessToken = jwt.sign(claims, request.signingPrivateKey!, { algorithm: "RS256", keyid: kid })
+    const accessToken = jwt.sign(claims, signingKey.privateKey!, { algorithm: "RS256", keyid: kid })
 
     return { accessToken, expiresIn: this.tokenIssuerConfig.lifetimeSeconds }
   }
