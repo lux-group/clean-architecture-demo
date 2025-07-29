@@ -3,10 +3,6 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import helmet, { HelmetOptions } from "helmet"
 
-import { Logger } from "~/infrastructure/logging"
-
-import { handleClientErrors } from "~/app/shared/middleware/handleClientErrors"
-import { handleServerErrors } from "~/app/shared/middleware/handleServerErrors"
 import { registerIdentityProviderAdminRoutes } from "~/app/admin/identity-provider/api/routes"
 import { registerSessionAdminRoutes } from "~/app/admin/session/api/routes"
 import { registerSigningKeysAdminRoutes } from "~/app/admin/signing-key/api/routes"
@@ -18,8 +14,6 @@ import { registerTokenRoutes } from "~/app/authorization/token/api/routes"
 import { registerEntraIntegrationRoutes } from "~/app/integration/entra/api/routes"
 
 export default function createServer(container: AwilixContainer) {
-  const logger = container.resolve<Logger>("logger")
-
   const helmetOptions: HelmetOptions = {
     contentSecurityPolicy: {
       useDefaults: true,
@@ -35,20 +29,16 @@ export default function createServer(container: AwilixContainer) {
     .use(express.json())
     
     .use("/", express.static(__dirname + "/public"))
-
     .use("/admin/identity-providers", registerIdentityProviderAdminRoutes(container))
     .use("/admin/sessions", registerSessionAdminRoutes(container))
     .use("/admin/signing-keys", registerSigningKeysAdminRoutes(container))
     .use("/admin/users", registerUserAdminRoutes(container))
-
     .use("/auth/external", registerExternalAuthenticationRoutes(container))
     .use("/auth/local", registerLocalAuthenticationRoutes(container))
-
     .use("/oauth2/.well-known", registerMetadataRoutes(container))
     .use("/oauth2/token", registerTokenRoutes(container))
-
     .use("/integration/entra", registerEntraIntegrationRoutes(container))
 
-    .use(handleClientErrors(logger))
-    .use(handleServerErrors(logger))
+    .use(container.resolve("handleClientErrors"))
+    .use(container.resolve("handleServerErrors"))
 }
