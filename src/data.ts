@@ -1,6 +1,6 @@
 import { AwilixContainer } from "awilix"
-import { CreateNewSigningKeyUseCase } from "~/application/admin/signing-key"
-import { CreateIdentityProviderUseCase } from "~/application/admin/identity-provider"
+import { CreateNewSigningKeyUseCase } from "~/app/admin/signing-key/use-cases/CreateNewSigningKeyUseCase"
+import { CreateIdentityProviderUseCase } from "~/app/admin/identity-provider/use-cases/CreateIdentityProviderUseCase"
 import { IdentityProviderType } from "~/domain/entities"
 
 export default async function createTestData(container: AwilixContainer) {

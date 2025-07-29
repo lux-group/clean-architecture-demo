@@ -3,8 +3,8 @@ import { AwilixContainer } from "awilix"
 import { IdentityProviderRepository, SessionRepository, UserRepository } from "~/domain/repositories"
 import { CreateIdentityProviderProps, CreateSessionProps, CreateUserProps, IdentityProvider, Session, User } from "~/domain/entities"
 import { PasswordVerifier } from "~/domain/adapters"
-import { SecureCookieManager } from "~/api/utils/SecureCookieManager"
-import { CreateNewSigningKeyUseCase } from "~/application/admin/signing-key/CreateNewSigningKeyUseCase"
+import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
+import { CreateNewSigningKeyUseCase } from "~/app/admin/signing-key/use-cases/CreateNewSigningKeyUseCase"
 
 export class TestDataContext {
   constructor(private container: AwilixContainer) {}

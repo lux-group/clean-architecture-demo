@@ -1,8 +1,7 @@
 import { AwilixContainer, createContainer, InjectionMode } from "awilix"
 import { Application } from "express"
-import createServer from "~/api/server"
-import registerControllers from "~/api/module"
-import registerApplicationUseCases from "~/application/module"
+import createServer from "~/app/server"
+import registerApp from "~/app/module"
 import registerDomainServices from "~/domain/services/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
@@ -25,8 +24,7 @@ const createTestContainer = async () => {
   })
 
   registerConfig(container, "test")
-  registerControllers(container)
-  registerApplicationUseCases(container)
+  registerApp(container)
   registerDomainServices(container)
   registerInfrastructureServices(container)
   registerPrismaRepositories(container)
