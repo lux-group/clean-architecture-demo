@@ -7,6 +7,6 @@ export class MemoryIdentityProviderRepository extends MemoryRepository<IdentityP
     super("Identity provider")
   }
 
-  getByName = (name: string) => this.get({ name })
+  tryGetByName = (name: string) => this.tryGet({ name })
   tryGetByIssuerUrlAndAudience = (issuerUrl: string, audience: string) => this.tryGet({ issuerUrl, audience })
 }

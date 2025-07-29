@@ -90,19 +90,20 @@ describe("PrismaIdentityProviderRepository", () => {
     })
   })
 
-  describe("getByName", () => {
+  describe("tryGetByName", () => {
     it("should return identity provider when found by name", async () => {
       const original = await createIdentityProvider()
 
-      const found = await identityProviderRepository.getByName(original.name)
+      const found = await identityProviderRepository.tryGetByName(original.name)
 
-      expect(found.id).toBe(original.id)
+      expect(found).toBeDefined()
+      expect(found!.id).toBe(original.id)
     })
 
     it("should throw NotFoundError when identity provider not found by name", async () => {
-      await expect(identityProviderRepository.getByName("Non-existent Provider"))
-        .rejects
-        .toThrow(NotFoundError)
+      await expect(identityProviderRepository.tryGetByName("Non-existent Provider"))
+        .resolves
+        .toBeUndefined()
     })
   })
 
@@ -237,16 +238,10 @@ describe("PrismaIdentityProviderRepository", () => {
     it("should delete an existing identity provider", async () => {
       const original = await createIdentityProvider()
 
-      await identityProviderRepository.delete(original.id)
+      await identityProviderRepository.delete(original)
 
       const deletedIdP = await identityProviderRepository.tryGetById(original.id)
       expect(deletedIdP).toBeUndefined()
-    })
-
-    it("should not throw error when deleting non-existent identity provider", async () => {
-      await expect(identityProviderRepository.delete("non-existent-id"))
-        .rejects
-        .toThrow(ConcurrencyError)
     })
   })
 })

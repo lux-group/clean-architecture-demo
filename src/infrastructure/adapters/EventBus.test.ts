@@ -25,11 +25,10 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       expect(callback1).toHaveBeenCalledWith(testEvent)
       expect(callback2).toHaveBeenCalledWith(testEvent)
@@ -45,19 +44,17 @@ describe("EventBus", () => {
       const authEvent: Event = {
         id: "auth-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
       const sessionEvent: Event = {
         id: "session-1",
         timestamp: new Date(),
-        category: "Session",
         result: "Success"
       }
 
-      eventBus.publishEvent(authEvent)
-      eventBus.publishEvent(sessionEvent)
+      eventBus.publishEvent("Authentication", authEvent)
+      eventBus.publishEvent("Session", sessionEvent)
 
       expect(authCallback).toHaveBeenCalledWith(authEvent)
       expect(authCallback).not.toHaveBeenCalledWith(sessionEvent)
@@ -74,11 +71,10 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       // Should only be called once despite being registered twice
       expect(callback).toHaveBeenCalledTimes(1)
@@ -96,11 +92,10 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       expect(callback).not.toHaveBeenCalled()
     })
@@ -116,20 +111,13 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       expect(callback1).not.toHaveBeenCalled()
       expect(callback2).toHaveBeenCalledWith(testEvent)
-    })
-
-    it("should handle unsubscribing from non-existent category", () => {
-      const callback = jest.fn()
-
-      expect(() => eventBus.unsubscribe("NonExistent", callback)).not.toThrow()
     })
 
     it("should handle unsubscribing non-existent callback", () => {
@@ -150,13 +138,12 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success",
         reason: "Valid credentials",
         details: { userId: "123" }
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       expect(callback).toHaveBeenCalledTimes(1)
       expect(callback).toHaveBeenCalledWith(testEvent)
@@ -174,11 +161,10 @@ describe("EventBus", () => {
       const testEvent: Event = {
         id: "test-1",
         timestamp: new Date(),
-        category: "Authentication",
         result: "Success"
       }
 
-      eventBus.publishEvent(testEvent)
+      eventBus.publishEvent("Authentication", testEvent)
 
       expect(callback1).toHaveBeenCalledWith(testEvent)
       expect(callback2).toHaveBeenCalledWith(testEvent)

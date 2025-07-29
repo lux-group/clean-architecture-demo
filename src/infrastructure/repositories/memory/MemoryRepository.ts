@@ -1,50 +1,52 @@
 import { NotFoundError } from "~/domain/errors"
+import { Entity, EntityProps } from "~/domain/entities"
+import { Repository } from "~/domain/repositories"
 
-export abstract class MemoryRepository<Aggregate extends { id: string }> {
-  protected readonly store: Record<string, Aggregate> = {}
+export abstract class MemoryRepository<T extends Entity<EntityProps>> implements Repository<T> {
+  protected readonly store: Record<string, T> = {}
 
   constructor(private readonly resourceName: string) { }
 
-  async query(): Promise<Aggregate[]> {
+  async query(): Promise<T[]> {
     return Object.values(this.store)
   }
 
-  async tryGet(filters: {}): Promise<Aggregate | undefined> {
-    const entries = Object.entries(filters)
-    const item = Object.values(this.store).find(obj => entries.every(([key, value]) => obj[key] === value))
-    return Promise.resolve(item)
+  async tryGet(filters: {}): Promise<T | undefined> {
+    const entities = Object.entries(filters)
+    const entity = Object.values(this.store).find(obj => entities.every(([key, value]) => obj[key] === value))
+    return Promise.resolve(entity)
   }
 
-  async get(filters: {}): Promise<Aggregate> {
-    const item = await this.tryGet(filters)
-    if (!item) {
+  async get(filters: {}): Promise<T> {
+    const entity = await this.tryGet(filters)
+    if (!entity) {
       const filterString = Object.entries(filters).map(([key, value]) => `${key} ${value}`).join(", ")
       throw new NotFoundError(`${this.resourceName} with ${filterString} not found`)
     }
 
-    return item
+    return entity
   }
 
-  async tryGetById(id: string): Promise<Aggregate | undefined> {
+  async tryGetById(id: string): Promise<T | undefined> {
     return await this.tryGet({ id })
   }
 
-  async getById(id: string): Promise<Aggregate> {
+  async getById(id: string): Promise<T> {
     return await this.get({ id })
   }
 
-  async insert(item: Aggregate): Promise<void> {
-    this.store[item.id] = item
+  async insert(entity: T): Promise<void> {
+    this.store[entity.id] = entity
     return Promise.resolve()
   }
 
-  async update(item: Aggregate): Promise<void> {
-    this.store[item.id] = item
+  async update(entity: T): Promise<void> {
+    this.store[entity.id] = entity
     return Promise.resolve()
   }
 
-  async delete(id: string): Promise<void> {
-    delete this.store[id]
+  async delete(entity: T): Promise<void> {
+    delete this.store[entity.id]
     return Promise.resolve()
   }
 }

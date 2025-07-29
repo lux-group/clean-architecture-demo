@@ -12,7 +12,10 @@ export class AuthorizationService {
   ) {}
 
   async issueAccessToken(user: User, impersonatedByUser?: User, session?: Session, audience?: string, scope?: string): Promise<TokenResponse> {
-    const signingKey = await this.signingKeyRepository.getActiveSigningKey()
+    const signingKey = await this.signingKeyRepository.tryGetActiveSigningKey()
+    if (!signingKey || !signingKey.privateKey) {
+      throw new Error("No active signing key found.")
+    }
 
     if (audience) {
       throw new AuthorizationError("OAuth2 parameter 'audience' is not supported.")
@@ -45,9 +48,7 @@ export class AuthorizationService {
       claims
     })
 
-    return this.tokenIssuer.createAccessTokenV2(user, {
-      signingKeyId: signingKey.id,
-      signingPrivateKey: signingKey.privateKey!,
+    return this.tokenIssuer.createAccessToken(user, signingKey, {
       sessionId: session?.id,
       audience,
       claims
@@ -55,20 +56,18 @@ export class AuthorizationService {
   }
 
   private publishSuccessEvent(details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authorization", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authorization",
       result: "Success",
       details,
     })
   }
 
   private publishFailedEvent(reason: string, details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authorization", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authorization",
       result: "Failed",
       reason,
       details,

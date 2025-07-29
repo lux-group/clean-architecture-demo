@@ -1,7 +1,6 @@
 import { createContainer, InjectionMode } from "awilix"
-import createServer from "~/api/server"
-import registerControllers from "~/api/module"
-import registerApplicationUseCases from "~/application/module"
+import createServer from "~/app/server"
+import registerApp from "~/app/module"
 import registerDomainServices from "~/domain/services/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerMemoryRepositories from "~/infrastructure/repositories/memory/module"
@@ -17,8 +16,7 @@ const container = createContainer({
 })
 
 registerConfig(container, environment)
-registerControllers(container)
-registerApplicationUseCases(container)
+registerApp(container)
 registerDomainServices(container)
 registerInfrastructureServices(container)
 registerMemoryRepositories(container)

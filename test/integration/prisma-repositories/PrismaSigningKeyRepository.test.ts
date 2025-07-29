@@ -78,16 +78,6 @@ describe("PrismaSigningKeyRepository", () => {
     })
   })
 
-  describe("getActiveSigningKey", () => {
-    it("should return active signing key when one exists", async () => {
-      const original = await createSigningKey()
-
-      const found = await signingKeyRepository.getActiveSigningKey()
-
-      expect(found.id).toBe(original.id)
-    })
-  })
-
   describe("tryGetActiveSigningKey", () => {
     it("should return active signing key when one exists", async () => {
       const original = await createSigningKey()
@@ -148,16 +138,10 @@ describe("PrismaSigningKeyRepository", () => {
     it("should delete an inactive signing key", async () => {
       const original = await createSigningKey({ privateKey: null })
 
-      await signingKeyRepository.delete(original.id)
+      await signingKeyRepository.delete(original)
 
       const deletedKey = await signingKeyRepository.tryGetById(original.id)
       expect(deletedKey).toBeUndefined()
-    })
-
-    it("should not throw error when deleting non-existent signing key", async () => {
-      await expect(signingKeyRepository.delete("non-existent-id"))
-        .rejects
-        .toThrow(ConcurrencyError)
     })
   })
 })

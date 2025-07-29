@@ -1,10 +1,7 @@
 import { Session } from "../entities"
+import { Repository } from "./Repository"
 
-export interface SessionRepository {
-  query(): Promise<Session[]>
-  getById(id: string): Promise<Session>
+export interface SessionRepository extends Repository<Session> {
   tryGetById(id: string): Promise<Session | undefined>
   tryGetByIdentityProviderSessionId(identityProviderSessionId: string): Promise<Session | undefined>
-  insert(session: Session): Promise<void>
-  update(session: Session): Promise<void>
 }

@@ -1,4 +1,5 @@
 export * from "./IdentityProviderRepository"
+export * from "./Repository"
 export * from "./SessionRepository"
 export * from "./SigningKeyRepository"
 export * from "./UserRepository"

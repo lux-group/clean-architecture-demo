@@ -39,9 +39,6 @@ export class User extends Entity<UserProps> {
     super(props)
   }
 
-  get id() { return this.props.id }
-  get createdAt() { return this.props.createdAt }
-  get updatedAt() { return this.props.updatedAt }
   get isEnabled() { return this.props.isEnabled }
   get brand() { return this.props.brand }
   get givenName() { return this.props.givenName }

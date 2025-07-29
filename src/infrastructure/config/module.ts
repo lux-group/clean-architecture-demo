@@ -14,6 +14,7 @@ export default function registerConfig(container: AwilixContainer, environment: 
     config: asValue(config),
     baseUrl: asValue(config.apiHost),
     encryptionKeys: asValue(config.encryptionKeys),
+    redisUrl: asValue(config.redisUrl),
     sessionConfig: asValue(config.sessions),
     tokenIssuerConfig: asValue(config.tokenIssuer),
   })

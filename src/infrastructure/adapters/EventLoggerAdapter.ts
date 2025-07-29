@@ -3,7 +3,7 @@ import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/
 import { Event } from "~/domain/adapters"
 import { EventBus } from "./EventBus"
 
-export class DomainEventLoggerAdapter {
+export class EventLoggerAdapter {
   constructor(
     private readonly eventBus: EventBus,
     private readonly logger: Logger,
