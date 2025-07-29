@@ -221,20 +221,18 @@ export class AuthenticationService {
   }
 
   private publishSuccessEvent(details: AuthenticationEvent["details"]): void {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authentication", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authentication",
       result: "Success",
       details,
     })
   }
 
   private publishFailedEvent(reason: string, details: AuthenticationEvent["details"]): void {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authentication", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authentication",
       result: "Failed",
       reason,
       details,

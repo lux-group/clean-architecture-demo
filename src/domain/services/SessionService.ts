@@ -165,20 +165,18 @@ export class SessionService {
   }
 
   private publishSuccessEvent(details: SessionEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Session", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Session",
       result: "Success",
       details,
     })
   }
 
   private publishWarningEvent(reason: string, details: SessionEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Session", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Session",
       result: "Warning",
       reason,
       details,

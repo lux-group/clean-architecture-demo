@@ -58,20 +58,18 @@ export class AuthorizationService {
   }
 
   private publishSuccessEvent(details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authorization", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authorization",
       result: "Success",
       details,
     })
   }
 
   private publishFailedEvent(reason: string, details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent({
+    this.eventPublisher.publishEvent("Authorization", {
       id: crypto.randomUUID(),
       timestamp: new Date(),
-      category: "Authorization",
       result: "Failed",
       reason,
       details,

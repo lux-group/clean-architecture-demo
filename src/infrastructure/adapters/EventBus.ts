@@ -1,29 +1,27 @@
-import { Event, EventPublisher } from "~/domain/adapters"
-
-type EventCallback<T extends Event> = (event: T) => void
+import { Event, EventCallback, EventPublisher, EventTopic } from "~/domain/adapters"
 
 export class EventBus implements EventPublisher {
-  private subscribers: Map<string, Set<EventCallback<any>>> = new Map()
- 
-  subscribe<T extends Event>(category: string, callback: EventCallback<T>): void {
-    if (!this.subscribers.has(category)) {
-      this.subscribers.set(category, new Set())
+  private subscribers: Map<EventTopic, Set<EventCallback<any>>> = new Map()
+
+  subscribe<T extends Event>(topic: EventTopic, callback: EventCallback<T>): void {
+    if (!this.subscribers.has(topic)) {
+      this.subscribers.set(topic, new Set())
     }
-    this.subscribers.get(category)!.add(callback)
+    this.subscribers.get(topic)!.add(callback)
   }
 
-  unsubscribe<T extends Event>(category: string, callback: EventCallback<T>): void {
-    const callbacks = this.subscribers.get(category)
+  unsubscribe<T extends Event>(topic: EventTopic, callback: EventCallback<T>): void {
+    const callbacks = this.subscribers.get(topic)
     if (callbacks) {
       callbacks.delete(callback)
       if (callbacks.size === 0) {
-        this.subscribers.delete(category)
+        this.subscribers.delete(topic)
       }
     }
   }
 
-  publishEvent<T extends Event>(event: T): void {
-    const callbacks = this.subscribers.get(event.category)
+  publishEvent<T extends Event>(topic: EventTopic, event: T): void {
+    const callbacks = this.subscribers.get(topic)
     if (callbacks) {
       callbacks.forEach(callback => callback(event))
     }

@@ -1,7 +1,7 @@
 import { Event } from "../adapters"
 
 export interface SessionEvent extends Event {
-  category: "Session",
+  topic: "Session",
   details: {
     activity: string
     userId?: string
