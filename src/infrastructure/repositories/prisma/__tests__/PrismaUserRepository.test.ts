@@ -1,14 +1,11 @@
 import { randomUUID } from "node:crypto"
-import { execSync } from "child_process"
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
-import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
-import { PrismaUserRepository } from "~/infrastructure/repositories/prisma/PrismaUserRepository"
+import { PrismaUserRepository } from "../PrismaUserRepository"
+import { createTestContext, TestContext } from "./helpers"
 
 describe("PrismaUserRepository", () => {
-  let postgres: StartedPostgreSqlContainer
-  let prismaClient: PrismaClient
+  let testContext: TestContext
   let userRepository: PrismaUserRepository
   let identityProviderId: string
 
@@ -38,16 +35,12 @@ describe("PrismaUserRepository", () => {
   }
 
   beforeAll(async () => {
-    postgres = await new PostgreSqlContainer("postgres:17.4").start()
-    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
-    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
-
-    prismaClient = createPrismaClient(postgres.getConnectionUri())
-    userRepository = new PrismaUserRepository(prismaClient)
+    testContext = await createTestContext()
+    userRepository = new PrismaUserRepository(testContext.prismaClient)
 
     identityProviderId = randomUUID()
 
-    await prismaClient.identityProvider.create({
+    await testContext.prismaClient.identityProvider.create({
       data: {
         id: identityProviderId,
         name: randomUUID(),
@@ -59,8 +52,7 @@ describe("PrismaUserRepository", () => {
   })
 
   afterAll(async () => {
-    await prismaClient?.$disconnect()
-    await postgres?.stop()
+    await testContext.destroy()
   })
 
   describe("query", () => {
@@ -146,7 +138,7 @@ describe("PrismaUserRepository", () => {
     it("should insert a new user", async () => {
       const original = await createUser({}, 1)
 
-      const remainingIdentities = await prismaClient.userIdentity.findMany({ where: { userId: original.id }})
+      const remainingIdentities = await testContext.prismaClient.userIdentity.findMany({ where: { userId: original.id }})
       expect(remainingIdentities).toHaveLength(1)
 
       const insertedUser = await userRepository.getById(original.id)
@@ -225,7 +217,7 @@ describe("PrismaUserRepository", () => {
       const deletedUser = await userRepository.tryGetById(original.id)
       expect(deletedUser).toBeUndefined()
 
-      const remainingIdentities = await prismaClient.userIdentity.findMany({ where: { userId: original.id }})
+      const remainingIdentities = await testContext.prismaClient.userIdentity.findMany({ where: { userId: original.id }})
       expect(remainingIdentities).toHaveLength(0)
     })
   })

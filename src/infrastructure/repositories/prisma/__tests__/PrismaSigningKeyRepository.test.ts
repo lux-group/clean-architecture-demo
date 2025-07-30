@@ -1,21 +1,11 @@
 import { SigningKey } from "~/domain/entities"
-import { execSync } from "child_process"
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
-import { PrismaSigningKeyRepository } from "~/infrastructure/repositories/prisma/PrismaSigningKeyRepository"
-
-class MockEncryptionProvider implements EncryptionProvider {
-  encrypt = (data: string) => `encrypted_${data}`
-  decrypt = (data: string) => data.replace("encrypted_", "")
-}
+import { PrismaSigningKeyRepository } from "../PrismaSigningKeyRepository"
+import { createTestContext, TestContext } from "./helpers"
 
 describe("PrismaSigningKeyRepository", () => {
-  let postgres: StartedPostgreSqlContainer
-  let prismaClient: PrismaClient
+  let testContext: TestContext
   let signingKeyRepository: PrismaSigningKeyRepository
-  let encryptionProvider: EncryptionProvider
 
   const createSigningKey = async (props: Partial<SigningKey> = {}): Promise<SigningKey> => {
     const signingKey = SigningKey.createNew({
@@ -29,18 +19,12 @@ describe("PrismaSigningKeyRepository", () => {
   }
 
   beforeAll(async () => {
-    postgres = await new PostgreSqlContainer("postgres:17.4").start()
-    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
-    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
-
-    prismaClient = createPrismaClient(postgres.getConnectionUri())
-    encryptionProvider = new MockEncryptionProvider()
-    signingKeyRepository = new PrismaSigningKeyRepository(prismaClient, encryptionProvider)
+    testContext = await createTestContext()
+    signingKeyRepository = new PrismaSigningKeyRepository(testContext.prismaClient, testContext.encryptionProvider)
   })
 
   afterAll(async () => {
-    await prismaClient?.$disconnect()
-    await postgres?.stop()
+    await testContext.destroy()
   })
 
   describe("query", () => {
@@ -108,7 +92,7 @@ describe("PrismaSigningKeyRepository", () => {
     it("should encrypt private key when inserting", async () => {
       const original = await createSigningKey()
 
-      const rawKey = await prismaClient.signingKey.findUnique({ where: { id: original.id } })
+      const rawKey = await testContext.prismaClient.signingKey.findUnique({ where: { id: original.id } })
       expect(rawKey!.privateKey).toMatch(/^encrypted_/)
     })
   })

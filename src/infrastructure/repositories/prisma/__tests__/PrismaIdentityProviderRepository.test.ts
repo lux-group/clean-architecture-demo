@@ -1,22 +1,12 @@
 import { randomUUID } from "crypto"
-import { execSync } from "child_process"
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
-import { PrismaIdentityProviderRepository } from "~/infrastructure/repositories/prisma/PrismaIdentityProviderRepository"
-
-class MockEncryptionProvider implements EncryptionProvider {
-  encrypt = (data: string) => `encrypted_${data}`
-  decrypt = (data: string) => data.replace("encrypted_", "")
-}
+import { PrismaIdentityProviderRepository } from "../PrismaIdentityProviderRepository"
+import { createTestContext, TestContext } from "./helpers"
 
 describe("PrismaIdentityProviderRepository", () => {
-  let postgres: StartedPostgreSqlContainer
-  let prismaClient: PrismaClient
+  let testContext: TestContext
   let identityProviderRepository: PrismaIdentityProviderRepository
-  let encryptionProvider: EncryptionProvider
 
   const createIdentityProvider = async (props: Partial<IdentityProvider> = {}): Promise<IdentityProvider> => {
     const idp = IdentityProvider.createNew({
@@ -41,18 +31,12 @@ describe("PrismaIdentityProviderRepository", () => {
   }
 
   beforeAll(async () => {
-    postgres = await new PostgreSqlContainer("postgres:17.4").start()
-    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
-    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
-
-    prismaClient = createPrismaClient(postgres.getConnectionUri())
-    encryptionProvider = new MockEncryptionProvider()
-    identityProviderRepository = new PrismaIdentityProviderRepository(prismaClient, encryptionProvider)
+    testContext = await createTestContext()
+    identityProviderRepository = new PrismaIdentityProviderRepository(testContext.prismaClient, testContext.encryptionProvider)
   })
 
   afterAll(async () => {
-    await prismaClient?.$disconnect()
-    await postgres?.stop()
+    await testContext.destroy()
   })
 
   describe("query", () => {
@@ -181,7 +165,7 @@ describe("PrismaIdentityProviderRepository", () => {
         }
       })
 
-      const found = await prismaClient.identityProvider.findUnique({ where: { id: original.id } })
+      const found = await testContext.prismaClient.identityProvider.findUnique({ where: { id: original.id } })
 
       expect(found!.authSettingsClientSecret).toBe("encrypted_super-secret-key")
     })

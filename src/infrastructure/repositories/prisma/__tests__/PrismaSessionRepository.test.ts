@@ -1,22 +1,12 @@
 import { randomUUID } from "node:crypto"
-import { execSync } from "child_process"
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { Session } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
-import { PrismaSessionRepository } from "~/infrastructure/repositories/prisma/PrismaSessionRepository"
-
-class MockEncryptionProvider implements EncryptionProvider {
-  encrypt = (data: string) => `encrypted_${data}`
-  decrypt = (data: string) => data.replace("encrypted_", "")
-}
+import { PrismaSessionRepository } from "../PrismaSessionRepository"
+import { createTestContext, TestContext } from "./helpers"
 
 describe("PrismaSessionRepository", () => {
-  let postgres: StartedPostgreSqlContainer
-  let prismaClient: PrismaClient
+  let testContext: TestContext
   let sessionRepository: PrismaSessionRepository
-  let encryptionProvider: EncryptionProvider
   let identityProviderId: string
   let userId: string
 
@@ -35,18 +25,13 @@ describe("PrismaSessionRepository", () => {
   }
 
   beforeAll(async () => {
-    postgres = await new PostgreSqlContainer("postgres:17.4").start()
-    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
-    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
-
-    prismaClient = createPrismaClient(postgres.getConnectionUri())
-    encryptionProvider = new MockEncryptionProvider()
-    sessionRepository = new PrismaSessionRepository(prismaClient, encryptionProvider)
+    testContext = await createTestContext()
+    sessionRepository = new PrismaSessionRepository(testContext.prismaClient, testContext.encryptionProvider)
 
     identityProviderId = randomUUID()
     userId = randomUUID()
 
-    await prismaClient.identityProvider.create({
+    await testContext.prismaClient.identityProvider.create({
       data: {
         id: identityProviderId,
         name: randomUUID(),
@@ -56,7 +41,7 @@ describe("PrismaSessionRepository", () => {
       }
     })
 
-    await prismaClient.user.create({
+    await testContext.prismaClient.user.create({
       data: {
         id: userId,
         isEnabled: true,
@@ -70,8 +55,7 @@ describe("PrismaSessionRepository", () => {
   })
 
   afterAll(async () => {
-    await prismaClient?.$disconnect()
-    await postgres?.stop()
+    await testContext.destroy()
   })
 
   describe("query", () => {
@@ -145,7 +129,7 @@ describe("PrismaSessionRepository", () => {
     it("should encrypt refresh token when inserting", async () => {
       const original = await createSession()
 
-      const rawSession = await prismaClient.session.findUnique({ where: { id: original.id } })
+      const rawSession = await testContext.prismaClient.session.findUnique({ where: { id: original.id } })
       expect(rawSession!.refreshToken).toMatch(/^encrypted_/)
     })
   })

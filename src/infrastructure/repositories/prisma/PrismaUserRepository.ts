@@ -82,6 +82,8 @@ export class PrismaUserRepository implements UserRepository {
         }
       }
     })
+
+    user.commit()
   }
 
   async update(user: User): Promise<void> {

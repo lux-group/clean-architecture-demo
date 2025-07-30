@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { SignInState } from "~/domain/adapters"
-import { OidcClient } from "./OidcClient"
+import { OidcClient } from "../OidcClient"
 
 // Mock the openid-client module using manual mock
 jest.mock("openid-client")

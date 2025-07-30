@@ -28,7 +28,7 @@ const config: Config = {
       ],
       clearMocks: true,
       restoreMocks: true,
-      slowTestThreshold: 10,
+      slowTestThreshold: 20,
     },
     {
       displayName: "unit", 
