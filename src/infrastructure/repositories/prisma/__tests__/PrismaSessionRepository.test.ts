@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto"
+import { execSync } from "child_process"
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { Session } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { EncryptionProvider } from "~/infrastructure/crypto"
@@ -11,6 +13,7 @@ class MockEncryptionProvider implements EncryptionProvider {
 }
 
 describe("PrismaSessionRepository", () => {
+  let postgres: StartedPostgreSqlContainer
   let prismaClient: PrismaClient
   let sessionRepository: PrismaSessionRepository
   let encryptionProvider: EncryptionProvider
@@ -32,7 +35,11 @@ describe("PrismaSessionRepository", () => {
   }
 
   beforeAll(async () => {
-    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!)
+    postgres = await new PostgreSqlContainer("postgres:17.4").start()
+    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
+    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
+
+    prismaClient = createPrismaClient(postgres.getConnectionUri())
     encryptionProvider = new MockEncryptionProvider()
     sessionRepository = new PrismaSessionRepository(prismaClient, encryptionProvider)
 
@@ -64,6 +71,7 @@ describe("PrismaSessionRepository", () => {
 
   afterAll(async () => {
     await prismaClient?.$disconnect()
+    await postgres?.stop()
   })
 
   describe("query", () => {

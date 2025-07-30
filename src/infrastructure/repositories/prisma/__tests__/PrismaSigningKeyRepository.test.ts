@@ -1,4 +1,6 @@
 import { SigningKey } from "~/domain/entities"
+import { execSync } from "child_process"
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
@@ -10,6 +12,7 @@ class MockEncryptionProvider implements EncryptionProvider {
 }
 
 describe("PrismaSigningKeyRepository", () => {
+  let postgres: StartedPostgreSqlContainer
   let prismaClient: PrismaClient
   let signingKeyRepository: PrismaSigningKeyRepository
   let encryptionProvider: EncryptionProvider
@@ -25,14 +28,19 @@ describe("PrismaSigningKeyRepository", () => {
     return signingKey
   }
 
-  beforeAll(() => {
-    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!)
+  beforeAll(async () => {
+    postgres = await new PostgreSqlContainer("postgres:17.4").start()
+    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
+    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
+
+    prismaClient = createPrismaClient(postgres.getConnectionUri())
     encryptionProvider = new MockEncryptionProvider()
     signingKeyRepository = new PrismaSigningKeyRepository(prismaClient, encryptionProvider)
   })
 
   afterAll(async () => {
     await prismaClient?.$disconnect()
+    await postgres?.stop()
   })
 
   describe("query", () => {

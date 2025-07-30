@@ -13,28 +13,11 @@ const config: Config = {
   ],
   projects: [
     {
-      displayName: "component",
-      testMatch: ["<rootDir>/test/component/**/*.test.ts"],
-      globalSetup: "<rootDir>/test/component/setup.ts",
-      globalTeardown: "<rootDir>/test/component/teardown.ts",
-      setupFilesAfterEnv: ["<rootDir>/test/component/support/matchers.ts"],
-      modulePaths: [compilerOptions.baseUrl],
-      moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
-      transform: {
-        "^.+\\.ts$": "@swc/jest",
-      },
-      transformIgnorePatterns: [
-        "node_modules/(?!(openid-client)/)"
-      ],
-      clearMocks: true,
-      restoreMocks: true,
-      slowTestThreshold: 10,
-    },
-    {
-      displayName: "integration", 
-      testMatch: ["<rootDir>/test/integration/**/*.test.ts"],
-      globalSetup: "<rootDir>/test/integration/setup.ts",
-      globalTeardown: "<rootDir>/test/integration/teardown.ts",
+      displayName: "integration",
+      testMatch: ["<rootDir>/src/**/*.spec.ts"],
+      globalSetup: "<rootDir>/test/setup.ts",
+      globalTeardown: "<rootDir>/test/teardown.ts",
+      setupFilesAfterEnv: ["<rootDir>/test/support/matchers.ts"],
       modulePaths: [compilerOptions.baseUrl],
       moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
       transform: {

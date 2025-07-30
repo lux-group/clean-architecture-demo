@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto"
+import { execSync } from "child_process"
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
 import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
 import { PrismaUserRepository } from "~/infrastructure/repositories/prisma/PrismaUserRepository"
 
 describe("PrismaUserRepository", () => {
+  let postgres: StartedPostgreSqlContainer
   let prismaClient: PrismaClient
   let userRepository: PrismaUserRepository
   let identityProviderId: string
@@ -35,7 +38,11 @@ describe("PrismaUserRepository", () => {
   }
 
   beforeAll(async () => {
-    prismaClient = createPrismaClient(process.env.PRISMA_TEST_DATABASE_URL!) 
+    postgres = await new PostgreSqlContainer("postgres:17.4").start()
+    const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
+    execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
+
+    prismaClient = createPrismaClient(postgres.getConnectionUri())
     userRepository = new PrismaUserRepository(prismaClient)
 
     identityProviderId = randomUUID()
@@ -53,6 +60,7 @@ describe("PrismaUserRepository", () => {
 
   afterAll(async () => {
     await prismaClient?.$disconnect()
+    await postgres?.stop()
   })
 
   describe("query", () => {

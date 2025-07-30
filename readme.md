@@ -191,11 +191,12 @@ This project contains unit tests for:
 - Infrastructure Services
 - Utility Libraries
 
-### Component Tests (aka. Internal Integration Tests)
-[Component Tests](/test/component) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases.
+### Integration Tests
+#### Internal
+Internal Integration Tests (aka. Component Tests) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases. These tests are in the [app](/src/app) folder and have the extension *.spec.ts*.
 
-### External Integration Tests
-[External Integration Tests](/test/integration) verify the behavior of integrations with external services or infrastructure.
+#### External
+External Integration Tests verify the behavior of integrations with external services or infrastructure such as Postgres and Redis. They are located next to the integration they test, for example [infrastructure/repositories/postgres](/src/infrastructure/repositories/postgres).
 
 # Comparison with typical LE Architecture
 Pending

@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals"
 import request from "supertest"
-import { getTestContext, TestContext } from "@test/component/support/TestContext"
+import { getTestContext, TestContext } from "@test/support/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-in", () => {

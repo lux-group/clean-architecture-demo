@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals"
 import request from "supertest"
-import { getTestContext, TestContext } from "@test/component/support/TestContext"
+import { getTestContext, TestContext } from "@test/support/TestContext"
 
 describe("[POST] /auth/local/sign-out", () => {
   let context: TestContext
