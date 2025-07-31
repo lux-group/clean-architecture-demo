@@ -1,10 +1,9 @@
-import { randomUUID } from "crypto"
 import { AwilixContainer } from "awilix"
-import { IdentityProviderRepository, SessionRepository, UserRepository } from "~/domain/repositories"
-import { CreateIdentityProviderProps, CreateSessionProps, CreateUserProps, IdentityProvider, Session, User } from "~/domain/entities"
+import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
+import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session } from "~/domain/entities"
 import { PasswordVerifier } from "~/domain/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import { CreateNewSigningKeyHandler } from "~/app/admin/signing-key/commands/CreateNewSigningKeyHandler"
+import * as factories from "./factories"
 
 export class TestDataContext {
   constructor(private container: AwilixContainer) {}
@@ -25,39 +24,14 @@ export class TestDataContext {
   }
 
   createIdentityProvider = async (props: Partial<CreateIdentityProviderProps>) => {
-    const identityProvider = IdentityProvider.createNew({
-      name: randomUUID(),
-      issuerUrl: "https://login.test.com",
-      audience: randomUUID(),
-      identifierClaimName: "sub",
-      ...props,
-      authSettings: {
-        type: "ENTRA",
-        brand: "Test Brand",
-        clientId: randomUUID(),
-        clientSecret: randomUUID(),
-        redirectUrls: [this.container.resolve<string>("baseUrl")],
-        autoLinkUsers: true,
-        autoCreateUsers: true,
-        ...props.authSettings,
-      }
-    })
-
+    const identityProvider = factories.createIdentityProvider(props)
     const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
     await repository.insert(identityProvider)
     return identityProvider
   }
 
   createSession = async (props: Partial<CreateSessionProps>, hours: number) => {
-    const session = Session.createNew({
-      userId: randomUUID(),
-      identityProviderId: null,
-      identityProviderSessionId: randomUUID(),
-      idToken: randomUUID(),
-      refreshToken: randomUUID(),
-      ...props,
-    }, hours)
-
+    const session = factories.createSession(props, hours)
     const repository = this.container.resolve<SessionRepository>("sessionRepository")
     await repository.insert(session)
     return session
@@ -70,31 +44,17 @@ export class TestDataContext {
       delete props.password
     }
 
-    const user = User.createNew({
-      isEnabled: true,
-      brand: "Test Brand",
-      givenName: randomUUID(),
-      surname: randomUUID(),
-      email: `${randomUUID()}@example.com`,
-      emailVerified: false,
-      phone: null,
-      country: null,
-      city: null,
-      postcode: null,
-      passwordHash: null,
-      roles: [],
-      ...props,
-    })
-
+    const user = factories.createUser(props)
     const repository = this.container.resolve<UserRepository>("userRepository")
     await repository.insert(user)
     return user
   }
 
-  createSigningKey = async () => {
-    await this.container
-      .resolve<CreateNewSigningKeyHandler>("createNewSigningKeyHandler")
-      .execute()    
+  createSigningKey = async (props: Partial<CreateSigningKeyProps>) => {
+    const signingKey = factories.createSigningKey(props)
+    const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
+    await repository.insert(signingKey)
+    return signingKey
   }
 
   createAuthStateCookie = (redirectUrl: string, identityProviderId: string) => {
