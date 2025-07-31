@@ -4,7 +4,7 @@ import { IdentityProviderRepository, SessionRepository, UserRepository } from "~
 import { CreateIdentityProviderProps, CreateSessionProps, CreateUserProps, IdentityProvider, Session, User } from "~/domain/entities"
 import { PasswordVerifier } from "~/domain/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import { CreateNewSigningKeyUseCase } from "~/app/admin/signing-key/use-cases/CreateNewSigningKeyUseCase"
+import { CreateNewSigningKeyHandler } from "~/app/admin/signing-key/commands/CreateNewSigningKeyHandler"
 
 export class TestDataContext {
   constructor(private container: AwilixContainer) {}
@@ -93,7 +93,7 @@ export class TestDataContext {
 
   createSigningKey = async () => {
     await this.container
-      .resolve<CreateNewSigningKeyUseCase>("createNewSigningKeyUseCase")
+      .resolve<CreateNewSigningKeyHandler>("createNewSigningKeyHandler")
       .execute()    
   }
 

@@ -1,30 +1,35 @@
 import { Request, Response } from "express"
 import { Session } from "~/domain/entities"
-import { GetAllSessionsUseCase } from "../use-cases/GetAllSessionsUseCase"
-import { GetSessionByIdInput, GetSessionByIdUseCase } from "../use-cases/GetSessionByIdUseCase"
-import { TerminateSessionInput, TerminateSessionUseCase } from "../use-cases/TerminateSessionUseCase"
+import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
+import { SearchSessionsHandler, SearchSessionsQuery } from "../queries/SearchSessionsHandler"
+import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessionByIdHandler"
 
 export class SessionController {
   constructor(
-    private readonly getAllSessionsUseCase: GetAllSessionsUseCase,
-    private readonly getSessionByIdUseCase: GetSessionByIdUseCase,
-    private readonly terminateSessionUseCase: TerminateSessionUseCase,
+    private readonly terminateSessionHandler: TerminateSessionHandler,
+    private readonly getSessionByIdHandler: GetSessionByIdHandler,
+    private readonly searchSessionsHandler: SearchSessionsHandler,
   ) {}
 
   async getAll(req: Request, res: Response) {
-    const items = await this.getAllSessionsUseCase.execute()
+    const query: SearchSessionsQuery = {
+      offset: Number(req.query.offset) || 0,
+      limit: Number(req.query.limit) || 10,
+    }
+
+    const items = await this.searchSessionsHandler.execute(query)
     res.json(items.map(this.present))
   }
 
   async getById(req: Request, res: Response) {
-    const input: GetSessionByIdInput = { id: req.params.id }
-    const item = await this.getSessionByIdUseCase.execute(input)
+    const query: GetSessionByIdQuery = { id: req.params.id }
+    const item = await this.getSessionByIdHandler.execute(query)
     res.json(this.present(item))
   }
   
   async terminate(req: Request, res: Response) {
-    const input: TerminateSessionInput = { sessionId: req.params.id }
-    await this.terminateSessionUseCase.execute(input)
+    const command: TerminateSessionCommand = { sessionId: req.params.id }
+    await this.terminateSessionHandler.execute(command)
     res.status(204).send()
   }
 

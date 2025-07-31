@@ -1,20 +1,20 @@
 import { Request, Response } from "express"
-import { GetOpenidConfigurationUseCase } from "../use-cases/GetOpenidConfigurationUseCase"
-import { GetJwksUseCase } from "../use-cases/GetJwksUseCase"
+import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
+import { GetJsonWebKeysHandler } from "../queries/GetJsonWebKeysHandler"
 
 export class MetadataController {
   constructor(
-    private readonly getOpenidConfigurationUseCase: GetOpenidConfigurationUseCase,
-    private readonly getJwksUseCase: GetJwksUseCase,
+    private readonly getOpenidConfigurationHandler: GetOpenidConfigurationHandler,
+    private readonly getJsonWebKeysHandler: GetJsonWebKeysHandler,
   ) {}
 
   async getOpenidConfiguration(req: Request, res: Response) {
-    const document = await this.getOpenidConfigurationUseCase.execute()
+    const document = await this.getOpenidConfigurationHandler.execute()
     res.json(document)
   }
 
-  async getJwks(req: Request, res: Response) {
-    const document = await this.getJwksUseCase.execute()
+  async getJsonWebKeys(req: Request, res: Response) {
+    const document = await this.getJsonWebKeysHandler.execute()
     res.json(document)
   }
 }

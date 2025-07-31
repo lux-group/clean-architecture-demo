@@ -2,9 +2,9 @@ import { Request, Response } from "express"
 import { InvalidOperationError } from "~/domain/errors"
 import { TokenResponse } from "~/domain/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import { GetTokenWithActiveSessionUseCase } from "../use-cases/GetTokenWithActiveSessionUseCase"
-import { GetTokenWithClientCredentialsUseCase } from "../use-cases/GetTokenWithClientCredentialsUseCase"
-import { GetTokenWithTokenExchangeUseCase } from "../use-cases/GetTokenWithTokenExchangeUseCase"
+import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"
+import { IssueTokenWithClientCredentialsHandler } from "../commands/IssueTokenWithClientCredentialsHandler"
+import { IssueTokenWithTokenExchangeHandler } from "../commands/IssueTokenWithTokenExchangeHandler"
 
 const GrantType = {
   ClientCredentials: "client_credentials",
@@ -37,9 +37,9 @@ type TokenRequest = ({
 export class TokenController {
   constructor(
     private readonly secureCookieManager: SecureCookieManager,
-    private readonly getTokenWithActiveSessionUseCase: GetTokenWithActiveSessionUseCase,
-    private readonly getTokenWithClientCredentialsUseCase: GetTokenWithClientCredentialsUseCase,
-    private readonly getTokenWithTokenExchangeUseCase: GetTokenWithTokenExchangeUseCase,
+    private readonly issueTokenWithActiveSessionHandler: IssueTokenWithActiveSessionHandler,
+    private readonly issueTokenWithClientCredentialsHandler: IssueTokenWithClientCredentialsHandler,
+    private readonly issueTokenWithTokenExchangeHandler: IssueTokenWithTokenExchangeHandler,
   ) {}
 
   async getAccessToken(req: Request, res: Response) {
@@ -49,7 +49,7 @@ export class TokenController {
 
     if (body.grant_type == GrantType.SessionCookie) {
       const cookie = this.secureCookieManager.getSessionCookie(req, res)
-      result = await this.getTokenWithActiveSessionUseCase.execute({
+      result = await this.issueTokenWithActiveSessionHandler.execute({
         sessionId: cookie.id,
         nonce: cookie.nonce,
         userToImpersonateId: body.subject_to_impersonate_id,
@@ -59,7 +59,7 @@ export class TokenController {
     }
 
     if (body.grant_type == GrantType.ClientCredentials) {
-      result = await this.getTokenWithClientCredentialsUseCase.execute({
+      result = await this.issueTokenWithClientCredentialsHandler.execute({
         clientId: body.client_id,
         clientSecret: body.client_secret,
         audience: body.audience,
@@ -68,7 +68,7 @@ export class TokenController {
     }
 
     if (body.grant_type == GrantType.TokenExchange) {
-      result = await this.getTokenWithTokenExchangeUseCase.execute({
+      result = await this.issueTokenWithTokenExchangeHandler.execute({
         token: body.subject_token,
         audience: body.audience,
         scope: body.scope

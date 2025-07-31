@@ -67,7 +67,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Single Responsibility Principle (SRP)
 - **Domain Entities**: Each entity (`User`, `Session`, `IdentityProvider`, `SigningKey`) has a single responsibility - managing its own business rules and state
 - **Domain Services**: `AuthenticationService`, `AuthorizationService`, and `SessionService` each handle specific domain concerns
-- **Use Cases**: Application services like `SignInWithPasswordUseCase` have a single responsibility - orchestrating one specific business flow
+- **Use Cases**: Application services like `SignInWithPasswordHandler` have a single responsibility - orchestrating one specific business flow
 - **Adapters**: Each adapter interface (`TokenIssuer`, `PasswordVerifier`, `EventPublisher`) has one clear purpose
 
 ### Open/Closed Principle (OCP)
@@ -81,6 +81,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 - **Entity Inheritance**: Base `Entity` class can be extended by domain entities while maintaining contracts
 
 ### Interface Segregation Principle (ISP)
+- **Consumer-focused REST APIs**: The REST APIs are segregated into consumer-focused areas that can be versioned and evolve independently. 
 - **Specific Repository Interfaces**: `UserRepository` extends base `Repository` with only user-specific methods
 - **Focused Adapter Interfaces**: Each adapter interface (`TokenIssuer`, `TokenValidator`, `PasswordVerifier`) is minimal and focused
 - **Event Bus Interfaces**: Dedicated `EventPublisher` interface that does not contain subscription management.

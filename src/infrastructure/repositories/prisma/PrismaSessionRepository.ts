@@ -11,8 +11,12 @@ export class PrismaSessionRepository implements SessionRepository {
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(): Promise<Session[]> {
-    const sessions = await this.prismaClient.session.findMany()
+  async query(offset?: number, limit?: number): Promise<Session[]> {
+    const sessions = await this.prismaClient.session.findMany({
+      skip: offset,
+      take: limit
+    })
+    
     return sessions.map(s => this.mapToSession(s))
   }
 

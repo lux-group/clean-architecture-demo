@@ -1,17 +1,18 @@
 import { asClass, AwilixContainer } from "awilix"
 import { SigningKeyController } from "./api/SigningKeyController"
-import { CreateNewSigningKeyUseCase } from "./use-cases/CreateNewSigningKeyUseCase"
-import { DeleteSigningKeyUseCase } from "./use-cases/DeleteSigningKeyUseCase"
-import { GetAllSigningKeysUseCase } from "./use-cases/GetAllSigningKeysUseCase"
-import { GetSigningKeyByIdUseCase } from "./use-cases/GetSigningKeyByIdUseCase"
+import { CreateNewSigningKeyHandler } from "./commands/CreateNewSigningKeyHandler"
+import { DeleteSigningKeyHandler } from "./commands/DeleteSigningKeyHandler"
+import { GetSigningKeyByIdHandler } from "./queries/GetSigningKeyByIdHandler"
+import { SearchSigningKeysHandler } from "./queries/SearchSigningKeysHandler"
 
 export default function registerSigningKeyAdminModule(container: AwilixContainer) {
   container.register({
     signingKeyController: asClass(SigningKeyController).singleton(),
 
-    createNewSigningKeyUseCase: asClass(CreateNewSigningKeyUseCase).singleton(),
-    deleteSigningKeyUseCase: asClass(DeleteSigningKeyUseCase).singleton(),
-    getAllSigningKeysUseCase: asClass(GetAllSigningKeysUseCase).singleton(),
-    getSigningKeyByIdUseCase: asClass(GetSigningKeyByIdUseCase).singleton(),
+    createNewSigningKeyHandler: asClass(CreateNewSigningKeyHandler).singleton(),
+    deleteSigningKeyHandler: asClass(DeleteSigningKeyHandler).singleton(),
+
+    getSigningKeyByIdHandler: asClass(GetSigningKeyByIdHandler).singleton(),
+    searchSigningKeysHandler: asClass(SearchSigningKeysHandler).singleton(),
   })
 }

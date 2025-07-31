@@ -11,9 +11,11 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(): Promise<SigningKey[]> {
+  async query(offset?: number, limit?: number): Promise<SigningKey[]> {
     const signingKeys = await this.prismaClient.signingKey.findMany({
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      skip: offset,
+      take: limit
     })
 
     return signingKeys.map(sk => this.mapToSigningKey(sk))

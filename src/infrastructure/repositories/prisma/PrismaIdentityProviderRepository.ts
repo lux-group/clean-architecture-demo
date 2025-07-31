@@ -11,8 +11,12 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(): Promise<IdentityProvider[]> {
-    const identityProviders = await this.prismaClient.identityProvider.findMany()
+  async query(offset?: number, limit?: number): Promise<IdentityProvider[]> {
+    const identityProviders = await this.prismaClient.identityProvider.findMany({
+      skip: offset,
+      take: limit
+    })
+
     return identityProviders.map(idp => this.mapToIdentityProvider(idp))
   }
 
