@@ -1,4 +1,4 @@
-import { execSync } from "child_process"
+import { execSync } from "node:child_process"
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
 import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
 import { EncryptionProvider } from "~/infrastructure/crypto"
