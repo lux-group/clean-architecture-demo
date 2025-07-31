@@ -7,8 +7,8 @@ import { EventPublisher, TokenIssuer, TokenResponse } from "~/domain/adapters"
 export class AuthorizationService {
   constructor(
     private readonly signingKeyRepository: SigningKeyRepository,
-    private readonly eventPublisher: EventPublisher,
     private readonly tokenIssuer: TokenIssuer,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async issueAccessToken(user: User, impersonatedByUser?: User, session?: Session, audience?: string, scope?: string): Promise<TokenResponse> {
@@ -27,12 +27,7 @@ export class AuthorizationService {
 
     // Handle user impersonation.
     if (impersonatedByUser && !impersonatedByUser.canImpersonateUser(user)) {
-      this.publishFailedEvent(commonErrors.impersonationNotAllowed, {
-        sessionId: session?.id,
-        userId: impersonatedByUser.id,
-        userToImpersonateId: user.id,
-      })
-
+      this.publishImpersonationFailedEvent(impersonatedByUser, user, session)
       throw new AuthorizationError(commonErrors.impersonationNotAllowed)
     }
 
@@ -42,16 +37,28 @@ export class AuthorizationService {
       impersonated_by_sub: impersonatedByUser?.id
     }
 
-    this.publishSuccessEvent({
-      sessionId: session?.id,
-      userId:user.id,
-      claims
-    })
+    this.publishTokenIssuedEvent(session, claims)
 
     return this.tokenIssuer.createAccessToken(user, signingKey, {
       sessionId: session?.id,
       audience,
       claims
+    })
+  }
+
+  private publishTokenIssuedEvent(session?: Session, claims?: Record<string, unknown>) {
+    this.publishSuccessEvent({
+      sessionId: session?.id,
+      userId: session?.userId,
+      claims
+    })
+  }
+
+  private publishImpersonationFailedEvent(impersonatedByUser: User, user: User, session?: Session) {
+    this.publishFailedEvent(commonErrors.impersonationNotAllowed, {
+      sessionId: session?.id,
+      userId: impersonatedByUser.id,
+      userToImpersonateId: user.id,
     })
   }
 
