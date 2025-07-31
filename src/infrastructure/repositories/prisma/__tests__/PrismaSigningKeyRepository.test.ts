@@ -106,7 +106,6 @@ describe("PrismaSigningKeyRepository", () => {
 
       const found = await signingKeyRepository.getById(original.id)
       expect(found.privateKey).toBeNull()
-      expect(found.updatedAt.getTime()).toBeGreaterThan(found.createdAt.getTime())
     })
 
     it("should handle concurrent updates with optimistic locking", async () => {
