@@ -1,9 +1,9 @@
 import { asClass, asFunction, AwilixContainer } from "awilix"
 import { handleOAuthErrors } from "./api/handleOAuthErrors"
 import { TokenController } from "./api/TokenController"
-import { GetTokenWithActiveSessionUseCase } from "./use-cases/GetTokenWithActiveSessionUseCase"
-import { GetTokenWithClientCredentialsUseCase } from "./use-cases/GetTokenWithClientCredentialsUseCase"
-import { GetTokenWithTokenExchangeUseCase } from "./use-cases/GetTokenWithTokenExchangeUseCase"
+import { IssueTokenWithActiveSessionHandler } from "./commands/IssueTokenWithActiveSessionHandler"
+import { IssueTokenWithClientCredentialsHandler } from "./commands/IssueTokenWithClientCredentialsHandler"
+import { IssueTokenWithTokenExchangeHandler } from "./commands/IssueTokenWithTokenExchangeHandler"
 
 export default function registerTokenModule(container: AwilixContainer) {
   container.register({
@@ -11,8 +11,8 @@ export default function registerTokenModule(container: AwilixContainer) {
 
     tokenController: asClass(TokenController).singleton(),
 
-    getTokenWithActiveSessionUseCase: asClass(GetTokenWithActiveSessionUseCase).singleton(),
-    getTokenWithClientCredentialsUseCase: asClass(GetTokenWithClientCredentialsUseCase).singleton(),
-    getTokenWithTokenExchangeUseCase: asClass(GetTokenWithTokenExchangeUseCase).singleton(),
+    issueTokenWithActiveSessionHandler: asClass(IssueTokenWithActiveSessionHandler).singleton(),
+    issueTokenWithClientCredentialsHandler: asClass(IssueTokenWithClientCredentialsHandler).singleton(),
+    issueTokenWithTokenExchangeHandler: asClass(IssueTokenWithTokenExchangeHandler).singleton(),
   })
 }

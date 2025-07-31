@@ -1,49 +1,54 @@
 import { Request, Response } from "express"
 import { User } from "~/domain/entities"
-import { GetAllUsersUseCase } from "../use-cases/GetAllUsersUseCase"
-import { GetUserByIdInput, GetUserByIdUseCase } from "../use-cases/GetUserByIdUseCase"
-import { CreateUserInput, CreateUserUseCase } from "../use-cases/CreateUserUseCase"
-import { UpdateUserInput, UpdateUserUseCase } from "../use-cases/UpdateUserUseCase"
-import { DeleteUserInput, DeleteUserUseCase } from "../use-cases/DeleteUserUseCase"
+import { CreateUserCommand, CreateUserHandler } from "../commands/CreateUserHandler"
+import { DeleteUserCommand, DeleteUserHandler } from "../commands/DeleteUserHandler"
+import { UpdateUserCommand, UpdateUserHandler } from "../commands/UpdateUserHandler"
+import { GetUserByIdHandler, GetUserByIdQuery } from "../queries/GetUserByIdHandler"
+import { SearchUsersHandler, SearchUsersQuery } from "../queries/SearchUsersHandler"
 
 export class UserController {
   constructor(
     private readonly baseUrl: string,
-    private readonly getAllUsersUseCase: GetAllUsersUseCase,
-    private readonly getUserByIdUseCase: GetUserByIdUseCase,
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
-    private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly createUserHandler: CreateUserHandler,
+    private readonly deleteUserHandler: DeleteUserHandler,
+    private readonly updateUserHandler: UpdateUserHandler,
+    private readonly getUserByIdHandler: GetUserByIdHandler,
+    private readonly searchUsersHandler: SearchUsersHandler,
   ) {}
 
   async getAll(req: Request, res: Response) {
-    const items = await this.getAllUsersUseCase.execute()
+    const query: SearchUsersQuery = {
+      offset: Number(req.query.offset) || 0,
+      limit: Number(req.query.limit) || 10,
+    }
+
+    const items = await this.searchUsersHandler.execute(query)
     res.json(items.map(this.present))
   }
 
   async getById(req: Request, res: Response) {
-    const input: GetUserByIdInput = { id: req.params.id }
-    const item = await this.getUserByIdUseCase.execute(input)
+    const query: GetUserByIdQuery = { id: req.params.id }
+    const item = await this.getUserByIdHandler.execute(query)
     res.json(this.present(item))
   }
 
   async create(req: Request, res: Response) {
-    const input: CreateUserInput = this.parseCreateBody(req.body)
-    const item = await this.createUserUseCase.execute(input)
+    const command: CreateUserCommand = this.parseCreateBody(req.body)
+    const item = await this.createUserHandler.execute(command)
     res.status(201)
       .header("Location", `${this.baseUrl}/admin/users/${item.id}`)
       .json(this.present(item))
   }
 
   async update(req: Request, res: Response) {
-    const input: UpdateUserInput = { id: req.params.id, ...this.parseUpdateBody(req.body) }
-    const item = await this.updateUserUseCase.execute(input)
+    const command: UpdateUserCommand = { id: req.params.id, ...this.parseUpdateBody(req.body) }
+    const item = await this.updateUserHandler.execute(command)
     res.json(this.present(item))
   }
 
   async delete(req: Request, res: Response) {
-    const input: DeleteUserInput = { id: req.params.id }
-    await this.deleteUserUseCase.execute(input)
+    const command: DeleteUserCommand = { id: req.params.id }
+    await this.deleteUserHandler.execute(command)
     res.status(204).send()
   }
 

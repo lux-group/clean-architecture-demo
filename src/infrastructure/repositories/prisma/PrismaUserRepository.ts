@@ -11,9 +11,11 @@ type PrismaUserWithIdentities = PrismaUser & {
 export class PrismaUserRepository implements UserRepository {
   constructor(private prismaClient: PrismaClient) {}
 
-  async query(): Promise<User[]> {
+  async query(offset?: number, limit?: number): Promise<User[]> {
     const users = await this.prismaClient.user.findMany({
-      include: { identities: true }
+      include: { identities: true },
+      skip: offset,
+      take: limit
     })
 
     return users.map(u => this.mapToUser(u))

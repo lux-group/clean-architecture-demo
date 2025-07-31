@@ -7,5 +7,5 @@ export function registerMetadataRoutes(container: AwilixContainer) {
 
   return express.Router()
     .get("/openid-configuration", metadataController.getOpenidConfiguration.bind(metadataController))
-    .get("/jwks", metadataController.getJwks.bind(metadataController))
+    .get("/jwks", metadataController.getJsonWebKeys.bind(metadataController))
 }

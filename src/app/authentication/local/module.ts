@@ -1,13 +1,13 @@
 import { asClass, AwilixContainer } from "awilix"
 import { LocalAuthenticationController } from "./api/LocalAuthenticationController"
-import { SignInWithPasswordUseCase } from "./use-cases/SignInWithPasswordUseCase"
-import { SignOutUseCase } from "./use-cases/SignOutUseCase"
+import { SignInWithPasswordHandler } from "./commands/SignInWithPasswordHandler"
+import { SignOutHandler } from "./commands/SignOutHandler"
 
 export default function registerLocalAuthenticationModule(container: AwilixContainer) {
   container.register({
     localAuthenticationController: asClass(LocalAuthenticationController).singleton(),
 
-    signInWithPasswordUseCase: asClass(SignInWithPasswordUseCase).singleton(),
-    signOutUseCase: asClass(SignOutUseCase).singleton(),
+    signInWithPasswordHandler: asClass(SignInWithPasswordHandler).singleton(),
+    signOutHandler: asClass(SignOutHandler).singleton(),
   })
 }

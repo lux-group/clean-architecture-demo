@@ -7,8 +7,12 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
 
   constructor(private readonly resourceName: string) { }
 
-  async query(): Promise<T[]> {
-    return Object.values(this.store)
+  async query(offset?: number, limit?: number): Promise<T[]> {
+    const entities = Object.values(this.store)
+    if (offset !== undefined && limit !== undefined) {
+      return entities.slice(offset, offset + limit)
+    }
+    return entities
   }
 
   async tryGet(filters: {}): Promise<T | undefined> {

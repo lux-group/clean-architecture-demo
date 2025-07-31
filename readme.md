@@ -28,12 +28,15 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 | Folder | Responsibility |
 | --- | --- |
 | 📁 [app](/src/app) | Application use case implementations and triggers (API, scheduled tasks, event subscribers) |
-| &nbsp;&nbsp; 📁 \[module] | The app folder is segregated into modules. |
+| &nbsp;&nbsp; 📁 \[feature] | The app folder is segregated into feature modules.<br/>In most cases, there are two levels. |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 api | API controllers, routes, presenters, and middleware |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 use-cases | Application use case implementations <br/>They orchestrate business logic in the domain but don't contain business logic.<br/>This project implements common handlers for commands and queries but it could also use [CQRS](https://aussiecommerce.atlassian.net/wiki/x/BwC01) |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 events | Event handlers |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 jobs | Scheduled jobs |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 commands | Application use case implementations that change state.<br/>They orchestrate business logic in the domain but don't contain business logic. |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 queries | Application use case implementations that do not change state. |
 | 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) but other [styles](https://aussiecommerce.atlassian.net/wiki/x/EYDp0w) like Transaction Script are also possible. |
 | &nbsp;&nbsp; 📁 [adapters](/src/domain/adapters) | Interfaces for infrastructure services used by domain services.<br/>Their implementations can be found in [/infrastructure/adapters](/src/infrastructure/adapters). |
-| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the applications business rules without any dependencies on data stores or external services. |
+| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the applications core business structures and rules. |
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
 | &nbsp;&nbsp; 📁 [events](/src/domain/events) | Domain event messages |
 | &nbsp;&nbsp; 📁 [repositories](/src/domain/repositories) | Interfaces for data repositories.<br/>Their implementations can be found in [/infrastructure/repositories](/src/infrastructure/repositories). |
@@ -67,7 +70,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Single Responsibility Principle (SRP)
 - **Domain Entities**: Each entity (`User`, `Session`, `IdentityProvider`, `SigningKey`) has a single responsibility - managing its own business rules and state
 - **Domain Services**: `AuthenticationService`, `AuthorizationService`, and `SessionService` each handle specific domain concerns
-- **Use Cases**: Application services like `SignInWithPasswordUseCase` have a single responsibility - orchestrating one specific business flow
+- **Use Cases**: Application services like `SignInWithPasswordHandler` have a single responsibility - orchestrating one specific business flow
 - **Adapters**: Each adapter interface (`TokenIssuer`, `PasswordVerifier`, `EventPublisher`) has one clear purpose
 
 ### Open/Closed Principle (OCP)
@@ -81,6 +84,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 - **Entity Inheritance**: Base `Entity` class can be extended by domain entities while maintaining contracts
 
 ### Interface Segregation Principle (ISP)
+- **Consumer-focused REST APIs**: The REST APIs are segregated into consumer-focused areas that can be versioned and evolve independently. 
 - **Specific Repository Interfaces**: `UserRepository` extends base `Repository` with only user-specific methods
 - **Focused Adapter Interfaces**: Each adapter interface (`TokenIssuer`, `TokenValidator`, `PasswordVerifier`) is minimal and focused
 - **Event Bus Interfaces**: Dedicated `EventPublisher` interface that does not contain subscription management.
@@ -159,26 +163,21 @@ const myService = container.resolve<MyService>("myService")
 - **Authentication Providers**: Different authentication providers (OpenID Connect, Google, Facebook, Apple)
 - **Repository Implementations**: Different data access strategies (memory, Prisma, Redis)
 
-### Observer Pattern
-- **Domain Events**: `EventPublisher` allows multiple subscribers to domain events
-- **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
-
 ### Factory Pattern
 - **Entity Creation**: `User.createNew()` factory method for creating new entities
 - **Client Factory**: `ClientFactory` for creating OAuth clients
 
-### Command Pattern (Implied in Use Cases)
-- **Use Cases**: Each use case encapsulates a command/operation
-- **Input/Output DTOs**: Clear command interfaces with typed inputs/outputs
+### Command Pattern & CQRS
+- **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
+- **Input/Output DTOs**: Clear command/query interfaces with typed inputs/outputs
 
 ### Specification Pattern (Implicit)
 - **Entity Validation**: Business rules encapsulated in entity methods like `canSignInWithActiveSession()`
 - **Zod Schemas**: Validation specifications separate from business logic
 
-
-
-
-
+### Observer Pattern
+- **Domain Events**: `EventPublisher` allows multiple subscribers to domain events
+- **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
 
 # Test Strategy
 ### Unit Tests

@@ -1,40 +1,45 @@
 import { Request, Response } from "express"
 import { SigningKey } from "~/domain/entities"
-import { CreateNewSigningKeyUseCase } from "../use-cases/CreateNewSigningKeyUseCase"
-import { DeleteSigningKeyInput, DeleteSigningKeyUseCase } from "../use-cases/DeleteSigningKeyUseCase"
-import { GetAllSigningKeysUseCase } from "../use-cases/GetAllSigningKeysUseCase"
-import { GetSigningKeyByIdInput, GetSigningKeyByIdUseCase } from "../use-cases/GetSigningKeyByIdUseCase"
+import { CreateNewSigningKeyHandler } from "../commands/CreateNewSigningKeyHandler"
+import { DeleteSigningKeyCommand, DeleteSigningKeyHandler } from "../commands/DeleteSigningKeyHandler"
+import { GetSigningKeyByIdHandler, GetSigningKeyByIdQuery } from "../queries/GetSigningKeyByIdHandler"
+import { SearchSigningKeysHandler, SearchSigningKeysQuery } from "../queries/SearchSigningKeysHandler"
 
 export class SigningKeyController {
   constructor(
     private readonly baseUrl: string,
-    private readonly createNewSigningKeyUseCase: CreateNewSigningKeyUseCase,
-    private readonly deleteSigningKeyUseCase: DeleteSigningKeyUseCase,
-    private readonly getAllSigningKeysUseCase: GetAllSigningKeysUseCase,
-    private readonly getSigningKeyByIdUseCase: GetSigningKeyByIdUseCase,
+    private readonly createNewSigningKeyHandler: CreateNewSigningKeyHandler,
+    private readonly deleteSigningKeyHandler: DeleteSigningKeyHandler,
+    private readonly getSigningKeyByIdHandler: GetSigningKeyByIdHandler,
+    private readonly searchSigningKeysHandler: SearchSigningKeysHandler,
   ) {}
 
   async getAll(req: Request, res: Response) {
-    const items = await this.getAllSigningKeysUseCase.execute()
+    const query: SearchSigningKeysQuery = {
+      offset: Number(req.query.offset) || 0,
+      limit: Number(req.query.limit) || 10,
+    }
+
+    const items = await this.searchSigningKeysHandler.execute(query)
     res.json(items.map(this.present))
   }
 
   async getById(req: Request, res: Response) {
-    const input: GetSigningKeyByIdInput = { id: req.params.id }
-    const item = await this.getSigningKeyByIdUseCase.execute(input)
+    const query: GetSigningKeyByIdQuery = { id: req.params.id }
+    const item = await this.getSigningKeyByIdHandler.execute(query)
     res.json(this.present(item))
   }
 
   async create(req: Request, res: Response) {
-    const item = await this.createNewSigningKeyUseCase.execute()
+    const item = await this.createNewSigningKeyHandler.execute()
     res.status(201)
       .header("Location", `${this.baseUrl}/admin/signing-keys/${item.id}`)
       .json(this.present(item))
   }
 
   async delete(req: Request, res: Response) {
-    const input: DeleteSigningKeyInput = { id: req.params.id }
-    await this.deleteSigningKeyUseCase.execute(input)
+    const command: DeleteSigningKeyCommand = { id: req.params.id }
+    await this.deleteSigningKeyHandler.execute(command)
     res.status(204).send()
   }
 

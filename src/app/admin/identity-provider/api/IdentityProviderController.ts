@@ -1,49 +1,54 @@
 import { Request, Response } from "express"
 import { IdentityProvider, IdentityProviderAuthSettings } from "~/domain/entities"
-import { GetAllIdentityProvidersUseCase } from "../use-cases/GetAllIdentityProvidersUseCase"
-import { GetIdentityProviderByIdInput, GetIdentityProviderByIdUseCase } from "../use-cases/GetIdentityProviderByIdUseCase"
-import { CreateIdentityProviderInput, CreateIdentityProviderUseCase } from "../use-cases/CreateIdentityProviderUseCase"
-import { UpdateIdentityProviderInput, UpdateIdentityProviderUseCase } from "../use-cases/UpdateIdentityProviderUseCase"
-import { DeleteIdentityProviderInput, DeleteIdentityProviderUseCase } from "../use-cases/DeleteIdentityProviderUseCase"
+import { CreateIdentityProviderCommand, CreateIdentityProviderHandler } from "../commands/CreateIdentityProviderHandler"
+import { DeleteIdentityProviderCommand, DeleteIdentityProviderHandler } from "../commands/DeleteIdentityProviderHandler"
+import { UpdateIdentityProviderCommand, UpdateIdentityProviderHandler } from "../commands/UpdateIdentityProviderHandler"
+import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "../queries/GetIdentityProviderByIdHandler"
+import { SearchIdentityProvidersHandler, SearchIdentityProvidersQuery } from "../queries/SearchIdentityProvidersHandler"
 
 export class IdentityProviderController {
   constructor(
     private readonly baseUrl: string,
-    private readonly getAllIdentityProvidersUseCase: GetAllIdentityProvidersUseCase,
-    private readonly getIdentityProviderByIdUseCase: GetIdentityProviderByIdUseCase,
-    private readonly createIdentityProviderUseCase: CreateIdentityProviderUseCase,
-    private readonly updateIdentityProviderUseCase: UpdateIdentityProviderUseCase,
-    private readonly deleteIdentityProviderUseCase: DeleteIdentityProviderUseCase,
+    private readonly createIdentityProviderHandler: CreateIdentityProviderHandler,
+    private readonly deleteIdentityProviderHandler: DeleteIdentityProviderHandler,
+    private readonly updateIdentityProviderHandler: UpdateIdentityProviderHandler,
+    private readonly getIdentityProviderByIdHandler: GetIdentityProviderByIdHandler,
+    private readonly searchIdentityProvidersHandler: SearchIdentityProvidersHandler,
   ) {}
 
   async getAll(req: Request, res: Response) {
-    const items = await this.getAllIdentityProvidersUseCase.execute()
+    const query: SearchIdentityProvidersQuery = {
+      offset: Number(req.query.offset) || 0,
+      limit: Number(req.query.limit) || 10,
+    }
+    
+    const items = await this.searchIdentityProvidersHandler.execute(query)
     res.json(items.map(this.present))
   }
 
   async getById(req: Request, res: Response) {
-    const input: GetIdentityProviderByIdInput = { id: req.params.id }
-    const item = await this.getIdentityProviderByIdUseCase.execute(input)
+    const query: GetIdentityProviderByIdQuery = { id: req.params.id }
+    const item = await this.getIdentityProviderByIdHandler.execute(query)
     res.json(this.present(item))
   }
 
   async create(req: Request, res: Response) {
-    const input: CreateIdentityProviderInput = this.parseBody(req.body)
-    const item = await this.createIdentityProviderUseCase.execute(input)
+    const command: CreateIdentityProviderCommand = this.parseBody(req.body)
+    const item = await this.createIdentityProviderHandler.execute(command)
     res.status(201)
       .header("Location", `${this.baseUrl}/admin/identity-providers/${item.id}`)
       .json(this.present(item))
   }
 
   async update(req: Request, res: Response) {
-    const input: UpdateIdentityProviderInput = { id: req.params.id, ...this.parseBody(req.body) }
-    const item = await this.updateIdentityProviderUseCase.execute(input)
+    const command: UpdateIdentityProviderCommand = { id: req.params.id, ...this.parseBody(req.body) }
+    const item = await this.updateIdentityProviderHandler.execute(command)
     res.json(this.present(item))
   }
 
   async delete(req: Request, res: Response) {
-    const input: DeleteIdentityProviderInput = { id: req.params.id }
-    await this.deleteIdentityProviderUseCase.execute(input)
+    const command: DeleteIdentityProviderCommand = { id: req.params.id }
+    await this.deleteIdentityProviderHandler.execute(command)
     res.status(204).send()
   }
 
