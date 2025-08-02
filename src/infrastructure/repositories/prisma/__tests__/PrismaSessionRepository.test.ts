@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import * as factories from "@test/support/factories"
 import { Session } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSessionRepository } from "../PrismaSessionRepository"
@@ -10,16 +11,8 @@ describe("PrismaSessionRepository", () => {
   let identityProviderId: string
   let userId: string
 
-  const createSession = async (props: Partial<Session> = {}): Promise<Session> => {
-    const session = Session.createNew({
-      userId,
-      identityProviderId,
-      identityProviderSessionId: randomUUID(),
-      idToken: "test-id-token",
-      refreshToken: "test-refresh-token",
-      ...props
-    }, 1)
-
+  const createAndStoreSession = async (props: Partial<Session> = {}): Promise<Session> => {
+    const session = factories.createIdentityProviderSession({ userId, identityProviderId, ...props })
     await sessionRepository.insert(session)
     return session
   }
@@ -30,7 +23,7 @@ describe("PrismaSessionRepository", () => {
 
     identityProviderId = randomUUID()
     userId = randomUUID()
-
+    
     await testContext.prismaClient.identityProvider.create({
       data: {
         id: identityProviderId,
@@ -60,7 +53,7 @@ describe("PrismaSessionRepository", () => {
 
   describe("query", () => {
     it("should return all sessions", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const found = await sessionRepository.query()
 
@@ -70,7 +63,7 @@ describe("PrismaSessionRepository", () => {
 
   describe("getById", () => {
     it("should return session when found", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const found = await sessionRepository.getById(original.id)
 
@@ -86,7 +79,7 @@ describe("PrismaSessionRepository", () => {
 
   describe("tryGetById", () => {
     it("should return session when found", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const found = await sessionRepository.tryGetById(original.id)
 
@@ -103,7 +96,7 @@ describe("PrismaSessionRepository", () => {
 
   describe("tryGetByIdentityProviderSessionId", () => {
     it("should return session when found by identity provider session id", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const found = await sessionRepository.tryGetByIdentityProviderSessionId(original.identityProviderSessionId!)
 
@@ -120,14 +113,14 @@ describe("PrismaSessionRepository", () => {
 
   describe("insert", () => {
     it("should insert a new session", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const found = await sessionRepository.getById(original.id)
       expect(found.props).toMatchObject(original.props)
     })
 
     it("should encrypt refresh token when inserting", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const rawSession = await testContext.prismaClient.session.findUnique({ where: { id: original.id } })
       expect(rawSession!.refreshToken).toMatch(/^encrypted_/)
@@ -136,7 +129,7 @@ describe("PrismaSessionRepository", () => {
 
   describe("update", () => {
     it("should update an existing session", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       original.setLastRefresh("new-id-token", "new-refresh-token")
 
@@ -147,7 +140,7 @@ describe("PrismaSessionRepository", () => {
     })
 
     it("should handle concurrent updates with optimistic locking", async () => {
-      const original = await createSession()
+      const original = await createAndStoreSession()
 
       const session1 = await sessionRepository.getById(original.id)
       const session2 = await sessionRepository.getById(original.id)

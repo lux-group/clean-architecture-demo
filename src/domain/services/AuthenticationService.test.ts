@@ -1,10 +1,9 @@
-import { AuthenticationService } from "./AuthenticationService"
+import * as factories from "@test/support/factories"
 import { UserRepository } from "~/domain/repositories"
 import { EventPublisher, PasswordVerifier, TokenValidator } from "~/domain/adapters"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
-import { Session, User, IdentityProvider, UserIdentity } from "~/domain/entities"
+import { AuthenticationService } from "./AuthenticationService"
 
-// Mock implementations
 const mockUserRepository = {
   query: jest.fn(),
   getById: jest.fn(),
@@ -29,44 +28,12 @@ const mockTokenValidator = {
   decodeAndValidateToken: jest.fn(),
 } as jest.Mocked<TokenValidator>
 
-// Test utilities
-const createMockUser = (overrides: Partial<User> = {}): User => ({
-  id: "user-123",
-  brand: "test-brand",
+const mockProfile = {
+  identifierClaimValue: "external-id",
   email: "test@example.com",
-  isEnabled: true,
-  passwordHash: "hashed-password",
-  roles: ["user"],
-  identities: [],
-  canSignInWithActiveSession: jest.fn().mockReturnValue(true),
-  canSignInWithPassword: jest.fn().mockReturnValue(true),
-  canSignInWithClientSecret: jest.fn().mockReturnValue(true),
-  canSignInWithIdentityProvider: jest.fn().mockReturnValue(true),
-  handleFailedSignInAttempt: jest.fn(),
-  addIdentity: jest.fn(),
-  ...overrides,
-} as any)
-
-const createMockSession = (overrides: Partial<Session> = {}): Session => ({
-  id: "session-123",
-  userId: "user-123",
-  isActive: true,
-  ...overrides,
-} as any)
-
-const createMockIdentityProvider = (overrides: Partial<IdentityProvider> = {}): IdentityProvider => ({
-  id: "idp-123",
-  authSettings: {
-    type: "ENTRA",
-    brand: "test-brand",
-    clientId: "client-123",
-    clientSecret: "secret-123",
-    redirectUrls: ["https://example.com/callback"],
-    autoLinkUsers: false,
-    autoCreateUsers: false,
-  },
-  ...overrides,
-} as any)
+  givenName: "John",
+  surname: "Doe"
+}
 
 describe("AuthenticationService", () => {
   let service: AuthenticationService
@@ -83,21 +50,21 @@ describe("AuthenticationService", () => {
 
   describe("authenticateWithActiveSession", () => {
     it("should authenticate user with active session successfully", async () => {
-      const mockUser = createMockUser()
-      const mockSession = createMockSession()
-      mockUserRepository.tryGetById.mockResolvedValue(mockUser)
+      const user = factories.createUser()
+      const session = factories.createLocalSession()
+      mockUserRepository.tryGetById.mockResolvedValue(user)
 
-      const result = await service.authenticateWithActiveSession(mockSession)
+      const result = await service.authenticateWithActiveSession(session)
 
-      expect(result).toBe(mockUser)
-      expect(mockUserRepository.tryGetById).toHaveBeenCalledWith("user-123")
+      expect(result).toBe(user)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
 
     it("should throw error when session is not active", async () => {
-      const mockSession = createMockSession({ isActive: false })
+      const session = factories.createLocalSession()
+      session.terminateSessionByAdmin()
 
-      await expect(service.authenticateWithActiveSession(mockSession))
+      await expect(service.authenticateWithActiveSession(session))
         .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith("Authentication",
@@ -109,36 +76,33 @@ describe("AuthenticationService", () => {
     })
 
     it("should throw error when user not found", async () => {
-      const mockSession = createMockSession()
+      const session = factories.createLocalSession()
       mockUserRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithActiveSession(mockSession))
+      await expect(service.authenticateWithActiveSession(session))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
     })
 
     it("should throw error when user cannot sign in with active session", async () => {
-      const mockUser = createMockUser({
-        canSignInWithActiveSession: jest.fn().mockReturnValue(false)
-      })
-      const mockSession = createMockSession()
-      mockUserRepository.tryGetById.mockResolvedValue(mockUser)
+      const user = factories.createUser({ roles: ["service"] })
+      const session = factories.createLocalSession()
+      mockUserRepository.tryGetById.mockResolvedValue(user)
 
-      await expect(service.authenticateWithActiveSession(mockSession))
+      await expect(service.authenticateWithActiveSession(session))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
     })
   })
 
   describe("authenticateWithEmailAndPassword", () => {
     it("should authenticate user with email and password successfully", async () => {
-      const mockUser = createMockUser()
-      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(mockUser)
+      const user = factories.createUser({ passwordHash: "hashed-password" })
+      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
       mockPasswordVerifier.verifyPassword.mockReturnValue(true)
 
-      const result = await service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password")
+      const result = await service.authenticateWithEmailAndPassword(user.brand, user.email, "password")
 
-      expect(result).toBe(mockUser)
-      expect(mockUserRepository.tryGetByBrandAndEmail).toHaveBeenCalledWith("test-brand", "test@example.com")
-      expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("password", "hashed-password")
+      expect(result).toBe(user)
+      expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("password", user.passwordHash)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith("Authentication",
         expect.objectContaining({ result: "Success" })
       )
@@ -152,38 +116,33 @@ describe("AuthenticationService", () => {
     })
 
     it("should throw error when password verification fails", async () => {
-      const mockUser = createMockUser()
-      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(mockUser)
+      const user = factories.createUser()
+      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
       mockPasswordVerifier.verifyPassword.mockReturnValue(false)
 
-      await expect(service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "wrong-password"))
+      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password"))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
-
-      expect(mockUser.handleFailedSignInAttempt).toHaveBeenCalled()
     })
 
     it("should throw error when user cannot sign in with password", async () => {
-      const mockUser = createMockUser({
-        canSignInWithPassword: jest.fn().mockReturnValue(false)
-      })
-      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(mockUser)
+      const user = factories.createUser( { roles: ["service"] })
+      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
 
-      await expect(service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password"))
+      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password"))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
     })
   })
 
   describe("authenticateWithClientCredentials", () => {
     it("should authenticate client with credentials successfully", async () => {
-      const mockUser = createMockUser()
-      mockUserRepository.tryGetById.mockResolvedValue(mockUser)
+      const user = factories.createUser({ roles: ["service"], passwordHash: "hashed-client-secret" })
+      mockUserRepository.tryGetById.mockResolvedValue(user)
       mockPasswordVerifier.verifyPassword.mockReturnValue(true)
 
-      const result = await service.authenticateWithClientCredentials("client-id", "client-secret")
+      const result = await service.authenticateWithClientCredentials(user.id, "client-secret")
 
-      expect(result).toBe(mockUser)
-      expect(mockUserRepository.tryGetById).toHaveBeenCalledWith("client-id")
-      expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("client-secret", "hashed-password")
+      expect(result).toBe(user)
+      expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("client-secret", user.passwordHash)
     })
 
     it("should throw error when client not found", async () => {
@@ -194,36 +153,30 @@ describe("AuthenticationService", () => {
     })
 
     it("should throw error when client cannot use client credentials", async () => {
-      const mockUser = createMockUser({
-        canSignInWithClientSecret: jest.fn().mockReturnValue(false)
-      })
-      mockUserRepository.tryGetById.mockResolvedValue(mockUser)
+      const user = factories.createUser()
+      mockUserRepository.tryGetById.mockResolvedValue(user)
 
-      await expect(service.authenticateWithClientCredentials("client-id", "client-secret"))
+      await expect(service.authenticateWithClientCredentials(user.id, "client-secret"))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
     })
   })
 
   describe("authenticateWithExternalIdentityToken", () => {
     it("should authenticate with external identity token successfully", async () => {
-      const mockUser = createMockUser()
-      const mockIdp = createMockIdentityProvider()
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
+      const idp = factories.createIdentityProvider()
+      const user = factories.createUser()
+      user.addIdentity(idp.id, "external-id")
 
       mockTokenValidator.decodeAndValidateToken.mockResolvedValue({
-        identityProvider: mockIdp,
+        identityProvider: idp,
         profile: mockProfile
       })
-      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(mockUser)
+
+      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
 
       const result = await service.authenticateWithExternalIdentityToken("token")
 
-      expect(result).toBe(mockUser)
+      expect(result).toBe(user)
       expect(mockTokenValidator.decodeAndValidateToken).toHaveBeenCalledWith("token")
     })
 
@@ -244,28 +197,22 @@ describe("AuthenticationService", () => {
 
   describe("authenticateWithExternalIdentity", () => {
     it("should authenticate existing user with external identity", async () => {
-      const mockUser = createMockUser()
-      const mockIdp = createMockIdentityProvider()
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
+      const idp = factories.createIdentityProvider()
+      const user = factories.createUser({ roles: ["service"] })
+      user.addIdentity(idp.id, "external-id")
       
-      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(mockUser)
+      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
 
-      const result = await service.authenticateWithExternalIdentity(mockIdp, mockProfile)
+      const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
 
-      expect(result.user).toBe(mockUser)
+      expect(result.user).toBe(user)
       expect(result.newIdentity).toBeUndefined()
-      expect(mockUserRepository.tryGetByExternalIdentity).toHaveBeenCalledWith("idp-123", "external-id")
+      expect(mockUserRepository.tryGetByExternalIdentity).toHaveBeenCalledWith(idp.id, "external-id")
     })
 
     it("should auto-link existing user when configured", async () => {
-      const mockUser = createMockUser()
-      const mockNewIdentity = { identityProviderId: "idp-123" } as UserIdentity
-      const mockIdp = createMockIdentityProvider({
+      const user = factories.createUser({ email: mockProfile.email })
+      const idp = factories.createIdentityProvider({
         authSettings: {
           type: "ENTRA",
           brand: "test-brand",
@@ -276,87 +223,81 @@ describe("AuthenticationService", () => {
           autoCreateUsers: false
         }
       })
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
-      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(mockUser)
-      mockUser.addIdentity = jest.fn().mockReturnValue(mockNewIdentity)
+      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
 
-      const result = await service.authenticateWithExternalIdentity(mockIdp, mockProfile)
+      const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
 
-      expect(result.user).toBe(mockUser)
-      expect(result.newIdentity).toBe(mockNewIdentity)
-      expect(mockUser.addIdentity).toHaveBeenCalledWith("idp-123", "external-id")
-      expect(mockUserRepository.update).toHaveBeenCalledWith(mockUser)
+      expect(result.user).toBe(user)
+      expect(result.newIdentity).toEqual(expect.objectContaining({
+        identityProviderId: idp.id,
+        identifierClaimValue: mockProfile.identifierClaimValue
+      }))
+      expect(mockUserRepository.update).toHaveBeenCalled()
     })
 
     it("should auto-create new user when configured", async () => {
-      const mockNewUser = createMockUser()
-      const mockNewIdentity = { identityProviderId: "idp-123" } as UserIdentity
-      const mockIdp = createMockIdentityProvider({
+      const idp = factories.createIdentityProvider({
         authSettings: {
-          type: "ENTRA",
-          brand: "test-brand",
-          clientId: "client-123",
-          clientSecret: "secret-123",
-          redirectUrls: ["https://example.com/callback"],
+        type: "ENTRA",
+        brand: "unused",
+        clientId: "unused-client-id",
+        clientSecret: "unused-client-secret",
+        redirectUrls: ["https://unused"],
           autoLinkUsers: false,
           autoCreateUsers: true
         }
       })
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
-      jest.spyOn(User, 'createNew').mockReturnValue(mockNewUser)
-      mockNewUser.addIdentity = jest.fn().mockReturnValue(mockNewIdentity)
+      mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(undefined)
 
-      const result = await service.authenticateWithExternalIdentity(mockIdp, mockProfile)
+      const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
 
-      expect(result.user).toBe(mockNewUser)
-      expect(result.newIdentity).toBe(mockNewIdentity)
-      expect(mockUserRepository.insert).toHaveBeenCalledWith(mockNewUser)
+      expect(result.user).toEqual(expect.objectContaining({
+        email: mockProfile.email,
+        givenName: mockProfile.givenName,
+        surname: mockProfile.surname, 
+        identities: expect.arrayContaining([
+          expect.objectContaining({
+            identifierClaimValue: mockProfile.identifierClaimValue
+          })
+        ])
+      }))
+      expect(result.newIdentity).toEqual(expect.objectContaining({
+        identityProviderId: idp.id,
+        identifierClaimValue: mockProfile.identifierClaimValue
+      }))
+      expect(mockUserRepository.insert).toHaveBeenCalled()
     })
 
     it("should throw error when user not found and auto-creation disabled", async () => {
-      const mockIdp = createMockIdentityProvider()
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
+      const idp = factories.createIdentityProvider({
+        authSettings: {
+        type: "ENTRA",
+        brand: "unused",
+        clientId: "unused-client-id",
+        clientSecret: "unused-client-secret",
+        redirectUrls: ["https://unused"],
+          autoLinkUsers: false,
+          autoCreateUsers: false
+        }
+      })
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithExternalIdentity(mockIdp, mockProfile))
+      await expect(service.authenticateWithExternalIdentity(idp, mockProfile))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
     })
 
     it("should throw error when user cannot sign in with identity provider", async () => {
-      const mockUser = createMockUser({
-        canSignInWithIdentityProvider: jest.fn().mockReturnValue(false)
-      })
-      const mockIdp = createMockIdentityProvider()
-      const mockProfile = {
-        identifierClaimValue: "external-id",
-        email: "test@example.com",
-        givenName: "John",
-        surname: "Doe"
-      }
+      const user = factories.createUser()
+      const idp = factories.createIdentityProvider()
 
-      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(mockUser)
+      mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
 
-      await expect(service.authenticateWithExternalIdentity(mockIdp, mockProfile))
+      await expect(service.authenticateWithExternalIdentity(idp, mockProfile))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
     })
   })

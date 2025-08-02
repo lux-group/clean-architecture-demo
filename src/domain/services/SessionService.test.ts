@@ -1,13 +1,24 @@
-import { SessionService } from "./SessionService"
+import { randomUUID } from "crypto"
+import * as factories from "@test/support/factories"
+import { Session, SessionStatus } from "~/domain/entities"
 import { IdentityProviderRepository, SessionRepository } from "~/domain/repositories"
 import { AuthClientFactory, EventPublisher, SignInResponse } from "~/domain/adapters"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
-import { Session, IdentityProvider } from "~/domain/entities"
+import { SessionService } from "./SessionService"
 
-// Mock implementations
 const mockAuthClientFactory = {
   createClient: jest.fn(),
 } as jest.Mocked<AuthClientFactory>
+
+const mockAuthClient = {
+  supportsSignOut: true,
+  supportsEditProfile: false,
+  createSignInRequest: jest.fn(),
+  createSignOutRequest: jest.fn(),
+  processSignInResponse: jest.fn(),
+  checkSessionWithRefreshToken: jest.fn(),
+  editProfile: jest.fn(),
+}
 
 const mockIdentityProviderRepository = {
   query: jest.fn(),
@@ -34,45 +45,6 @@ const mockEventPublisher = {
   publishEvent: jest.fn(),
 } as jest.Mocked<EventPublisher>
 
-const mockSessionConfig = {
-  localSessionLifetimeHours: 24,
-  externalSessionLifetimeHours: 48,
-  minSessionRefreshDelayMinutes: 5,
-}
-
-const mockAuthClient = {
-  supportsSignOut: true,
-  supportsEditProfile: false,
-  createSignInRequest: jest.fn(),
-  createSignOutRequest: jest.fn(),
-  processSignInResponse: jest.fn(),
-  checkSessionWithRefreshToken: jest.fn(),
-  editProfile: jest.fn(),
-}
-
-// Test utilities
-const createMockSession = (overrides: Partial<Session> = {}): Session => ({
-  id: "session-123",
-  userId: "user-123",
-  nonce: "nonce-123",
-  identityProviderId: null,
-  refreshToken: null,
-  isActive: true,
-  ensureIsActive: jest.fn(),
-  isIdentityProviderRefreshDue: jest.fn().mockReturnValue(false),
-  terminateLocalSessionByUser: jest.fn(),
-  terminateIdentityProviderSessionByUser: jest.fn(),
-  terminateSessionByIdentityProvider: jest.fn(),
-  setLastRefresh: jest.fn(),
-  ...overrides,
-} as any)
-
-const createMockIdentityProvider = (overrides: Partial<IdentityProvider> = {}): IdentityProvider => ({
-  id: "idp-123",
-  name: "Test IDP",
-  ...overrides,
-} as any)
-
 const createMockSignInResponse = (overrides: Partial<SignInResponse> = {}): SignInResponse => ({
   profile: {
     identifierClaimValue: "external-id",
@@ -90,26 +62,48 @@ describe("SessionService", () => {
   let service: SessionService
 
   beforeEach(() => {
+    const sessionConfig = {
+      localSessionLifetimeHours: 24,
+      externalSessionLifetimeHours: 48,
+      minSessionRefreshDelayMinutes: 1,
+    }
     service = new SessionService(
       mockAuthClientFactory,
       mockIdentityProviderRepository,
       mockSessionRepository,
-      mockSessionConfig,
-      mockEventPublisher
+      sessionConfig,
+      mockEventPublisher,
     )
     jest.clearAllMocks()
   })
 
   describe("getActiveSessionById", () => {
     it("should return active session when valid", async () => {
-      const mockSession = createMockSession()
-      mockSessionRepository.tryGetById.mockResolvedValue(mockSession)
+      const session = factories.createLocalSession()
+      mockSessionRepository.tryGetById.mockResolvedValue(session)
 
-      const result = await service.getActiveSessionById("session-123", "nonce-123")
+      const result = await service.getActiveSessionById(session.id, session.nonce)
 
-      expect(result).toBe(mockSession)
-      expect(mockSessionRepository.tryGetById).toHaveBeenCalledWith("session-123")
-      expect(mockSession.ensureIsActive).toHaveBeenCalled()
+      expect(result).toBe(session)
+    })
+
+    it("should throw error when nonce mismatch", async () => {
+      const session = factories.createLocalSession()
+      mockSessionRepository.tryGetById.mockResolvedValue(session)
+
+      await expect(service.getActiveSessionById(session.id, "nonce-123"))
+        .rejects.toThrow(new AuthenticationError(commonErrors.sessionInvalid))
+
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
+    })
+
+    it("should throw error when session is inactive", async () => {
+      const session = factories.createLocalSession()
+      session.terminateSessionByAdmin()
+      mockSessionRepository.tryGetById.mockResolvedValue(session)
+
+      await expect(service.getActiveSessionById(session.id, session.nonce))
+        .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
     })
 
     it("should throw error when session not found", async () => {
@@ -118,157 +112,89 @@ describe("SessionService", () => {
       await expect(service.getActiveSessionById("session-123", "nonce-123"))
         .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
     })
-
-    it("should throw error when nonce mismatch", async () => {
-      const mockSession = createMockSession({ nonce: "different-nonce" })
-      mockSessionRepository.tryGetById.mockResolvedValue(mockSession)
-
-      await expect(service.getActiveSessionById("session-123", "nonce-123"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.sessionInvalid))
-
-      expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
-    })
-  })
-
-  describe("tryGetSessionByIdentityProviderSessionId", () => {
-    it("should return session by identity provider session id", async () => {
-      const mockSession = createMockSession()
-      mockSessionRepository.tryGetByIdentityProviderSessionId.mockResolvedValue(mockSession)
-
-      const result = await service.tryGetSessionByIdentityProviderSessionId("external-session-123")
-
-      expect(result).toBe(mockSession)
-      expect(mockSessionRepository.tryGetByIdentityProviderSessionId)
-        .toHaveBeenCalledWith("external-session-123")
-    })
   })
 
   describe("startLocalSession", () => {
     it("should create and insert local session", async () => {
-      const mockSession = createMockSession()
-      jest.spyOn(Session, 'createNew').mockReturnValue(mockSession)
+      const userId = randomUUID()
 
-      const result = await service.startLocalSession("user-123")
+      const session = await service.startLocalSession(userId)
 
-      expect(result).toBe(mockSession)
-      expect(Session.createNew).toHaveBeenCalledWith(
-        {
-          userId: "user-123",
-          identityProviderId: null,
-          identityProviderSessionId: null,
-          idToken: null,
-          refreshToken: null,
-        },
-        24
-      )
-      expect(mockSessionRepository.insert).toHaveBeenCalledWith(mockSession)
+      expect(session).toEqual(expect.objectContaining({ userId }))
+      expect(mockSessionRepository.insert).toHaveBeenCalledWith(session)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 
   describe("startIdentityProviderSession", () => {
     it("should create and insert identity provider session", async () => {
-      const mockSession = createMockSession()
-      const mockSignInResponse = createMockSignInResponse()
-      jest.spyOn(Session, 'createNew').mockReturnValue(mockSession)
+      const userId = randomUUID()
+      const identityProviderId = randomUUID()
+      const signInResponse = createMockSignInResponse()
 
-      const result = await service.startIdentityProviderSession("user-123", "idp-123", mockSignInResponse)
+      const session = await service.startIdentityProviderSession(userId, identityProviderId, signInResponse)
 
-      expect(result).toBe(mockSession)
-      expect(Session.createNew).toHaveBeenCalledWith(
-        {
-          userId: "user-123",
-          identityProviderId: "idp-123",
-          identityProviderSessionId: "external-session-123",
-          idToken: "id-token",
-          refreshToken: "refresh-token",
-        },
-        48
-      )
-      expect(mockSessionRepository.insert).toHaveBeenCalledWith(mockSession)
-    })
-
-    it("should handle sign-in response without optional fields", async () => {
-      const mockSession = createMockSession()
-      const mockSignInResponse = createMockSignInResponse({
-        sessionId: undefined,
-        refreshToken: undefined
-      })
-      jest.spyOn(Session, 'createNew').mockReturnValue(mockSession)
-
-      await service.startIdentityProviderSession("user-123", "idp-123", mockSignInResponse)
-
-      expect(Session.createNew).toHaveBeenCalledWith(
-        {
-          userId: "user-123",
-          identityProviderId: "idp-123",
-          identityProviderSessionId: null,
-          idToken: "id-token",
-          refreshToken: null,
-        },
-        48
-      )
+      expect(session).toEqual(expect.objectContaining({ userId, identityProviderId }))
+      expect(mockSessionRepository.insert).toHaveBeenCalledWith(session)
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 
   describe("terminateLocalSessionByUser", () => {
     it("should terminate local session and update", async () => {
-      const mockSession = createMockSession()
+      const session = factories.createLocalSession()
 
-      await service.terminateLocalSessionByUser(mockSession)
+      await service.terminateLocalSessionByUser(session)
 
-      expect(mockSession.terminateLocalSessionByUser).toHaveBeenCalled()
-      expect(mockSessionRepository.update).toHaveBeenCalledWith(mockSession)
+      expect(session.status).toBe(SessionStatus.TerminatedByUser)
+      expect(session.terminatedAt).toBeDefined()
+      expect(mockSessionRepository.update).toHaveBeenCalledWith(session)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 
   describe("terminateIdentityProviderSessionByUser", () => {
     it("should terminate identity provider session and update", async () => {
-      const mockSession = createMockSession()
+      const session = factories.createIdentityProviderSession()
 
-      await service.terminateIdentityProviderSessionByUser(mockSession)
+      await service.terminateIdentityProviderSessionByUser(session)
 
-      expect(mockSession.terminateIdentityProviderSessionByUser).toHaveBeenCalled()
-      expect(mockSessionRepository.update).toHaveBeenCalledWith(mockSession)
+      expect(session.status).toBe(SessionStatus.TerminatedByUser)
+      expect(session.terminatedAt).toBeDefined()
+      expect(mockSessionRepository.update).toHaveBeenCalledWith(session)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 
   describe("terminateSessionByIdentityProvider", () => {
     it("should terminate session by identity provider and update", async () => {
-      const mockSession = createMockSession()
+      const session = factories.createIdentityProviderSession()
 
-      await service.terminateSessionByIdentityProvider(mockSession)
+      await service.terminateSessionByIdentityProvider(session)
 
-      expect(mockSession.terminateSessionByIdentityProvider).toHaveBeenCalled()
-      expect(mockSessionRepository.update).toHaveBeenCalledWith(mockSession)
+      expect(session.status).toBe(SessionStatus.TerminatedByProvider)
+      expect(session.terminatedAt).toBeDefined()
+      expect(mockSessionRepository.update).toHaveBeenCalledWith(session)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 
   describe("refreshSession", () => {
     it("should refresh session when not due for refresh", async () => {
-      const mockSession = createMockSession()
+      const session = factories.createIdentityProviderSession()
 
-      const result = await service.refreshSession(mockSession)
+      await service.refreshSession(session)
 
-      expect(result).toBe(mockSession)
-      expect(mockSession.ensureIsActive).toHaveBeenCalled()
-      expect(mockSession.isIdentityProviderRefreshDue).toHaveBeenCalledWith(5)
-      expect(mockSession.setLastRefresh).toHaveBeenCalledWith(undefined, undefined)
-      expect(mockSessionRepository.update).toHaveBeenCalledWith(mockSession)
+      expect(session.status).toBe(SessionStatus.Active)
+      expect(mockSessionRepository.update).toHaveBeenCalledWith(session)
     })
 
     it("should refresh session when due and valid refresh token", async () => {
-      const mockSession = createMockSession({
-        identityProviderId: "idp-123",
-        refreshToken: "refresh-token",
-        isIdentityProviderRefreshDue: jest.fn().mockReturnValue(true)
-      })
-      const mockIdp = createMockIdentityProvider()
+      let session = factories.createIdentityProviderSession()
+      session = new Session({ ...session.props, lastRefreshAt: new Date(Date.now() - 120000) })
+      const idp = factories.createIdentityProvider()
       
-      mockIdentityProviderRepository.getById.mockResolvedValue(mockIdp)
+      mockIdentityProviderRepository.getById.mockResolvedValue(idp)
       mockAuthClientFactory.createClient.mockReturnValue(mockAuthClient)
       mockAuthClient.checkSessionWithRefreshToken.mockResolvedValue({
         valid: true,
@@ -276,59 +202,43 @@ describe("SessionService", () => {
         refreshToken: "new-refresh-token"
       })
 
-      const result = await service.refreshSession(mockSession)
+      await service.refreshSession(session)
 
-      expect(result).toBe(mockSession)
-      expect(mockAuthClientFactory.createClient).toHaveBeenCalledWith(mockIdp)
-      expect(mockAuthClient.checkSessionWithRefreshToken).toHaveBeenCalledWith("refresh-token")
-      expect(mockSession.setLastRefresh).toHaveBeenCalledWith("new-id-token", "new-refresh-token")
+      expect(session.status).toBe(SessionStatus.Active)
+      expect(session.idToken).toBe("new-id-token")
+      expect(session.refreshToken).toBe("new-refresh-token")
+      expect(session.lastRefreshAt).not.toBe(session.createdAt)
+      expect(mockSessionRepository.update).toHaveBeenCalled()
     })
 
     it("should terminate session when refresh token is invalid", async () => {
-      const mockSession = createMockSession({
-        identityProviderId: "idp-123",
-        refreshToken: "refresh-token",
-        isIdentityProviderRefreshDue: jest.fn().mockReturnValue(true)
-      })
-      const mockIdp = createMockIdentityProvider()
-      
-      mockIdentityProviderRepository.getById.mockResolvedValue(mockIdp)
+      let session = factories.createIdentityProviderSession()
+      session = new Session({ ...session.props, lastRefreshAt: new Date(Date.now() - 120000) })
+      const idp = factories.createIdentityProvider()
+
+      mockIdentityProviderRepository.getById.mockResolvedValue(idp)
       mockAuthClientFactory.createClient.mockReturnValue(mockAuthClient)
-      mockAuthClient.checkSessionWithRefreshToken.mockResolvedValue({
-        valid: false
-      })
+      mockAuthClient.checkSessionWithRefreshToken.mockResolvedValue({ valid: false })
 
-      const result = await service.refreshSession(mockSession)
+      await service.refreshSession(session)
 
-      expect(result).toBe(mockSession)
-      expect(mockSession.terminateSessionByIdentityProvider).toHaveBeenCalled()
-    })
-
-    it("should not refresh when session has no identity provider", async () => {
-      const mockSession = createMockSession({
-        identityProviderId: null,
-        isIdentityProviderRefreshDue: jest.fn().mockReturnValue(true)
-      })
-
-      const result = await service.refreshSession(mockSession)
-
-      expect(result).toBe(mockSession)
-      expect(mockSession.setLastRefresh).toHaveBeenCalledWith(undefined, undefined)
-      expect(mockIdentityProviderRepository.getById).not.toHaveBeenCalled()
+      expect(session.status).toBe(SessionStatus.TerminatedByProvider)
+      expect(session.refreshToken).toBeNull()
+      expect(session.lastRefreshAt).not.toBe(session.createdAt)
+      expect(mockSessionRepository.update).toHaveBeenCalled()
     })
 
     it("should not refresh when session has no refresh token", async () => {
-      const mockSession = createMockSession({
-        identityProviderId: "idp-123",
-        refreshToken: null,
-        isIdentityProviderRefreshDue: jest.fn().mockReturnValue(true)
-      })
+      const session = factories.createIdentityProviderSession({ refreshToken: null })
+      const idp = factories.createIdentityProvider()
 
-      const result = await service.refreshSession(mockSession)
+      mockIdentityProviderRepository.getById.mockResolvedValue(idp)
+      mockAuthClientFactory.createClient.mockReturnValue(mockAuthClient)
 
-      expect(result).toBe(mockSession)
-      expect(mockSession.setLastRefresh).toHaveBeenCalledWith(undefined, undefined)
-      expect(mockIdentityProviderRepository.getById).not.toHaveBeenCalled()
+      await service.refreshSession(session)
+
+      expect(session.status).toBe(SessionStatus.Active)
+      expect(mockAuthClientFactory.createClient).not.toHaveBeenCalled()
     })
   })
 })

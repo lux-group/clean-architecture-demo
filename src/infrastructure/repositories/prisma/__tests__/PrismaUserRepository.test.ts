@@ -1,3 +1,4 @@
+import * as factories from "@test/support/factories"
 import { randomUUID } from "node:crypto"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
@@ -10,21 +11,7 @@ describe("PrismaUserRepository", () => {
   let identityProviderId: string
 
   const createUser = async (props: Partial<User> = {}, identities: number = 0): Promise<User> => {
-    const user = User.createNew({
-      isEnabled: true,
-      brand: "test-brand",
-      givenName: "John",
-      surname: "Doe",
-      email: randomUUID() + "@example.com",
-      emailVerified: true,
-      phone: null,
-      country: null,
-      city: null,
-      postcode: null,
-      passwordHash: null,
-      roles: [],
-      ...props
-    })
+    const user = factories.createUser(props)
 
     for (let i = 0; i < identities; i++) {
       user.addIdentity(identityProviderId, randomUUID())
@@ -176,31 +163,30 @@ describe("PrismaUserRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createUser()
-
-      const user1 = await userRepository.getById(original.id)
-      const user2 = await userRepository.getById(original.id)
+      const user1 = new User({ ...original.props });
+      const user2 = new User({ ...original.props });
 
       user1.update({
         isEnabled: true,
-        givenName: "Johnny",
-        surname: "Doe",
+        givenName: user1.givenName,
+        surname: user1.surname,
         country: null,
         city: null,
         postcode: null,
-        roles: ["user"]
+        roles: user1.roles
       })
-
-      await userRepository.update(user1)
 
       user2.update({
         isEnabled: true,
-        givenName: "John",
-        surname: "Smith",
+        givenName: user2.givenName,
+        surname: user2.surname,
         country: null,
         city: null,
         postcode: null,
-        roles: ["user"]
+        roles: user1.roles
       })
+
+      await userRepository.update(user1)
 
       await expect(userRepository.update(user2))
         .rejects

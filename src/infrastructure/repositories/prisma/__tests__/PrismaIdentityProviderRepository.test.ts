@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto"
+import * as factories from "@test/support/factories"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
 import { PrismaIdentityProviderRepository } from "../PrismaIdentityProviderRepository"
@@ -8,26 +8,10 @@ describe("PrismaIdentityProviderRepository", () => {
   let testContext: TestContext
   let identityProviderRepository: PrismaIdentityProviderRepository
 
-  const createIdentityProvider = async (props: Partial<IdentityProvider> = {}): Promise<IdentityProvider> => {
-    const idp = IdentityProvider.createNew({
-      name: randomUUID(),
-      issuerUrl: "https://test.example.com",
-      audience: randomUUID(),
-      identifierClaimName: "sub",
-      authSettings: {
-        type: IdentityProviderType.Google,
-        brand: "test-brand",
-        clientId: "test-client-id",
-        clientSecret: "test-client-secret",
-        redirectUrls: ["https://example.com/callback"],
-        autoLinkUsers: false,
-        autoCreateUsers: false
-      },
-      ...props
-    })
-
-    await identityProviderRepository.insert(idp)
-    return idp
+  const createAndStoreIdentityProvider = async (props: Partial<IdentityProvider> = {}) => {
+    const identityProvider =  factories.createIdentityProvider(props)
+    await identityProviderRepository.insert(identityProvider)
+    return identityProvider
   }
 
   beforeAll(async () => {
@@ -41,7 +25,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("query", () => {
     it("should return all identity providers", async () => {
-      await createIdentityProvider()
+      await createAndStoreIdentityProvider()
 
       const found = await identityProviderRepository.query()
 
@@ -51,7 +35,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("getById", () => {
     it("should return identity provider when found", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       const found = await identityProviderRepository.getById(original.id)
 
@@ -67,7 +51,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("tryGetById", () => {
     it("should return identity provider when found", async () => {
-      const original = await createIdentityProvider({ authSettings: null })
+      const original = await createAndStoreIdentityProvider({ authSettings: null })
 
       const found = await identityProviderRepository.tryGetById(original.id)
 
@@ -84,7 +68,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("tryGetByName", () => {
     it("should return identity provider when found by name", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       const found = await identityProviderRepository.tryGetByName(original.name)
 
@@ -101,7 +85,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("tryGetByIssuerUrlAndAudience", () => {
     it("should return identity provider when found by issuer URL and audience", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       const found = await identityProviderRepository.tryGetByIssuerUrlAndAudience(
         original.issuerUrl, 
@@ -124,7 +108,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("insert", () => {
     it("should insert a new identity provider with auth settings", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       const found = await identityProviderRepository.getById(original.id)
 
@@ -133,7 +117,7 @@ describe("PrismaIdentityProviderRepository", () => {
     })
 
     it("should insert identity provider without auth settings", async () => {
-      const original = await createIdentityProvider({ authSettings: null })
+      const original = await createAndStoreIdentityProvider({ authSettings: null })
 
       const found = await identityProviderRepository.getById(original.id)
 
@@ -142,7 +126,7 @@ describe("PrismaIdentityProviderRepository", () => {
     })
 
     it("should enforce unique issuer URL and audience constraint", async () => {
-      const original = await createIdentityProvider({
+      const original = await createAndStoreIdentityProvider({
         issuerUrl: "https://same.example.com",
         audience: "same-audience",
       })
@@ -153,27 +137,17 @@ describe("PrismaIdentityProviderRepository", () => {
     })
 
     it("should encrypt client secret when inserting", async () => {
-      const original = await createIdentityProvider({
-        authSettings: {
-          type: IdentityProviderType.Google,
-          brand: "test-brand",
-          clientId: "test-client-id",
-          clientSecret: "super-secret-key",
-          redirectUrls: ["https://example.com/callback"],
-          autoLinkUsers: false,
-          autoCreateUsers: false
-        }
-      })
+      const original = await createAndStoreIdentityProvider()
 
       const found = await testContext.prismaClient.identityProvider.findUnique({ where: { id: original.id } })
 
-      expect(found!.authSettingsClientSecret).toBe("encrypted_super-secret-key")
+      expect(found!.authSettingsClientSecret).toBe("encrypted_" + original.authSettings!.clientSecret)
     })
   })
 
   describe("update", () => {
     it("should update an existing identity provider", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       original.update({
         name: "Updated Name",
@@ -198,27 +172,27 @@ describe("PrismaIdentityProviderRepository", () => {
     })
 
     it("should handle concurrent updates with optimistic locking", async () => {
-      const original = await createIdentityProvider()
-      const idp1 = await identityProviderRepository.getById(original.id)
-      const idp2 = await identityProviderRepository.getById(original.id)
+      const original = await createAndStoreIdentityProvider()
+      const idp1 = new IdentityProvider({ ...original.props });
+      const idp2 = new IdentityProvider({ ...original.props });
 
       idp1.update({
         name: "Updated by User 1",
-        issuerUrl: "https://updated1.example.com",
-        audience: "updated1-audience",
-        identifierClaimName: "sub",
+        issuerUrl: idp1.issuerUrl,
+        audience: idp1.audience,
+        identifierClaimName: idp1.identifierClaimName,
         authSettings: null
       })
-      
-      await identityProviderRepository.update(idp1)
 
       idp2.update({
         name: "Updated by User 2",
-        issuerUrl: "https://updated2.example.com",
-        audience: "updated2-audience",
-        identifierClaimName: "sub",
+        issuerUrl: idp2.issuerUrl,
+        audience: idp2.audience,
+        identifierClaimName: idp2.identifierClaimName,
         authSettings: null
       })
+
+      await identityProviderRepository.update(idp1)
 
       await expect(identityProviderRepository.update(idp2))
         .rejects
@@ -228,7 +202,7 @@ describe("PrismaIdentityProviderRepository", () => {
 
   describe("delete", () => {
     it("should delete an existing identity provider", async () => {
-      const original = await createIdentityProvider()
+      const original = await createAndStoreIdentityProvider()
 
       await identityProviderRepository.delete(original)
 

@@ -198,21 +198,7 @@ describe("Session", () => {
       
       // Mock old lastRefreshAt by creating session with past date
       const pastDate = new Date(Date.now() - 35 * 60000) // 35 minutes ago
-      const sessionWithOldRefresh = new Session({
-        id: session.id,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-        lastRefreshAt: pastDate,
-        expiresAt: session.expiresAt,
-        terminatedAt: session.terminatedAt,
-        status: session.status,
-        nonce: session.nonce,
-        userId: session.userId,
-        identityProviderId: session.identityProviderId,
-        identityProviderSessionId: session.identityProviderSessionId,
-        idToken: session.idToken,
-        refreshToken: session.refreshToken,
-      })
+      const sessionWithOldRefresh = new Session({ ...session.props, lastRefreshAt: pastDate })
 
       expect(sessionWithOldRefresh.isIdentityProviderRefreshDue(30)).toBe(true)
     })

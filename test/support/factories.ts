@@ -1,7 +1,17 @@
 import { randomUUID } from "node:crypto"
-import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, IdentityProvider, Session, SigningKey, User } from "~/domain/entities"
+import {
+  CreateIdentityProviderProps,
+  CreateSessionProps,
+  CreateSigningKeyProps,
+  CreateUserProps,
+  IdentityProvider,
+  IdentityProviderAuthSettings,
+  Session,
+  SigningKey,
+  User
+} from "~/domain/entities"
 
-export function createIdentityProvider(props: Partial<CreateIdentityProviderProps>) {
+export function createIdentityProvider(props: Partial<CreateIdentityProviderProps> = {}) {
   return IdentityProvider.createNew({
     name: randomUUID(),
     issuerUrl: "https://login.test.com",
@@ -21,7 +31,7 @@ export function createIdentityProvider(props: Partial<CreateIdentityProviderProp
   })
 }
 
-export function createUser(props: Partial<CreateUserProps>) {
+export function createUser(props: Partial<CreateUserProps> = {}) {
   const user = User.createNew({
     isEnabled: true,
     brand: "Test Brand",
@@ -41,10 +51,21 @@ export function createUser(props: Partial<CreateUserProps>) {
   return user
 }
 
-export function createSession(props: Partial<CreateSessionProps>, hours: number = 1) {
+export function createLocalSession(props: Partial<CreateSessionProps> = {}, hours: number = 1) {
   return Session.createNew({
     userId: randomUUID(),
     identityProviderId: null,
+    identityProviderSessionId: null,
+    idToken: null,
+    refreshToken: null,
+    ...props,
+  }, hours)
+}
+
+export function createIdentityProviderSession(props: Partial<CreateSessionProps> = {}, hours: number = 1) {
+  return Session.createNew({
+    userId: randomUUID(),
+    identityProviderId: randomUUID(),
     identityProviderSessionId: randomUUID(),
     idToken: randomUUID(),
     refreshToken: randomUUID(),
@@ -52,7 +73,7 @@ export function createSession(props: Partial<CreateSessionProps>, hours: number 
   }, hours)
 }
 
-export function createSigningKey(props: Partial<CreateSigningKeyProps>) {
+export function createSigningKey(props: Partial<CreateSigningKeyProps> = {}) {
   return SigningKey.createNew({
     publicKey: `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAq4qFgibwtEd49x2momIF
@@ -119,5 +140,6 @@ DFwr4KfObjmvIOtAv5G+7h7BHOkTOYHJKsV5faRwUsHvNqYojAJrKtIR1sm+SsLq
 2mODg71g7IzQd7+Dy9et7fi1anUL+yTPkTnc3CaTvYCaWCwWHrgpFkWJZWTXPBWf
 S2S/2K4UGs0QdWDBGDAYwmnartmzMhlY6P2gi8PRrvlQgPxNGJQhNo9jk54irouP
 +J+J5qrEmZcwEV0VV3WSOY0ezUUoIy8=
------END PRIVATE KEY-----`})
+-----END PRIVATE KEY-----`,
+  ...props})
 }

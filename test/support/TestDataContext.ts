@@ -30,8 +30,8 @@ export class TestDataContext {
     return identityProvider
   }
 
-  createSession = async (props: Partial<CreateSessionProps>, hours: number) => {
-    const session = factories.createSession(props, hours)
+  createSession = async (props: Partial<CreateSessionProps> & { userId: string }, hours: number) => {
+    const session = factories.createLocalSession(props, hours)
     const repository = this.container.resolve<SessionRepository>("sessionRepository")
     await repository.insert(session)
     return session

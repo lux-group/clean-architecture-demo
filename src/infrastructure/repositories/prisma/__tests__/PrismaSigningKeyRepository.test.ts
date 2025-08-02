@@ -1,3 +1,4 @@
+import * as factories from "@test/support/factories"
 import { SigningKey } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSigningKeyRepository } from "../PrismaSigningKeyRepository"
@@ -8,12 +9,7 @@ describe("PrismaSigningKeyRepository", () => {
   let signingKeyRepository: PrismaSigningKeyRepository
 
   const createSigningKey = async (props: Partial<SigningKey> = {}): Promise<SigningKey> => {
-    const signingKey = SigningKey.createNew({
-        publicKey: "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END PUBLIC KEY-----",
-        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD...\n-----END PRIVATE KEY-----",
-        ...props
-      })
-
+    const signingKey = factories.createSigningKey(props)
     await signingKeyRepository.insert(signingKey)
     return signingKey
   }

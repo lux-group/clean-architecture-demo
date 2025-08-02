@@ -148,9 +148,9 @@ export class Session extends Entity<SessionProps> {
     }
 
     if (this.expiresAt < new Date()) {
-      this.props = { ...this.props, status: SessionStatus.Expired, terminatedAt: this.expiresAt }
+      this.props = { ...this.props, refreshToken: null, status: SessionStatus.Expired, terminatedAt: this.expiresAt }
     } else {
-      this.props = { ...this.props, status: newStatus, terminatedAt: new Date() }
+      this.props = { ...this.props, refreshToken: null, status: newStatus, terminatedAt: new Date() }
     }
   }
 }
