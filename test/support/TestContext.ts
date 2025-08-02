@@ -8,13 +8,11 @@ import registerPrismaRepositories from "~/infrastructure/repositories/prisma/mod
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
 import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
-import { TestMockContext } from "./TestMockContext"
 
 export interface TestContext {
   server: Application
   container: AwilixContainer
   data: TestDataContext
-  mock: TestMockContext
 }
 
 const createTestContainer = async () => {
@@ -36,6 +34,5 @@ export const getTestContext = async (): Promise<TestContext> => {
   const container = await createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
-  const mock = new TestMockContext(container)
-  return { server, container, data, mock }
+  return { server, container, data }
 }

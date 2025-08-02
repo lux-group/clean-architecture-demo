@@ -1,5 +1,6 @@
-import { expect } from "@jest/globals"
 import request from "supertest"
+import { expect } from "@jest/globals"
+import { mockAuthClient } from "@test/support/mocks"
 import { getTestContext, TestContext } from "@test/support/TestContext"
 import { IdentityProvider, SessionStatus } from "~/domain/entities"
 
@@ -9,11 +10,17 @@ describe("[POST] /auth/external/sign-out", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider({})
+    identityProvider = await context.data.createIdentityProvider()
+  })
+
+  beforeEach(() => {
+    const authClientFactory = context.container.resolve("authClientFactory")
+    jest.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
+    jest.clearAllMocks()
   })
 
   it("should redirect to IDP and set state cookie", async () => {
-    context.mock.authClientCreateSignOutRequest(redirectUrl => ({
+    mockAuthClient.createSignOutRequest = jest.fn().mockImplementation(redirectUrl => Promise.resolve({
       url: "https://custom.provider.com/auth",
       signOutState: {
         redirectUrl,
@@ -21,7 +28,7 @@ describe("[POST] /auth/external/sign-out", () => {
       }
     }))
 
-    const user = await context.data.createUser({})
+    const user = await context.data.createUser()
     let session = await context.data.createSession({ userId: user.id, identityProviderId: identityProvider.id }, 1)
     const cookie = context.data.createAuthSessionCookie(session)
 
@@ -39,7 +46,7 @@ describe("[POST] /auth/external/sign-out", () => {
   })
 
   it("should return 400 when redirect_uri is not allowed", async () => {
-    const user = await context.data.createUser({})
+    const user = await context.data.createUser()
     let session = await context.data.createSession({ userId: user.id, identityProviderId: identityProvider.id }, 1)
     const cookie = context.data.createAuthSessionCookie(session)
 

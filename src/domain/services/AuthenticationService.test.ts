@@ -1,32 +1,7 @@
 import * as factories from "@test/support/factories"
-import { UserRepository } from "~/domain/repositories"
-import { EventPublisher, PasswordVerifier, TokenValidator } from "~/domain/adapters"
+import { mockEventPublisher, mockPasswordVerifier, mockTokenValidator, mockUserRepository } from "@test/support/mocks"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { AuthenticationService } from "./AuthenticationService"
-
-const mockUserRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByBrandAndEmail: jest.fn(),
-  tryGetByExternalIdentity: jest.fn(),
-  update: jest.fn(),
-  insert: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<UserRepository>
-
-const mockEventPublisher = {
-  publishEvent: jest.fn(),
-} as jest.Mocked<EventPublisher>
-
-const mockPasswordVerifier = {
-  verifyPassword: jest.fn(),
-  createPasswordHash: jest.fn(),
-} as jest.Mocked<PasswordVerifier>
-
-const mockTokenValidator = {
-  decodeAndValidateToken: jest.fn(),
-} as jest.Mocked<TokenValidator>
 
 const mockProfile = {
   identifierClaimValue: "external-id",

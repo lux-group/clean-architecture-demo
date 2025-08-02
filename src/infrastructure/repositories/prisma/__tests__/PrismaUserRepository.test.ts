@@ -3,10 +3,10 @@ import { randomUUID } from "node:crypto"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
 import { PrismaUserRepository } from "../PrismaUserRepository"
-import { createTestContext, TestContext } from "./helpers"
+import { createPrismaTestContext, PrismaTestContext } from "./helpers"
 
 describe("PrismaUserRepository", () => {
-  let testContext: TestContext
+  let testContext: PrismaTestContext
   let userRepository: PrismaUserRepository
   let identityProviderId: string
 
@@ -22,7 +22,7 @@ describe("PrismaUserRepository", () => {
   }
 
   beforeAll(async () => {
-    testContext = await createTestContext()
+    testContext = await createPrismaTestContext()
     userRepository = new PrismaUserRepository(testContext.prismaClient)
 
     identityProviderId = randomUUID()

@@ -8,14 +8,14 @@ class MockEncryptionProvider implements EncryptionProvider {
   decrypt = (data: string) => data.replace("encrypted_", "")
 }
 
-export interface TestContext {
+export interface PrismaTestContext {
   postgres: StartedPostgreSqlContainer
   prismaClient: PrismaClient,
   encryptionProvider: EncryptionProvider
   destroy: () => Promise<void>
 }
 
-export async function createTestContext(): Promise<TestContext> {
+export async function createPrismaTestContext(): Promise<PrismaTestContext> {
   const postgres = await new PostgreSqlContainer("postgres:17.4").start()
   const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
   execSync("npx prisma migrate deploy", { env, stdio: "inherit" })

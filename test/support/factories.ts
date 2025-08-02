@@ -5,7 +5,6 @@ import {
   CreateSigningKeyProps,
   CreateUserProps,
   IdentityProvider,
-  IdentityProviderAuthSettings,
   Session,
   SigningKey,
   User

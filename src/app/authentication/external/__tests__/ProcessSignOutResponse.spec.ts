@@ -9,7 +9,7 @@ describe("[POST] /auth/external/sign-out-callback", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider({})
+    identityProvider = await context.data.createIdentityProvider()
   })
 
   it("should handle custom sign-in URL", async () => {

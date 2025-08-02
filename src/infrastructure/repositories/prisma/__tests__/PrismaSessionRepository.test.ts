@@ -3,10 +3,10 @@ import * as factories from "@test/support/factories"
 import { Session } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSessionRepository } from "../PrismaSessionRepository"
-import { createTestContext, TestContext } from "./helpers"
+import { createPrismaTestContext, PrismaTestContext } from "./helpers"
 
 describe("PrismaSessionRepository", () => {
-  let testContext: TestContext
+  let testContext: PrismaTestContext
   let sessionRepository: PrismaSessionRepository
   let identityProviderId: string
   let userId: string
@@ -18,7 +18,7 @@ describe("PrismaSessionRepository", () => {
   }
 
   beforeAll(async () => {
-    testContext = await createTestContext()
+    testContext = await createPrismaTestContext()
     sessionRepository = new PrismaSessionRepository(testContext.prismaClient, testContext.encryptionProvider)
 
     identityProviderId = randomUUID()

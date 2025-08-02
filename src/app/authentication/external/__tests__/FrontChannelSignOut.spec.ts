@@ -10,11 +10,11 @@ describe("[POST] /auth/external/frontchannel-sign-out", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider({})
+    identityProvider = await context.data.createIdentityProvider()
   })
 
   it("should handle custom sign-in URL", async () => {
-    const user = await context.data.createUser({})
+    const user = await context.data.createUser()
     let session = await context.data.createSession({
       userId: user.id,
       identityProviderId: identityProvider.id,

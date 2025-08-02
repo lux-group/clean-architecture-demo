@@ -23,7 +23,7 @@ export class TestDataContext {
     return repository.getById(id)
   }
 
-  createIdentityProvider = async (props: Partial<CreateIdentityProviderProps>) => {
+  createIdentityProvider = async (props: Partial<CreateIdentityProviderProps> = {}) => {
     const identityProvider = factories.createIdentityProvider(props)
     const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
     await repository.insert(identityProvider)
@@ -37,7 +37,7 @@ export class TestDataContext {
     return session
   }
 
-  createUser = async (props: Partial<CreateUserProps & { password: string }>) => {
+  createUser = async (props: Partial<CreateUserProps & { password?: string }> = {}) => {
     if (props.password) {
       const passwordVerifier = this.container.resolve<PasswordVerifier>("passwordVerifier")
       props = { ...props, passwordHash: passwordVerifier.createPasswordHash(props.password) }
@@ -50,7 +50,7 @@ export class TestDataContext {
     return user
   }
 
-  createSigningKey = async (props: Partial<CreateSigningKeyProps>) => {
+  createSigningKey = async (props: Partial<CreateSigningKeyProps> = {}) => {
     const signingKey = factories.createSigningKey(props)
     const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
     await repository.insert(signingKey)

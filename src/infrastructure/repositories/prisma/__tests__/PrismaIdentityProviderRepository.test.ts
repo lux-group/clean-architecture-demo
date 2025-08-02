@@ -2,10 +2,10 @@ import * as factories from "@test/support/factories"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
 import { PrismaIdentityProviderRepository } from "../PrismaIdentityProviderRepository"
-import { createTestContext, TestContext } from "./helpers"
+import { createPrismaTestContext, PrismaTestContext } from "./helpers"
 
 describe("PrismaIdentityProviderRepository", () => {
-  let testContext: TestContext
+  let testContext: PrismaTestContext
   let identityProviderRepository: PrismaIdentityProviderRepository
 
   const createAndStoreIdentityProvider = async (props: Partial<IdentityProvider> = {}) => {
@@ -15,7 +15,7 @@ describe("PrismaIdentityProviderRepository", () => {
   }
 
   beforeAll(async () => {
-    testContext = await createTestContext()
+    testContext = await createPrismaTestContext()
     identityProviderRepository = new PrismaIdentityProviderRepository(testContext.prismaClient, testContext.encryptionProvider)
   })
 

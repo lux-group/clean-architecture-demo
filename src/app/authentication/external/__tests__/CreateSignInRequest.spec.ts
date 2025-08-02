@@ -1,5 +1,6 @@
-import { expect } from "@jest/globals"
 import request from "supertest"
+import { expect } from "@jest/globals"
+import { mockAuthClient } from "@test/support/mocks"
 import { getTestContext, TestContext } from "@test/support/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
@@ -9,11 +10,17 @@ describe("[POST] /auth/external/sign-in", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider({})
+    identityProvider = await context.data.createIdentityProvider()
+  })
+
+  beforeEach(() => {
+    const authClientFactory = context.container.resolve("authClientFactory")
+    jest.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
+    jest.clearAllMocks()
   })
 
   it("should redirect to IDP and set state cookie", async () => {
-    context.mock.authClientCreateSignInRequest(redirectUrl => ({
+    mockAuthClient.createSignInRequest = jest.fn().mockImplementation(redirectUrl => Promise.resolve({
       url: "https://custom.provider.com/auth",
       signInState: {
         state: "unused",

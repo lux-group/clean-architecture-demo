@@ -1,26 +1,7 @@
 import * as factories from "@test/support/factories"
-import { SigningKeyRepository } from "~/domain/repositories"
-import { EventPublisher, TokenIssuer } from "~/domain/adapters"
+import { mockEventPublisher, mockSigningKeyRepository, mockTokenIssuer } from "@test/support/mocks"
 import { AuthorizationError, commonErrors } from "~/domain/errors"
 import { AuthorizationService } from "./AuthorizationService"
-
-const mockSigningKeyRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetActiveSigningKey: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<SigningKeyRepository>
-
-const mockTokenIssuer = {
-  createAccessToken: jest.fn(),
-} as jest.Mocked<TokenIssuer>
-
-const mockEventPublisher = {
-  publishEvent: jest.fn(),
-} as jest.Mocked<EventPublisher>
 
 describe("AuthorizationService", () => {
   let service: AuthorizationService

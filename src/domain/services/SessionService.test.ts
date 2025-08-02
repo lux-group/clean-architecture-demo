@@ -1,62 +1,9 @@
 import { randomUUID } from "crypto"
 import * as factories from "@test/support/factories"
+import { mockAuthClient, mockAuthClientFactory, mockEventPublisher, mockIdentityProviderRepository, mockSessionRepository } from "@test/support/mocks"
 import { Session, SessionStatus } from "~/domain/entities"
-import { IdentityProviderRepository, SessionRepository } from "~/domain/repositories"
-import { AuthClientFactory, EventPublisher, SignInResponse } from "~/domain/adapters"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { SessionService } from "./SessionService"
-
-const mockAuthClientFactory = {
-  createClient: jest.fn(),
-} as jest.Mocked<AuthClientFactory>
-
-const mockAuthClient = {
-  supportsSignOut: true,
-  supportsEditProfile: false,
-  createSignInRequest: jest.fn(),
-  createSignOutRequest: jest.fn(),
-  processSignInResponse: jest.fn(),
-  checkSessionWithRefreshToken: jest.fn(),
-  editProfile: jest.fn(),
-}
-
-const mockIdentityProviderRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByName: jest.fn(),
-  tryGetByIssuerUrlAndAudience: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<IdentityProviderRepository>
-
-const mockSessionRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByIdentityProviderSessionId: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<SessionRepository>
-
-const mockEventPublisher = {
-  publishEvent: jest.fn(),
-} as jest.Mocked<EventPublisher>
-
-const createMockSignInResponse = (overrides: Partial<SignInResponse> = {}): SignInResponse => ({
-  profile: {
-    identifierClaimValue: "external-id",
-    email: "test@example.com",
-    givenName: "John",
-    surname: "Doe"
-  },
-  idToken: "id-token",
-  refreshToken: "refresh-token",
-  sessionId: "external-session-123",
-  ...overrides,
-})
 
 describe("SessionService", () => {
   let service: SessionService
@@ -130,7 +77,17 @@ describe("SessionService", () => {
     it("should create and insert identity provider session", async () => {
       const userId = randomUUID()
       const identityProviderId = randomUUID()
-      const signInResponse = createMockSignInResponse()
+      const signInResponse = {
+        profile: {
+          identifierClaimValue: "external-id",
+          email: "test@example.com",
+          givenName: "John",
+          surname: "Doe"
+        },
+        idToken: "id-token",
+        refreshToken: "refresh-token",
+        sessionId: "external-session-123",
+      }
 
       const session = await service.startIdentityProviderSession(userId, identityProviderId, signInResponse)
 

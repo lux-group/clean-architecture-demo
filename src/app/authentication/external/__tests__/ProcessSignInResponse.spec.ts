@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto"
-import { expect } from "@jest/globals"
 import request from "supertest"
+import { expect } from "@jest/globals"
+import { mockAuthClient } from "@test/support/mocks"
 import { getTestContext, TestContext } from "@test/support/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
@@ -10,13 +11,19 @@ describe("[POST] /auth/external/sign-in-callback", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider({})
+    identityProvider = await context.data.createIdentityProvider()
+  })
+
+  beforeEach(() => {
+    const authClientFactory = context.container.resolve("authClientFactory")
+    jest.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
+    jest.clearAllMocks()
   })
 
   it("should auto-create new user after successful sign-in", async () => {
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-    context.mock.authClientProcessSignInResponse(() => ({
+    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",
@@ -44,7 +51,7 @@ describe("[POST] /auth/external/sign-in-callback", () => {
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
     const identifierClaimValue = randomUUID()
 
-    context.mock.authClientProcessSignInResponse(() => ({
+    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",
@@ -76,7 +83,7 @@ describe("[POST] /auth/external/sign-in-callback", () => {
     const user = await context.data.createUser({ email: `${randomUUID()}@example.com`, isEnabled: false })
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-    context.mock.authClientProcessSignInResponse(() => ({
+    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",

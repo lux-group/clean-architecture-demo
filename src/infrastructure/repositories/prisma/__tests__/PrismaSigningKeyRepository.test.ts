@@ -2,10 +2,10 @@ import * as factories from "@test/support/factories"
 import { SigningKey } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSigningKeyRepository } from "../PrismaSigningKeyRepository"
-import { createTestContext, TestContext } from "./helpers"
+import { createPrismaTestContext, PrismaTestContext } from "./helpers"
 
 describe("PrismaSigningKeyRepository", () => {
-  let testContext: TestContext
+  let testContext: PrismaTestContext
   let signingKeyRepository: PrismaSigningKeyRepository
 
   const createSigningKey = async (props: Partial<SigningKey> = {}): Promise<SigningKey> => {
@@ -15,7 +15,7 @@ describe("PrismaSigningKeyRepository", () => {
   }
 
   beforeAll(async () => {
-    testContext = await createTestContext()
+    testContext = await createPrismaTestContext()
     signingKeyRepository = new PrismaSigningKeyRepository(testContext.prismaClient, testContext.encryptionProvider)
   })
 
