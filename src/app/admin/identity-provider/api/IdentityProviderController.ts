@@ -22,8 +22,8 @@ export class IdentityProviderController {
       limit: Number(req.query.limit) || 10,
     }
     
-    const items = await this.searchIdentityProvidersHandler.execute(query)
-    res.json(items.map(this.present))
+    const result = await this.searchIdentityProvidersHandler.execute(query)
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   async getById(req: Request, res: Response) {
@@ -58,15 +58,15 @@ export class IdentityProviderController {
       issuerUrl: body.issuer_url,
       audience: body.audience,
       identifierClaimName: body.identifier_claim_name,
-      authSettings: {
-        type: body.type,
-        brand: body.brand,
-        clientId: body.clientId,
-        clientSecret: body.clientSecret,
-        redirectUrls: body.redirectUrls,
-        autoLinkUsers: body.autoLinkUsers,
-        autoCreateUsers: body.autoCreateUsers,
-      } as IdentityProviderAuthSettings
+      authSettings: body.auth_settings ? {
+        type: body.auth_settings.type,
+        brand: body.auth_settings.brand,
+        clientId: body.auth_settings.client_id,
+        clientSecret: body.auth_settings.client_secret,
+        redirectUrls: body.auth_settings.redirect_urls,
+        autoLinkUsers: body.auth_settings.auto_link_users,
+        autoCreateUsers: body.auth_settings.auto_create_users,
+      } as IdentityProviderAuthSettings : null
     }
   }
 

@@ -11,7 +11,7 @@ export abstract class RedisRepository<T extends Entity<EntityProps>, R extends R
   ) {}
 
   async query(offset?: number, limit?: number): Promise<T[]> {
-    return this.repository.query(offset, limit)
+    return await this.repository.query(offset, limit)
   }
 
   async getById(id: string): Promise<T> {

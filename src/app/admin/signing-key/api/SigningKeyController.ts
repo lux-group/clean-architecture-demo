@@ -20,8 +20,8 @@ export class SigningKeyController {
       limit: Number(req.query.limit) || 10,
     }
 
-    const items = await this.searchSigningKeysHandler.execute(query)
-    res.json(items.map(this.present))
+    const result = await this.searchSigningKeysHandler.execute(query)
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   async getById(req: Request, res: Response) {

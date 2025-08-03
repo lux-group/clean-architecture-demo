@@ -10,17 +10,17 @@ export class TestDataContext {
 
   getIdentityProvider = async (id: string) => {
     const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
-    return repository.getById(id)
+    return await repository.getById(id)
   }
 
   getSession = async (id: string) => {
     const repository = this.container.resolve<SessionRepository>("sessionRepository")
-    return repository.getById(id)
+    return await repository.getById(id)
   }
 
   getUser = async (id: string) => {
     const repository = this.container.resolve<UserRepository>("userRepository")
-    return repository.getById(id)
+    return await repository.getById(id)
   }
 
   createIdentityProvider = async (props: Partial<CreateIdentityProviderProps> = {}) => {
@@ -28,6 +28,11 @@ export class TestDataContext {
     const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
     await repository.insert(identityProvider)
     return identityProvider
+  }
+
+  identityProviderExists = async (id: string) => {
+    const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
+    return !!await repository.tryGetById(id)
   }
 
   createSession = async (props: Partial<CreateSessionProps> & { userId: string }, hours: number) => {
@@ -50,11 +55,21 @@ export class TestDataContext {
     return user
   }
 
+  userExists = async (id: string) => {
+    const repository = this.container.resolve<UserRepository>("userRepository")
+    return !!await repository.tryGetById(id)
+  }
+
   createSigningKey = async (props: Partial<CreateSigningKeyProps> = {}) => {
     const signingKey = factories.createSigningKey(props)
     const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
     await repository.insert(signingKey)
     return signingKey
+  }
+
+  signingKeyExists = async (id: string) => {
+    const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
+    return !!await repository.tryGetById(id)
   }
 
   createAuthStateCookie = (redirectUrl: string, identityProviderId: string) => {
