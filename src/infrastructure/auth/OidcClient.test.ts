@@ -1,5 +1,6 @@
 import * as client from "openid-client"
 import jwt from "jsonwebtoken"
+import * as factories from "@test/factories"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { SignInState } from "~/domain/adapters"
@@ -29,7 +30,7 @@ describe("OidcClient", () => {
     vi.clearAllMocks()
 
     // Create test identity providers
-    identityProvider = IdentityProvider.createNew({
+    identityProvider = factories.createIdentityProvider({
       name: "Google",
       issuerUrl: "https://accounts.google.com",
       audience: "google-client-id",
@@ -45,7 +46,7 @@ describe("OidcClient", () => {
       }
     })
 
-    entraIdentityProvider = IdentityProvider.createNew({
+    entraIdentityProvider = factories.createIdentityProvider({
       name: "Microsoft Entra",
       issuerUrl: "https://login.microsoftonline.com/tenant-id/v2.0",
       audience: "entra-client-id",
