@@ -4,25 +4,25 @@ import { AuthenticationError, AuthorizationError, ConcurrencyError, InvalidOpera
 import { handleClientErrors } from "./handleClientErrors"
 
 describe("Handle Client Errors Middleware", () => {
-  const nextFunction: NextFunction = jest.fn()
+  const nextFunction: NextFunction = vi.fn()
   let mockRequest: Request
   let mockResponse: Response
-  let mockLogger: jest.Mocked<Logger>
+  let mockLogger: Logger
   let handler: (error: Error, req: Request, res: Response, next: NextFunction) => void
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     mockRequest = {} as Request
     mockResponse = {} as Response
-    mockResponse.status = jest.fn().mockReturnValue(mockResponse)
-    mockResponse.json = jest.fn().mockReturnValue(mockResponse)
+    mockResponse.status = vi.fn().mockReturnValue(mockResponse)
+    mockResponse.json = vi.fn().mockReturnValue(mockResponse)
     
-    mockLogger = {
-      error: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn()
-    }
+    mockLogger = vi.mocked({
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn()
+    } satisfies Logger)
     
     handler = handleClientErrors(mockLogger)
   })
@@ -151,3 +151,4 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 })
+

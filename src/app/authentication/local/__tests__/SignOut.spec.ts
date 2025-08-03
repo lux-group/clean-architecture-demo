@@ -1,12 +1,15 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
+
+// Set up the custom matchers for this test file
+setupSupertestMatchers()
 
 describe("[POST] /auth/local/sign-out", () => {
   let context: TestContext
 
-  beforeAll(async () => {
-    context = await getTestContext()
+  beforeAll(() => {
+    context = getTestContext()
   })
 
   it("should return 204 when a valid cookie exists", async () => {
@@ -48,3 +51,4 @@ describe("[POST] /auth/local/sign-out", () => {
     expect(response).toHaveStatus(401)
   })
 })
+

@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto"
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { User } from "~/domain/entities"
+
+setupSupertestMatchers()
 
 describe("[POST] /oauth2/token - Client Credentials", () => {
   let context: TestContext
@@ -11,7 +13,7 @@ describe("[POST] /oauth2/token - Client Credentials", () => {
   const password = "foo@bar01"
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     employeeUser = await context.data.createUser({ password, roles: ["employee"] })
     serviceUser = await context.data.createUser({ password, roles: ["service"] })
     await context.data.createSigningKey()
@@ -55,3 +57,4 @@ describe("[POST] /oauth2/token - Client Credentials", () => {
     expect(response.body.expires_in).toBe(3600)
   })
 })
+

@@ -12,7 +12,7 @@ describe("AuthorizationService", () => {
       mockTokenIssuer,
       mockEventPublisher
     )
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("issueAccessToken", () => {
@@ -82,3 +82,4 @@ describe("AuthorizationService", () => {
     })
   })
 })
+

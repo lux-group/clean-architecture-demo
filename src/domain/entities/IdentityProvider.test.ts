@@ -1,3 +1,4 @@
+import { fail } from "node:assert"
 import { InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderType, CreateIdentityProviderProps, UpdateIdentityProviderProps } from "./IdentityProvider"
 
@@ -173,3 +174,4 @@ describe("IdentityProvider", () => {
     })
   })
 })
+

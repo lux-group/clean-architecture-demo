@@ -1,3 +1,4 @@
+import { fail } from "node:assert"
 import { InvalidOperationError, ValidationError } from "~/domain/errors"
 import { SigningKey, CreateSigningKeyProps } from "./SigningKey"
 
@@ -161,3 +162,4 @@ describe("SigningKey", () => {
     })
   })
 })
+

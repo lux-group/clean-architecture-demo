@@ -6,7 +6,10 @@
     "PKCE",
     "valkey"
   ],
-  "jest.runMode": {
-    "type": "on-demand"
-  }
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+  "vitest.include": ["**/*.{test,spec}.ts"],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**"],
+  "testing.openTesting": "openOnTestStart",
+  "testing.automaticallyOpenTestResults": "openOnTestStart"
 }

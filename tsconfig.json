@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "baseUrl": ".",
+    "types": ["vitest/globals", "node"],
     "paths": {
       "~/*": ["src/*"],
       "@test/*": ["test/*"]
@@ -18,5 +19,6 @@
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
-  }
+  },
+  "include": ["src/**/*", "test/**/*", "vitest.d.ts"]
 }

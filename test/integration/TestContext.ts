@@ -30,7 +30,7 @@ const createTestContainer = () => {
   return container
 }
 
-export const getTestContext = async (): Promise<TestContext> => {
+export const getTestContext = (): TestContext => {
   const container = createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)

@@ -1,3 +1,4 @@
+import { fail } from "node:assert"
 import { AuthenticationError, InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
 import { Session, CreateSessionProps } from "./Session"
 
@@ -343,3 +344,4 @@ describe("Session", () => {
     })
   })
 })
+

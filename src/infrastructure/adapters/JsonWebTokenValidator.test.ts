@@ -6,23 +6,14 @@ import { IdentityProviderRepository } from "~/domain/repositories"
 import { JsonWebTokenValidator } from "./JsonWebTokenValidator"
 
 // Mock global fetch for OIDC metadata and JWKS endpoints
-global.fetch = jest.fn()
+global.fetch = vi.fn()
 
-// Mock the jwks-rsa library to return our test public key
-jest.mock("jwks-rsa", () => ({
-  JwksClient: jest.fn().mockImplementation(() => ({
-    getSigningKey: jest.fn().mockImplementation((kid: string) => {
-      // This will be set up in beforeEach to return the correct public key
-      return Promise.resolve({
-        getPublicKey: () => global.__testPublicKey || "invalid-key"
-      })
-    })
-  }))
-}))
+// Mock the jwks-rsa library
+vi.mock("jwks-rsa")
 
 describe("JsonWebTokenValidator", () => {
   let validator: JsonWebTokenValidator
-  let mockIdentityProviderRepository: jest.Mocked<IdentityProviderRepository>
+  let mockIdentityProviderRepository: any
   let identityProvider: IdentityProvider
   let privateKey: string
   let publicKey: string
@@ -46,12 +37,22 @@ describe("JsonWebTokenValidator", () => {
     (global as any).__testPublicKey = publicKey
   })
 
-  beforeEach(() => {
-    jest.clearAllMocks()
+  beforeEach(async () => {
+    vi.clearAllMocks()
+
+    // Set up the jwks-rsa mock
+    const jwksRsa = vi.mocked(await import("jwks-rsa"))
+    jwksRsa.JwksClient = vi.fn().mockImplementation(() => ({
+      getSigningKey: vi.fn().mockImplementation((kid: string) => {
+        return Promise.resolve({
+          getPublicKey: () => (global as any).__testPublicKey || "invalid-key"
+        })
+      })
+    }))
 
     // Mock the repository
     mockIdentityProviderRepository = {
-      tryGetByIssuerUrlAndAudience: jest.fn(),
+      tryGetByIssuerUrlAndAudience: vi.fn(),
     } as any
 
     // Create identity provider
@@ -75,7 +76,7 @@ describe("JsonWebTokenValidator", () => {
 
   const setupSuccessfulMocks = () => {
     // Mock successful OIDC metadata fetch
-    (global.fetch as jest.Mock).mockImplementation((url: string) => {
+    ((global.fetch as any)).mockImplementation((url: string) => {
       if (url.includes("/.well-known/openid-configuration")) {
         return Promise.resolve({
           ok: true,
@@ -182,7 +183,7 @@ describe("JsonWebTokenValidator", () => {
     })
 
     it("should handle OIDC metadata fetch failure", async () => {
-      (global.fetch as jest.Mock).mockImplementation((url: string) => {
+      ((global.fetch as any)).mockImplementation((url: string) => {
         if (url.includes("/.well-known/openid-configuration")) {
           return Promise.resolve({
             ok: false,
@@ -201,10 +202,11 @@ describe("JsonWebTokenValidator", () => {
     })
 
     it("should handle JWKS document fetch failure", async () => {
-      // Mock JwksClient to throw an error
-      const { JwksClient } = require("jwks-rsa")
-      JwksClient.mockImplementation(() => ({
-        getSigningKey: jest.fn().mockRejectedValue(new Error("JWKS fetch failed"))
+      // Reset and reconfigure the jwks-rsa mock to throw an error
+      vi.resetModules()
+      const jwksRsa = await import("jwks-rsa")
+      vi.mocked(jwksRsa.JwksClient).mockImplementation(() => ({
+        getSigningKey: vi.fn().mockRejectedValue(new Error("JWKS fetch failed"))
       }))
 
       const payload = createValidPayload()
@@ -213,15 +215,6 @@ describe("JsonWebTokenValidator", () => {
       await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
         new AuthenticationError("Unable to fetch JWKS document.")
       )
-      
-      // Reset the mock for other tests
-      JwksClient.mockImplementation(() => ({
-        getSigningKey: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            getPublicKey: () => (global as any).__testPublicKey || "invalid-key"
-          })
-        })
-      }))
     })
 
     it("should throw AuthenticationError when JWT signature is invalid", async () => {
@@ -352,3 +345,6 @@ describe("JsonWebTokenValidator", () => {
     })
   })
 })
+
+
+

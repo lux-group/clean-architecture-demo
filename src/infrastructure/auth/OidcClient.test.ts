@@ -3,16 +3,16 @@ import jwt from "jsonwebtoken"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { SignInState } from "~/domain/adapters"
-import { OidcClient } from "../OidcClient"
+import { OidcClient } from "./OidcClient"
 
 // Mock the openid-client module using manual mock
-jest.mock("openid-client")
+vi.mock("openid-client")
 
 // Get the mocked functions
-const mockClient = client as jest.Mocked<typeof client>
+const mockClient = client as any
 
 // Mock global fetch for the editProfile method
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 describe("OidcClient", () => {
@@ -26,7 +26,7 @@ describe("OidcClient", () => {
   const redirectUrl = "https://app.example.com/callback"
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Create test identity providers
     identityProvider = IdentityProvider.createNew({
@@ -178,7 +178,7 @@ describe("OidcClient", () => {
         id_token: "mock-id-token",
         access_token: "mock-access-token",
         refresh_token: "mock-refresh-token",
-        claims: jest.fn().mockReturnValue(mockClaims)
+        claims: vi.fn().mockReturnValue(mockClaims)
       }
 
       mockClient.authorizationCodeGrant.mockResolvedValue(mockTokenResult as any)
@@ -218,7 +218,7 @@ describe("OidcClient", () => {
       // Create new mock without optional tokens
       const mockTokenResultWithoutOptionals = {
         id_token: "mock-id-token",
-        claims: jest.fn().mockReturnValue(mockClaims)
+        claims: vi.fn().mockReturnValue(mockClaims)
       }
       mockClient.authorizationCodeGrant.mockResolvedValue(mockTokenResultWithoutOptionals as any)
 
@@ -312,7 +312,7 @@ describe("OidcClient", () => {
 
     beforeEach(() => {
       // Mock JWT decode for the getClaim method
-      jest.spyOn(jwt, 'decode').mockReturnValue({
+      vi.spyOn(jwt, 'decode').mockReturnValue({
         header: { alg: 'RS256', typ: 'JWT' },
         payload: { login_hint: 'test@example.com' },
         signature: 'signature'
@@ -504,7 +504,7 @@ describe("OidcClient", () => {
       it("should extract claim from JWT token", () => {
         const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbl9oaW50IjoidGVzdEBleGFtcGxlLmNvbSIsImN1c3RvbSI6InZhbHVlIn0.signature"
         
-        jest.spyOn(jwt, 'decode').mockReturnValue({
+        vi.spyOn(jwt, 'decode').mockReturnValue({
           header: { alg: 'RS256', typ: 'JWT' },
           payload: { 
             login_hint: 'test@example.com',
@@ -523,3 +523,4 @@ describe("OidcClient", () => {
     })
   })
 })
+

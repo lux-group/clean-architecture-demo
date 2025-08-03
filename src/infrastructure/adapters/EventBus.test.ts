@@ -10,14 +10,14 @@ describe("EventBus", () => {
 
   describe("subscribe", () => {
     it("should allow subscribing to a category", () => {
-      const callback = jest.fn()
+      const callback = vi.fn()
 
       eventBus.subscribe("Authentication", callback)
     })
 
     it("should allow multiple callbacks for the same category", () => {
-      const callback1 = jest.fn()
-      const callback2 = jest.fn()
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
 
       eventBus.subscribe("Authentication", callback1)
       eventBus.subscribe("Authentication", callback2)
@@ -35,8 +35,8 @@ describe("EventBus", () => {
     })
 
     it("should allow subscribing to different categories", () => {
-      const authCallback = jest.fn()
-      const sessionCallback = jest.fn()
+      const authCallback = vi.fn()
+      const sessionCallback = vi.fn()
 
       eventBus.subscribe("Authentication", authCallback)
       eventBus.subscribe("Session", sessionCallback)
@@ -63,7 +63,7 @@ describe("EventBus", () => {
     })
 
     it("should handle duplicate callback registrations", () => {
-      const callback = jest.fn()
+      const callback = vi.fn()
 
       eventBus.subscribe("Authentication", callback)
       eventBus.subscribe("Authentication", callback)
@@ -84,7 +84,7 @@ describe("EventBus", () => {
 
   describe("unsubscribe", () => {
     it("should remove a callback from a category", () => {
-      const callback = jest.fn()
+      const callback = vi.fn()
 
       eventBus.subscribe("Authentication", callback)
       eventBus.unsubscribe("Authentication", callback)
@@ -101,8 +101,8 @@ describe("EventBus", () => {
     })
 
     it("should only remove the specified callback", () => {
-      const callback1 = jest.fn()
-      const callback2 = jest.fn()
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
 
       eventBus.subscribe("Authentication", callback1)
       eventBus.subscribe("Authentication", callback2)
@@ -121,8 +121,8 @@ describe("EventBus", () => {
     })
 
     it("should handle unsubscribing non-existent callback", () => {
-      const callback1 = jest.fn()
-      const callback2 = jest.fn()
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
 
       eventBus.subscribe("Authentication", callback1)
 
@@ -132,7 +132,7 @@ describe("EventBus", () => {
 
   describe("publishEvent", () => {
     it("should publish event to subscribed callbacks", () => {
-      const callback = jest.fn()
+      const callback = vi.fn()
       eventBus.subscribe("Authentication", callback)
 
       const testEvent: Event = {
@@ -150,9 +150,9 @@ describe("EventBus", () => {
     })
 
     it("should publish to all subscribers of a category", () => {
-      const callback1 = jest.fn()
-      const callback2 = jest.fn()
-      const callback3 = jest.fn()
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+      const callback3 = vi.fn()
 
       eventBus.subscribe("Authentication", callback1)
       eventBus.subscribe("Authentication", callback2)
@@ -172,3 +172,4 @@ describe("EventBus", () => {
     })
   })
 })
+

@@ -1,23 +1,9 @@
-import { expect } from "@jest/globals"
 import { Response } from "supertest"
-
-export { expect } from "@jest/globals"
-
-declare module "@jest/expect" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Matchers<R> extends SupertestResponseMatchers<R> {}
-}
-
-type SupertestResponseMatchers<R = unknown> = {
-  toHaveStatus(statusCode: number): R
-  toHaveCookie(cookieName: string, expectedAttributes: string[]): R
-  notToHaveCookie(cookieName: string): R
-}
 
 const pass = () => ({ pass: true, message: () => "Success" })
 const fail = (message: string) => ({ pass: false, message: () => message })
 
-expect.extend({
+export const supertestMatchers = {
   toHaveStatus(response: Response, statusCode: number) {
     if (response.status !== statusCode) {
       return fail(`Expected status ${statusCode}, but got ${response.status}`)
@@ -47,4 +33,12 @@ expect.extend({
     }
     return pass()
   }
-})
+}
+
+// Export a function to set up the matchers when needed
+export function setupSupertestMatchers() {
+  expect.extend(supertestMatchers)
+}
+
+// For backward compatibility, you can also export individual matchers
+export const { toHaveStatus, toHaveCookie, notToHaveCookie } = supertestMatchers

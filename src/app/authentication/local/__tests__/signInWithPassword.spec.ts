@@ -1,7 +1,9 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { User } from "~/domain/entities"
+
+setupSupertestMatchers()
 
 describe("[POST] /auth/local/sign-in", () => {
   let context: TestContext
@@ -10,7 +12,7 @@ describe("[POST] /auth/local/sign-in", () => {
   const password = "foo@bar01"
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     enabledUser = await context.data.createUser({ password, isEnabled: true })
     disabledUser = await context.data.createUser({ password, isEnabled: false })
   })
@@ -51,3 +53,4 @@ describe("[POST] /auth/local/sign-in", () => {
     expect(response).notToHaveCookie("auth-session")
   })
 })
+

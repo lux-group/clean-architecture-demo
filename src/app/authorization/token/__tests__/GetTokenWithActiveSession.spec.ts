@@ -1,14 +1,16 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { User } from "~/domain/entities"
+
+setupSupertestMatchers()
 
 describe("[POST] /oauth2/token - Active Session", () => {
   let context: TestContext
   let user: User
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     user = await context.data.createUser({ })
     await context.data.createSigningKey()
   })
@@ -54,3 +56,4 @@ describe("[POST] /oauth2/token - Active Session", () => {
   // - such as invalid grant type, missing parameters, etc.
   // - impersonation
 })
+

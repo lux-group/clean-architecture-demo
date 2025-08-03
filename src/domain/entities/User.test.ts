@@ -1,5 +1,5 @@
-import { AuthenticationError, InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
-import { Session } from "./Session"
+import { fail } from "node:assert"
+import { InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
 import { CreateUserProps, UpdateUserProps, User } from "./User"
 
 describe("User", () => {
@@ -329,3 +329,4 @@ describe("User", () => {
     })
   })
 })
+

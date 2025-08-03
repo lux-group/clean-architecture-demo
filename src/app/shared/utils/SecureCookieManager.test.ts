@@ -31,12 +31,12 @@ describe("SecureCookieManager", () => {
     // Mock response with cookie methods
     const cookies: Record<string, any> = {}
     mockResponse = {
-      cookie: jest.fn().mockImplementation((name: string, value: any, options: any) => {
+      cookie: vi.fn().mockImplementation((name: string, value: any, options: any) => {
         cookies[name] = value
         mockRequest.cookies![name] = value
         return mockResponse as Response
       }),
-      clearCookie: jest.fn().mockImplementation((name: string) => {
+      clearCookie: vi.fn().mockImplementation((name: string) => {
         delete cookies[name]
         delete mockRequest.cookies![name]
         return mockResponse as Response
@@ -263,7 +263,7 @@ describe("SecureCookieManager", () => {
       let encryptedValue: string
 
       // Capture the encrypted value
-      const mockCookie = jest.fn().mockImplementation((name: string, value: string) => {
+      const mockCookie = vi.fn().mockImplementation((name: string, value: string) => {
         encryptedValue = value
         mockRequest.cookies![name] = value
         return mockResponse as Response
@@ -291,11 +291,11 @@ describe("SecureCookieManager", () => {
       }
 
       const responseForMissingHeaders: Partial<Response> = {
-        cookie: jest.fn().mockImplementation((name: string, value: any, options: any) => {
+        cookie: vi.fn().mockImplementation((name: string, value: any, options: any) => {
           requestWithoutHeaders.cookies![name] = value
           return responseForMissingHeaders as Response
         }),
-        clearCookie: jest.fn().mockImplementation((name: string) => {
+        clearCookie: vi.fn().mockImplementation((name: string) => {
           delete requestWithoutHeaders.cookies![name]
           return responseForMissingHeaders as Response
         })
@@ -342,3 +342,4 @@ describe("SecureCookieManager", () => {
     })
   })
 })
+

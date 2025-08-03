@@ -1,29 +1,32 @@
 import { randomUUID } from "crypto"
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { mockAuthClient } from "@test/mocks"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider } from "~/domain/entities"
+
+// Set up the custom matchers for this test file
+setupSupertestMatchers()
 
 describe("[POST] /auth/external/sign-in-callback", () => {
   let context: TestContext
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 
   beforeEach(() => {
     const authClientFactory = context.container.resolve("authClientFactory")
-    jest.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
-    jest.clearAllMocks()
+    vi.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
+    vi.clearAllMocks()
   })
 
   it("should auto-create new user after successful sign-in", async () => {
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
+    mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",
@@ -51,7 +54,7 @@ describe("[POST] /auth/external/sign-in-callback", () => {
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
     const identifierClaimValue = randomUUID()
 
-    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
+    mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",
@@ -83,7 +86,7 @@ describe("[POST] /auth/external/sign-in-callback", () => {
     const user = await context.data.createUser({ email: `${randomUUID()}@example.com`, isEnabled: false })
     const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-    mockAuthClient.processSignInResponse = jest.fn().mockImplementation(() => Promise.resolve({
+    mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
       idToken: "unused",
       refreshToken: "unused",
       accessToken: "unused",
@@ -112,3 +115,4 @@ describe("[POST] /auth/external/sign-in-callback", () => {
   // - Invalid session
   // - Missing session
 })
+

@@ -3,11 +3,11 @@ import { ClientCache } from "./ClientCache"
 type TestEntity = { id: string, updatedAt: Date }
 
 describe("ClientCache", () => {
-  let mockFactory: jest.MockedFunction<(entity: TestEntity) => Promise<string>>
+  let mockFactory: ReturnType<typeof vi.fn<(entity: TestEntity) => Promise<string>>>
   let cache: ClientCache<TestEntity, string>
 
   beforeEach(() => {
-    mockFactory = jest.fn()
+    mockFactory = vi.fn()
     cache = new ClientCache(mockFactory)
   })
 
@@ -94,3 +94,4 @@ describe("ClientCache", () => {
     })
   })
 })
+

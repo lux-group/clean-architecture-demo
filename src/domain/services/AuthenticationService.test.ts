@@ -20,7 +20,7 @@ describe("AuthenticationService", () => {
       mockPasswordVerifier,
       mockTokenValidator
     )
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("authenticateWithActiveSession", () => {
@@ -277,3 +277,4 @@ describe("AuthenticationService", () => {
     })
   })
 })
+

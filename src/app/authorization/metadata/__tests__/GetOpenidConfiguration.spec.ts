@@ -1,12 +1,14 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
+
+setupSupertestMatchers()
 
 describe("[GET] /oauth2/.well-known/openid-configuration", () => {
   let context: TestContext
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
   })
 
   it("should return 200 with valid configuration", async () => {

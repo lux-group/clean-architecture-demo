@@ -1,26 +1,28 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { mockAuthClient } from "@test/mocks"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider } from "~/domain/entities"
+
+setupSupertestMatchers()
 
 describe("[POST] /auth/external/sign-in", () => {
   let context: TestContext
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 
   beforeEach(() => {
     const authClientFactory = context.container.resolve("authClientFactory")
-    jest.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
-    jest.clearAllMocks()
+    vi.spyOn(authClientFactory, "createClient").mockReturnValue(mockAuthClient)
+    vi.clearAllMocks()
   })
 
   it("should redirect to IDP and set state cookie", async () => {
-    mockAuthClient.createSignInRequest = jest.fn().mockImplementation(redirectUrl => Promise.resolve({
+    mockAuthClient.createSignInRequest = vi.fn().mockImplementation(redirectUrl => Promise.resolve({
       url: "https://custom.provider.com/auth",
       signInState: {
         state: "unused",
@@ -61,3 +63,4 @@ describe("[POST] /auth/external/sign-in", () => {
   // - Missing provider
   // - Provider has not auth settings
 })
+

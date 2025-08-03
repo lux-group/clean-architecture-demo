@@ -21,7 +21,7 @@ describe("SessionService", () => {
       sessionConfig,
       mockEventPublisher,
     )
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("getActiveSessionById", () => {
@@ -199,3 +199,4 @@ describe("SessionService", () => {
     })
   })
 })
+

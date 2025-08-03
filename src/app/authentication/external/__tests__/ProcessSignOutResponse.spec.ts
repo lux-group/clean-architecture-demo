@@ -1,14 +1,16 @@
 import request from "supertest"
-import { expect } from "@test/matchers/supertest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider } from "~/domain/entities"
+
+setupSupertestMatchers()
 
 describe("[POST] /auth/external/sign-out-callback", () => {
   let context: TestContext
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = await getTestContext()
+    context = getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 
@@ -27,3 +29,4 @@ describe("[POST] /auth/external/sign-out-callback", () => {
   // More scenarios can be added here:
   // - Missing state
 })
+

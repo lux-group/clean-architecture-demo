@@ -1,75 +1,75 @@
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
 import { AuthClient, AuthClientFactory, EventPublisher, PasswordVerifier, TokenIssuer, TokenValidator } from "~/domain/adapters"
 
-export const mockIdentityProviderRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByName: jest.fn(),
-  tryGetByIssuerUrlAndAudience: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<IdentityProviderRepository>
+export const mockIdentityProviderRepository = vi.mocked({
+  query: vi.fn(),
+  getById: vi.fn(),
+  tryGetById: vi.fn(),
+  tryGetByName: vi.fn(),
+  tryGetByIssuerUrlAndAudience: vi.fn(),
+  insert: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+} satisfies IdentityProviderRepository)
 
-export const mockSessionRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByIdentityProviderSessionId: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<SessionRepository>
+export const mockSessionRepository = vi.mocked({
+  query: vi.fn(),
+  getById: vi.fn(),
+  tryGetById: vi.fn(),
+  tryGetByIdentityProviderSessionId: vi.fn(),
+  insert: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+} satisfies SessionRepository)
 
-export const mockSigningKeyRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetActiveSigningKey: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<SigningKeyRepository>
+export const mockSigningKeyRepository = vi.mocked({
+  query: vi.fn(),
+  getById: vi.fn(),
+  tryGetById: vi.fn(),
+  tryGetActiveSigningKey: vi.fn(),
+  insert: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+} satisfies SigningKeyRepository)
 
-export const mockUserRepository = {
-  query: jest.fn(),
-  getById: jest.fn(),
-  tryGetById: jest.fn(),
-  tryGetByBrandAndEmail: jest.fn(),
-  tryGetByExternalIdentity: jest.fn(),
-  update: jest.fn(),
-  insert: jest.fn(),
-  delete: jest.fn(),
-} as jest.Mocked<UserRepository>
+export const mockUserRepository = vi.mocked({
+  query: vi.fn(),
+  getById: vi.fn(),
+  tryGetById: vi.fn(),
+  tryGetByBrandAndEmail: vi.fn(),
+  tryGetByExternalIdentity: vi.fn(),
+  update: vi.fn(),
+  insert: vi.fn(),
+  delete: vi.fn(),
+} satisfies UserRepository)
 
-export const mockEventPublisher = {
-  publishEvent: jest.fn(),
-} as jest.Mocked<EventPublisher>
+export const mockEventPublisher = vi.mocked({
+  publishEvent: vi.fn(),
+} satisfies EventPublisher)
 
-export const mockPasswordVerifier = {
-  verifyPassword: jest.fn(),
-  createPasswordHash: jest.fn(),
-} as jest.Mocked<PasswordVerifier>
+export const mockPasswordVerifier = vi.mocked({
+  verifyPassword: vi.fn(),
+  createPasswordHash: vi.fn(),
+} satisfies PasswordVerifier)
 
-export const mockTokenIssuer = {
-  createAccessToken: jest.fn(),
-} as jest.Mocked<TokenIssuer>
+export const mockTokenIssuer = vi.mocked({
+  createAccessToken: vi.fn(),
+} satisfies TokenIssuer)
 
-export const mockTokenValidator = {
-  decodeAndValidateToken: jest.fn(),
-} as jest.Mocked<TokenValidator>
+export const mockTokenValidator = vi.mocked({
+  decodeAndValidateToken: vi.fn(),
+} satisfies TokenValidator)
 
-export const mockAuthClientFactory = {
-  createClient: jest.fn(),
-} as jest.Mocked<AuthClientFactory>
+export const mockAuthClientFactory = vi.mocked({
+  createClient: vi.fn(),
+} satisfies AuthClientFactory)
 
-export const mockAuthClient = {
+export const mockAuthClient = vi.mocked({
   supportsSignOut: true,
   supportsEditProfile: false,
-  createSignInRequest: jest.fn(),
-  createSignOutRequest: jest.fn(),
-  processSignInResponse: jest.fn(),
-  checkSessionWithRefreshToken: jest.fn(),
-  editProfile: jest.fn(),
-} as jest.Mocked<AuthClient>
+  createSignInRequest: vi.fn(),
+  createSignOutRequest: vi.fn(),
+  processSignInResponse: vi.fn(),
+  checkSessionWithRefreshToken: vi.fn(),
+  editProfile: vi.fn(),
+} satisfies AuthClient)
