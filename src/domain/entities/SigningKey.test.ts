@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
 import { InvalidOperationError, ValidationError } from "~/domain/errors"
 import { SigningKey, CreateSigningKeyProps } from "./SigningKey"

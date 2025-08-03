@@ -1,4 +1,5 @@
 import { generateKeyPairSync } from "node:crypto"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import jwt from "jsonwebtoken"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderProps } from "~/domain/entities"
@@ -206,6 +207,8 @@ describe("JsonWebTokenValidator", () => {
       vi.resetModules()
       const jwksRsa = await import("jwks-rsa")
       vi.mocked(jwksRsa.JwksClient).mockImplementation(() => ({
+        getKeys: vi.fn(),
+        getSigningKeys: vi.fn(),
         getSigningKey: vi.fn().mockRejectedValue(new Error("JWKS fetch failed"))
       }))
 

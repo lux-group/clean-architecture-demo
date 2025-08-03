@@ -3,12 +3,9 @@ import { resolve } from "path"
 
 export default defineConfig({
   test: {
-    globals: true,
     environment: "node",
     testTimeout: 30000,
     slowTestThreshold: 15000,
-    include: ["src/**/*.{test,spec}.ts"],
-    globalSetup: "./test/vitest-setup.ts",
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
@@ -20,6 +17,23 @@ export default defineConfig({
     },
     clearMocks: true,
     restoreMocks: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          include: ["src/**/*.test.ts"],
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          include: ["src/**/*.spec.ts"],
+          globalSetup: "./test/integration/vitest-setup.ts",
+        }
+      },
+    ]
   },
   resolve: {
     alias: {

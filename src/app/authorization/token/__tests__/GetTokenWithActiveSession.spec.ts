@@ -1,9 +1,8 @@
+import "@test/matchers/supertest"
 import request from "supertest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { User } from "~/domain/entities"
-
-setupSupertestMatchers()
 
 describe("[POST] /oauth2/token - Active Session", () => {
   let context: TestContext

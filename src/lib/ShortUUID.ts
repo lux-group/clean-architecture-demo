@@ -1,5 +1,3 @@
-import { randomUUID } from "crypto"
-
 const base64urlEncode = (input: Uint8Array): string => {
   return Buffer.from(input)
     .toString("base64")

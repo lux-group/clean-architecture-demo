@@ -1,12 +1,10 @@
+import "@test/matchers/supertest"
 import { randomUUID } from "crypto"
 import request from "supertest"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { mockAuthClient } from "@test/mocks"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider } from "~/domain/entities"
-
-// Set up the custom matchers for this test file
-setupSupertestMatchers()
 
 describe("[POST] /auth/external/sign-in-callback", () => {
   let context: TestContext

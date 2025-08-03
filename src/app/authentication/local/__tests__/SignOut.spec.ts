@@ -1,9 +1,7 @@
+import "@test/matchers/supertest"
 import request from "supertest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
-
-// Set up the custom matchers for this test file
-setupSupertestMatchers()
 
 describe("[POST] /auth/local/sign-out", () => {
   let context: TestContext

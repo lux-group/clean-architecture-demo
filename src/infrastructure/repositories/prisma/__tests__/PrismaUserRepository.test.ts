@@ -1,5 +1,6 @@
-import * as factories from "@test/factories"
 import { randomUUID } from "node:crypto"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import * as factories from "@test/factories"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"
 import { PrismaUserRepository } from "../PrismaUserRepository"

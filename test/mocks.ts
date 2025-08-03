@@ -1,3 +1,4 @@
+import { vi } from "vitest"
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
 import { AuthClient, AuthClientFactory, EventPublisher, PasswordVerifier, TokenIssuer, TokenValidator } from "~/domain/adapters"
 

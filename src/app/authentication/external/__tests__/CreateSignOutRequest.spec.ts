@@ -1,10 +1,9 @@
+import "@test/matchers/supertest"
 import request from "supertest"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { mockAuthClient } from "@test/mocks"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider, SessionStatus } from "~/domain/entities"
-
-setupSupertestMatchers()
 
 describe("[POST] /auth/external/sign-out", () => {
   let context: TestContext

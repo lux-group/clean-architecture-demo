@@ -1,10 +1,9 @@
+import "@test/matchers/supertest"
 import { randomUUID } from "node:crypto"
 import request from "supertest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
 import { IdentityProvider, SessionStatus } from "~/domain/entities"
-
-setupSupertestMatchers()
 
 describe("[POST] /auth/external/frontchannel-sign-out", () => {
   let context: TestContext

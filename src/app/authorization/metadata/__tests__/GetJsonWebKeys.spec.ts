@@ -1,8 +1,7 @@
+import "@test/matchers/supertest"
 import request from "supertest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
-import { setupSupertestMatchers } from "@test/matchers/supertest"
-
-setupSupertestMatchers()
 
 describe("[GET] /oauth2/.well-known/jwks", () => {
   let context: TestContext

@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
@@ -400,10 +401,10 @@ describe("FacebookClient", () => {
         call[0].includes("oauth/access_token")
       )
       expect(tokenCall).toBeDefined()
-      expect(tokenCall[0]).toContain("client_id=facebook-client-id")
-      expect(tokenCall[0]).toContain("client_secret=facebook-client-secret")
-      expect(tokenCall[0]).toContain("redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback")
-      expect(tokenCall[0]).toContain("code=auth-code")
+      expect(tokenCall![0]).toContain("client_id=facebook-client-id")
+      expect(tokenCall![0]).toContain("client_secret=facebook-client-secret")
+      expect(tokenCall![0]).toContain("redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback")
+      expect(tokenCall![0]).toContain("code=auth-code")
     })
 
     it("should include correct parameters in profile request", async () => {
@@ -415,8 +416,8 @@ describe("FacebookClient", () => {
         call[0].includes("/me")
       )
       expect(profileCall).toBeDefined()
-      expect(profileCall[0]).toContain("access_token=mock-access-token")
-      expect(profileCall[0]).toContain("fields=id%2Cemail%2Cfirst_name%2Clast_name")
+      expect(profileCall![0]).toContain("access_token=mock-access-token")
+      expect(profileCall![0]).toContain("fields=id%2Cemail%2Cfirst_name%2Clast_name")
     })
   })
 

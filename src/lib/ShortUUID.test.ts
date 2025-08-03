@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest"
 import { UUIDToShort, shortToUUID } from "./ShortUUID"
 
 describe("ShortUUID", () => {

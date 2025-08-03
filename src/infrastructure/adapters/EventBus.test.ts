@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Event } from "~/domain/adapters"
 import { EventBus } from "./EventBus"
 

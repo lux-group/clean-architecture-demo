@@ -1,9 +1,21 @@
 import { Response } from "supertest"
+import { expect } from "vitest"
+
+type SupertestResponseMatchers<R = unknown> = {
+  toHaveStatus(statusCode: number): R
+  toHaveCookie(cookieName: string, expectedAttributes: string[]): R
+  notToHaveCookie(cookieName: string): R
+}
+
+declare module "vitest" {
+  interface Assertion<T = any> extends SupertestResponseMatchers<T> {}
+  interface AsymmetricMatchersContaining extends SupertestResponseMatchers {}
+}
 
 const pass = () => ({ pass: true, message: () => "Success" })
 const fail = (message: string) => ({ pass: false, message: () => message })
 
-export const supertestMatchers = {
+expect.extend({
   toHaveStatus(response: Response, statusCode: number) {
     if (response.status !== statusCode) {
       return fail(`Expected status ${statusCode}, but got ${response.status}`)
@@ -33,12 +45,4 @@ export const supertestMatchers = {
     }
     return pass()
   }
-}
-
-// Export a function to set up the matchers when needed
-export function setupSupertestMatchers() {
-  expect.extend(supertestMatchers)
-}
-
-// For backward compatibility, you can also export individual matchers
-export const { toHaveStatus, toHaveCookie, notToHaveCookie } = supertestMatchers
+})

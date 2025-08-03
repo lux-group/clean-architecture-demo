@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ClientCache } from "./ClientCache"
 
 type TestEntity = { id: string, updatedAt: Date }
