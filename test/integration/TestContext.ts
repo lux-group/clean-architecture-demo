@@ -15,7 +15,7 @@ export interface TestContext {
   data: TestDataContext
 }
 
-const createTestContainer = async () => {
+const createTestContainer = () => {
   const container = createContainer({
     injectionMode: InjectionMode.CLASSIC,
     strict: true,
@@ -31,7 +31,7 @@ const createTestContainer = async () => {
 }
 
 export const getTestContext = async (): Promise<TestContext> => {
-  const container = await createTestContainer()
+  const container = createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
   return { server, container, data }

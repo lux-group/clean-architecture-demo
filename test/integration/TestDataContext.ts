@@ -3,7 +3,7 @@ import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, Us
 import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session } from "~/domain/entities"
 import { PasswordVerifier } from "~/domain/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import * as factories from "./factories"
+import * as factories from "../factories"
 
 export class TestDataContext {
   constructor(private container: AwilixContainer) {}

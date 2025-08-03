@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto"
-import * as factories from "@test/support/factories"
-import { mockAuthClient, mockAuthClientFactory, mockEventPublisher, mockIdentityProviderRepository, mockSessionRepository } from "@test/support/mocks"
+import * as factories from "@test/factories"
+import { mockAuthClient, mockAuthClientFactory, mockEventPublisher, mockIdentityProviderRepository, mockSessionRepository } from "@test/mocks"
 import { Session, SessionStatus } from "~/domain/entities"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { SessionService } from "./SessionService"

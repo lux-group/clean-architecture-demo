@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import * as factories from "@test/support/factories"
+import * as factories from "@test/factories"
 import { Session } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSessionRepository } from "../PrismaSessionRepository"

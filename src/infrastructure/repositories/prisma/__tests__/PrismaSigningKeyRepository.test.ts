@@ -1,4 +1,4 @@
-import * as factories from "@test/support/factories"
+import * as factories from "@test/factories"
 import { SigningKey } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError } from "~/domain/errors"
 import { PrismaSigningKeyRepository } from "../PrismaSigningKeyRepository"

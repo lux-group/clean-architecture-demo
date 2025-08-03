@@ -1,6 +1,6 @@
-import { expect } from "@jest/globals"
 import request from "supertest"
-import { getTestContext, TestContext } from "@test/support/TestContext"
+import { expect } from "@test/matchers/supertest"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 
 describe("[POST] /auth/local/sign-out", () => {
   let context: TestContext

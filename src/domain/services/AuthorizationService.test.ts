@@ -1,5 +1,5 @@
-import * as factories from "@test/support/factories"
-import { mockEventPublisher, mockSigningKeyRepository, mockTokenIssuer } from "@test/support/mocks"
+import * as factories from "@test/factories"
+import { mockEventPublisher, mockSigningKeyRepository, mockTokenIssuer } from "@test/mocks"
 import { AuthorizationError, commonErrors } from "~/domain/errors"
 import { AuthorizationService } from "./AuthorizationService"
 

@@ -1,4 +1,4 @@
-import * as factories from "@test/support/factories"
+import * as factories from "@test/factories"
 import { randomUUID } from "node:crypto"
 import { User } from "~/domain/entities"
 import { ConcurrencyError, NotFoundError, ValidationError } from "~/domain/errors"

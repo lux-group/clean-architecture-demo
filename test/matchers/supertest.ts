@@ -1,12 +1,14 @@
 import { expect } from "@jest/globals"
 import { Response } from "supertest"
 
+export { expect } from "@jest/globals"
+
 declare module "@jest/expect" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Matchers<R> extends CustomMatchers<R> {}
+  interface Matchers<R> extends SupertestResponseMatchers<R> {}
 }
 
-type CustomMatchers<R = unknown> = {
+type SupertestResponseMatchers<R = unknown> = {
   toHaveStatus(statusCode: number): R
   toHaveCookie(cookieName: string, expectedAttributes: string[]): R
   notToHaveCookie(cookieName: string): R

@@ -1,5 +1,5 @@
-import { pathsToModuleNameMapper } from "ts-jest"
 import { Config } from "jest"
+import { pathsToModuleNameMapper } from "ts-jest"
 import { compilerOptions } from "./tsconfig.json"
 
 const config: Config = {
@@ -15,9 +15,8 @@ const config: Config = {
     {
       displayName: "integration",
       testMatch: ["<rootDir>/src/**/*.spec.ts"],
-      globalSetup: "<rootDir>/test/setup.ts",
-      globalTeardown: "<rootDir>/test/teardown.ts",
-      setupFilesAfterEnv: ["<rootDir>/test/support/matchers.ts"],
+      globalSetup: "<rootDir>/test/integration/setup.ts",
+      globalTeardown: "<rootDir>/test/integration/teardown.ts",
       modulePaths: [compilerOptions.baseUrl],
       moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
       transform: {

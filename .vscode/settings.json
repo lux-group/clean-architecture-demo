@@ -3,7 +3,8 @@
     "awilix",
     "entra",
     "frontchannel",
-    "PKCE"
+    "PKCE",
+    "valkey"
   ],
   "jest.runMode": {
     "type": "on-demand"
