@@ -6,22 +6,22 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 - Sign-up, sign-in, and sign-out with Entra ID
   - Front-channel logout
   - Check session state using refresh tokens
-  - Extensions called by entra to customize the sign-up flow
-- Sign-in with Google
+  - Extensions called by Entra ID to customize the sign-up flow
+- Sign-in with Google, Apple, Facebook
 - Local authentication with email and password
+- User impersonation (spoofing)
 - Session management with secure, encrypted, HTTP-only cookies.
 - OAuth2 Token endpoint
   - Custom grant to get access token with session cookie
   - Client Credentials grant using user-id and password
   - Token Exchange grant
 - OIDC metadata & JWKS endpoints
-- Abstraction layer for supporting non-OIDC compliant IDPs like Apple and Facebook with minimal code.
 - Profile edit or anonymisation in Entra ID via MS Graph API.
 - Authorization with `audience` and `scope` (structure only)
 - Audit logging using domain events
 
 ### Notes
-- The API does not contain much data validation because we already have a framework for that in our standard template.
+- The API does not contain much data validation because we already have a framework for that in our standard template. But the domain entities fully validate all inputs using Zod.
 - Four well-known libraries are used to read, write, and validate JWTs and interact with OIDC providers. There is some overlap between them because the OIDC client contains its own JWT validation. The *TokenValidator.ts* class is only used for the token exchange grant.
 
 # Code Structure
@@ -100,6 +100,9 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Domain Model Pattern
 There are a few well-known patterns for implementing business/domain logic, such as Transaction Script, Active Record, and Domain Model. This application uses a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) which is great for managing complex domain logic and making the code expressive and easier.
 
+### Domain Events / Event-Driven Architecture
+The application raises events for completed or attempted actions such as sing-in or issued tokens. An audit log consumer subscribes to these events to log them for auditing. Additional consumers could be added for other purposes such as publishing events to an event bus for consumption by others services.
+
 ### Repository Pattern
 Domain repositories abstract data persistence from the domain (core) and take care of all data-related concerns such is generating SQL statements (with the help of ORMs) and mapping data between the domain model and the database model. 
 
@@ -160,12 +163,12 @@ const myService = container.resolve<MyService>("myService")
 - **Domain Adapters**: Abstract infrastructure concerns behind domain-focused interfaces
 
 ### Strategy Pattern
-- **Authentication Providers**: Different authentication providers (OpenID Connect, Google, Facebook, Apple)
+- **Authentication Providers**: Different authentication providers (Entra ID, Google, Facebook, Apple) abstracted through a common interface.
 - **Repository Implementations**: Different data access strategies (memory, Prisma, Redis)
 
 ### Factory Pattern
 - **Entity Creation**: `User.createNew()` factory method for creating new entities
-- **Client Factory**: `ClientFactory` for creating OAuth clients
+- **Client Factory**: `AuthClientFactory` for creating OAuth clients
 
 ### Command Pattern & CQRS
 - **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
@@ -184,15 +187,15 @@ const myService = container.resolve<MyService>("myService")
 This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit testing.
 
 This project contains unit tests for:
-- API Middleware
-- Domain Entities
-- Domain Services (pending)
-- Infrastructure Services
-- Utility Libraries
+- API Middleware (solitary)
+- Domain Entities (solitary)
+- Domain Services (sociable)
+- Infrastructure Services (solitary)
+- Utility Libraries (solitary)
 
 ### Integration Tests
 #### Internal
-Internal Integration Tests (aka. Component Tests) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases. These tests are in the [app](/src/app) folder and have the extension *.spec.ts*.
+Internal Integration Tests (aka. Component Tests) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases. These tests are in the [app](/src/app) feature folders and have the extension *.spec.ts*. The tests are structured around application use cases rather than code artifacts.
 
 #### External
 External Integration Tests verify the behavior of integrations with external services or infrastructure such as Postgres and Redis. They are located next to the integration they test, for example [infrastructure/repositories/postgres](/src/infrastructure/repositories/postgres).
