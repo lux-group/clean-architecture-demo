@@ -9,7 +9,7 @@ import { registerSigningKeysAdminRoutes } from "~/app/admin/signing-key/api/rout
 import { registerUserAdminRoutes } from "~/app/admin/user/api/routes"
 import { registerExternalAuthenticationRoutes } from "~/app/authentication/external/api/routes"
 import { registerLocalAuthenticationRoutes } from "~/app/authentication/local/api/routes"
-import { registerMetadataRoutes } from "~/app/authorization/metadata/api/routes"
+import { registerWellKnownRoutes } from "~/app/authorization/well-known/api/routes"
 import { registerTokenRoutes } from "~/app/authorization/token/api/routes"
 import { registerEntraIntegrationRoutes } from "~/app/integration/entra/api/routes"
 
@@ -35,7 +35,7 @@ export default function createServer(container: AwilixContainer) {
     .use("/admin/users", registerUserAdminRoutes(container))
     .use("/auth/external", registerExternalAuthenticationRoutes(container))
     .use("/auth/local", registerLocalAuthenticationRoutes(container))
-    .use("/oauth2/.well-known", registerMetadataRoutes(container))
+    .use("/oauth2/.well-known", registerWellKnownRoutes(container))
     .use("/oauth2/token", registerTokenRoutes(container))
     .use("/integration/entra", registerEntraIntegrationRoutes(container))
 

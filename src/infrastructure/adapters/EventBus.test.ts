@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Event } from "~/domain/adapters"
 import { EventBus } from "./EventBus"
+import { AuthenticationEventDetails } from "~/domain/events/AuthenticationEvent"
+import { SessionEventDetails } from "~/domain/events/SessionEvent"
 
 describe("EventBus", () => {
   let eventBus: EventBus
@@ -23,7 +25,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback1)
       eventBus.subscribe("Authentication", callback2)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
@@ -43,14 +45,14 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", authCallback)
       eventBus.subscribe("Session", sessionCallback)
 
-      const authEvent: Event = {
+      const authEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "auth-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      const sessionEvent: Event = {
+      const sessionEvent: Event<SessionEventDetails> = {
         topic: "Session",
         id: "session-1",
         timestamp: new Date(),
@@ -72,7 +74,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback)
       eventBus.subscribe("Authentication", callback)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
@@ -94,7 +96,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback)
       eventBus.unsubscribe("Authentication", callback)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
@@ -114,7 +116,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback2)
       eventBus.unsubscribe("Authentication", callback1)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
@@ -142,13 +144,13 @@ describe("EventBus", () => {
       const callback = vi.fn()
       eventBus.subscribe("Authentication", callback)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
         reason: "Valid credentials",
-        details: { userId: "123" }
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)
@@ -166,7 +168,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback2)
       eventBus.subscribe("Authentication", callback3)
 
-      const testEvent: Event = {
+      const testEvent: Event<AuthenticationEventDetails> = {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),

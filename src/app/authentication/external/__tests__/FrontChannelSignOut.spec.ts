@@ -26,7 +26,7 @@ describe("[POST] /auth/external/frontchannel-sign-out", () => {
       .get(`/auth/external/frontchannel-sign-out?sid=${session.identityProviderSessionId}`)
       .send()
 
-    expect(response).toHaveStatus(200)
+    expect(response.status).toBe(200)
 
     session = await context.data.getSession(session.id)
     expect(session.status).toBe(SessionStatus.TerminatedByProvider)
@@ -37,7 +37,7 @@ describe("[POST] /auth/external/frontchannel-sign-out", () => {
       .get(`/auth/external/frontchannel-sign-out?sid=${randomUUID()}`)
       .send()
 
-    expect(response).toHaveStatus(200)
+    expect(response.status).toBe(200)
   })
 
   // Additional scenarios can be added here:

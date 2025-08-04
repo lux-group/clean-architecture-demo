@@ -8,7 +8,7 @@ export interface SessionEventDetails {
   identityProviderId?: string
 }
 
-export class SessionEvent implements Event {
+export class SessionEvent implements Event<SessionEventDetails> {
   readonly topic = "Session" as const
   readonly id: string
   readonly timestamp: Date

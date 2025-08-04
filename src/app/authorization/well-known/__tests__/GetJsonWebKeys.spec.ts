@@ -16,7 +16,7 @@ describe("[GET] /oauth2/.well-known/jwks", () => {
       .get("/oauth2/.well-known/jwks")
       .send()
 
-    expect(response).toHaveStatus(200)
+    expect(response.status).toBe(200)
     expect(response.body.keys).toBeInstanceOf(Array)
     expect(response.body.keys.length).toBeGreaterThan(0)
   })

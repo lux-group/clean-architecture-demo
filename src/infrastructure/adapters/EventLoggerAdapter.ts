@@ -2,6 +2,7 @@ import { Logger } from "~/infrastructure/logging"
 import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
 import { Event } from "~/domain/adapters"
 import { EventBus } from "./EventBus"
+import { EntityChangeEvent } from "~/domain/events/EntityChangeEvent"
 
 export class EventLoggerAdapter {
   constructor(
@@ -13,8 +14,6 @@ export class EventLoggerAdapter {
     this.eventBus.subscribe<AuthenticationEvent>("Authentication", event => {
       if (event.result == "Failed") {
         this.logger.error("Authentication failed", this.flattenDetails(event))
-      } else if (event.result == "Warning") {
-        this.logger.warn("Authentication warning", this.flattenDetails(event))
       } else {
         this.logger.info("Authentication succeeded", this.flattenDetails(event))
       }
@@ -39,9 +38,15 @@ export class EventLoggerAdapter {
         this.logger.info("Session event succeeded", this.flattenDetails(event))
       }
     })
+
+    this.eventBus.subscribe<EntityChangeEvent>("Entity Changed", event => {
+      if (event.result == "Success") {
+        this.logger.error("Entity changed", this.flattenDetails(event))
+      }
+    })
   }
 
-  private flattenDetails(event: Event) {
+  private flattenDetails<T extends Event<any>>(event: T) {
     return {
       eventId: event.id,
       timestamp: event.timestamp,

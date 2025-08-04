@@ -15,7 +15,7 @@ describe("[GET] /oauth2/.well-known/openid-configuration", () => {
       .get("/oauth2/.well-known/openid-configuration")
       .send()
 
-    expect(response).toHaveStatus(200)
+    expect(response.status).toBe(200)
     expect(response.body.jwks_uri).toMatch(/\.well-known\/jwks$/)
   })
 })

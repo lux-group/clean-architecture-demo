@@ -21,8 +21,10 @@ describe("[POST] /auth/local/sign-in", () => {
       .post("/auth/local/sign-in")
       .send({ brand: enabledUser.brand, email: enabledUser.email, password })
 
-    expect(response).toHaveStatus(204)
-    expect(response).toHaveCookie("auth-session", ["HttpOnly", "Secure", "SameSite=Strict"])
+    expect(response.status).toBe(204)
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
+    ]))
   })
 
   it("should return 401 when email is invalid", async () => {
@@ -30,8 +32,8 @@ describe("[POST] /auth/local/sign-in", () => {
       .post("/auth/local/sign-in")
       .send({ brand: enabledUser.brand, email: "invalid@example.com", password })
 
-    expect(response).toHaveStatus(401)
-    expect(response).notToHaveCookie("auth-session")
+    expect(response.status).toBe(401)
+    expect(response.headers["set-cookie"]).toBeUndefined()
   })
 
   it("should return 401 when password is invalid", async () => {
@@ -39,8 +41,8 @@ describe("[POST] /auth/local/sign-in", () => {
       .post("/auth/local/sign-in")
       .send({ brand: enabledUser.brand, email: enabledUser.email, password: "invalid" })
 
-    expect(response).toHaveStatus(401)
-    expect(response).notToHaveCookie("auth-session")
+    expect(response.status).toBe(401)
+    expect(response.headers["set-cookie"]).toBeUndefined()
   })
 
   it("should return 401 when user is disabled", async () => {
@@ -48,8 +50,8 @@ describe("[POST] /auth/local/sign-in", () => {
       .post("/auth/local/sign-in")
       .send({ brand: disabledUser.brand, email: disabledUser.email, password })
 
-    expect(response).toHaveStatus(401)
-    expect(response).notToHaveCookie("auth-session")
+    expect(response.status).toBe(401)
+    expect(response.headers["set-cookie"]).toBeUndefined()
   })
 })
 

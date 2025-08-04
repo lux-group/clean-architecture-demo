@@ -10,22 +10,26 @@ describe("[GET] /admin/users/:id", () => {
     context = getTestContext()
   })
 
-  it("should return 200 with valid user", async () => {
-    const user = await context.data.createUser()
+  describe("when the user exists", () => {
+    it("should return 200 with the correct user data", async () => {
+      const user = await context.data.createUser()
 
-    const response = await request(context.server)
-      .get(`/admin/users/${user.id}`)
-      .send()
+      const response = await request(context.server)
+        .get(`/admin/users/${user.id}`)
+        .send()
 
-    expect(response).toHaveStatus(200)
-    expect(response).toMatchEntity(user)
+      expect(response.status).toBe(200)
+      expect(response).bodyToMatchEntity(user)
+    })
   })
 
-  it("should return 404 when user does not exist", async () => {
-    const response = await request(context.server)
-      .get(`/admin/users/${crypto.randomUUID()}`)
-      .send()
+  describe("when the user does not exist", () => {
+    it("should return 404", async () => {
+      const response = await request(context.server)
+        .get(`/admin/users/${crypto.randomUUID()}`)
+        .send()
 
-    expect(response).toHaveStatus(404)
+      expect(response.status).toBe(404)
+    })
   })
 })

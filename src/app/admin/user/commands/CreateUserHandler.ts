@@ -1,6 +1,7 @@
 import { User, CreateUserProps } from "~/domain/entities"
 import { UserRepository } from "~/domain/repositories"
-import { PasswordVerifier } from "~/domain/adapters"
+import { PasswordVerifier, EventPublisher } from "~/domain/adapters"
+import { EntityChangeEvent } from "~/domain/events"
 
 export type CreateUserCommand = Omit<CreateUserProps, "emailVerified" | "passwordHash"> & {
   password: string
@@ -10,6 +11,7 @@ export class CreateUserHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordVerifier: PasswordVerifier,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<User> {
@@ -23,6 +25,10 @@ export class CreateUserHandler {
 
     const user = User.createNew(props)
     await this.userRepository.insert(user)
+    
+    const event = EntityChangeEvent.entityCreated("User", user)
+    this.eventPublisher.publishEvent(event)
+    
     return user
   }
 }

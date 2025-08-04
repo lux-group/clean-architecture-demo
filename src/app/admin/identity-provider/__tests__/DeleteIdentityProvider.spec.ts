@@ -1,7 +1,8 @@
 import "@test/matchers/supertest"
 import request from "supertest"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { EventPublisher } from "~/domain/adapters"
 
 describe("[DELETE] /admin/identity-providers/:id", () => {
   let context: TestContext
@@ -10,23 +11,49 @@ describe("[DELETE] /admin/identity-providers/:id", () => {
     context = getTestContext()
   })
 
-  it("should return 204", async () => {
-    const identityProvider = await context.data.createIdentityProvider()
+  describe("when the deletion was successful", () => {
+    it("should return 204", async () => {
+      const identityProvider = await context.data.createIdentityProvider()
 
-    const response = await request(context.server)
-      .delete(`/admin/identity-providers/${identityProvider.id}`)
-      .send()
+      const response = await request(context.server)
+        .delete(`/admin/identity-providers/${identityProvider.id}`)
+        .send()
 
-    const exists = await context.data.identityProviderExists(identityProvider.id)
-    expect(response).toHaveStatus(204)
-    expect(exists).toBe(false)
+      expect(response.status).toBe(204)
+    })
+
+    it("should remove the identity provider from the database", async () => {
+      const identityProvider = await context.data.createIdentityProvider()
+
+      await request(context.server)
+        .delete(`/admin/identity-providers/${identityProvider.id}`)
+        .send()
+
+      const exists = await context.data.identityProviderExists(identityProvider.id)
+      expect(exists).toBe(false)
+    })
+
+    it("should publish an event", async () => {
+      const identityProvider = await context.data.createIdentityProvider()
+      
+      const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
+      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
+
+      await request(context.server)
+        .delete(`/admin/identity-providers/${identityProvider.id}`)
+        .send()
+
+      expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
+    })
   })
 
-  it("should return 404 when identity provider does not exist", async () => {
-    const response = await request(context.server)
-      .delete(`/admin/identity-providers/${crypto.randomUUID()}`)
-      .send()
+  describe("when the identity provider does not exist", () => {
+    it("should return 404", async () => {
+      const response = await request(context.server)
+        .delete(`/admin/identity-providers/${crypto.randomUUID()}`)
+        .send()
 
-    expect(response).toHaveStatus(404)
+      expect(response.status).toBe(404)
+    })
   })
 })

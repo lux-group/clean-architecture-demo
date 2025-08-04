@@ -21,7 +21,7 @@ describe("[POST] /auth/external/sign-out-callback", () => {
       .set("Cookie", [`auth-state=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(302)
+    expect(response.status).toBe(302)
     expect(response.headers.location).toBe(identityProvider.authSettings!.redirectUrls[0])
   })
 

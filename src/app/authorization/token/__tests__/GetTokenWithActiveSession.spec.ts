@@ -20,7 +20,7 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .type('form')
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response).toHaveStatus(401)
+    expect(response.status).toBe(401)
   })
 
   it("should return 401 when the session has expired", async () => {
@@ -33,7 +33,7 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .type('form')
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response).toHaveStatus(401)
+    expect(response.status).toBe(401)
   })
 
   it("should return 200 and access token when session and cookie are valid", async () => {
@@ -46,7 +46,7 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .type('form')
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response).toHaveStatus(200)
+    expect(response.status).toBe(200)
     expect(response.body.access_token).toMatch(/^ey/)
     expect(response.body.expires_in).toBe(3600)
   })

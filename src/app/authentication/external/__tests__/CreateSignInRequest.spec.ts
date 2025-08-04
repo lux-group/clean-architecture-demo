@@ -36,9 +36,11 @@ describe("[POST] /auth/external/sign-in", () => {
       .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=${identityProvider.name}`)
       .send()
 
-    expect(response).toHaveStatus(302)
-    expect(response).toHaveCookie("auth-state", ["HttpOnly", "Secure"])
+    expect(response.status).toBe(302)
     expect(response.headers.location).toBe("https://custom.provider.com/auth")
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)
+    ]))
   })
 
   it("should return 400 when redirect_uri is not allowed", async () => {
@@ -46,7 +48,7 @@ describe("[POST] /auth/external/sign-in", () => {
       .get(`/auth/external/sign-in?redirect_uri=https://host.com/not-allowed&provider=${identityProvider.name}`)
       .send()
 
-    expect(response).toHaveStatus(400)
+    expect(response.status).toBe(400)
   })
 
   it("should return 400 when provider does not exist", async () => {
@@ -54,7 +56,7 @@ describe("[POST] /auth/external/sign-in", () => {
       .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=invalid`)
       .send()
 
-    expect(response).toHaveStatus(400)
+    expect(response.status).toBe(400)
   })
 
   // More scenarios can be added here:

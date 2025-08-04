@@ -1,11 +1,11 @@
 import { asClass, AwilixContainer } from "awilix"
-import { MetadataController } from "./api/MetadataController"
+import { WellKnownController } from "./api/WellKnownController"
 import { GetJsonWebKeysHandler } from "./queries/GetJsonWebKeysHandler"
 import { GetOpenidConfigurationHandler } from "./queries/GetOpenidConfigurationHandler"
 
-export default function registerMetadataModule(container: AwilixContainer) {
+export default function registerWellKnownModule(container: AwilixContainer) {
   container.register({
-    metadataController: asClass(MetadataController).singleton(),
+    wellKnownController: asClass(WellKnownController).singleton(),
 
     getJsonWebKeysHandler: asClass(GetJsonWebKeysHandler).singleton(),
     getOpenidConfigurationHandler: asClass(GetOpenidConfigurationHandler).singleton(),

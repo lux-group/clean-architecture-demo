@@ -1,8 +1,9 @@
 import "@test/matchers/supertest"
 import { randomUUID } from "crypto"
 import request from "supertest"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { EventPublisher } from "~/domain/adapters"
 
 describe("[PUT] /admin/identity-providers/:id", () => {
   let context: TestContext
@@ -11,10 +12,8 @@ describe("[PUT] /admin/identity-providers/:id", () => {
     context = getTestContext()
   })
 
-  it("should return 200 with valid identity provider", async () => {
-    const original = await context.data.createIdentityProvider()
-
-    const payload = {
+  describe("when the update was successful", () => {
+    const getPayload = () => ({
       name: randomUUID(),
       issuer_url: "https://updated.test.com",
       audience: randomUUID(),
@@ -28,24 +27,54 @@ describe("[PUT] /admin/identity-providers/:id", () => {
         auto_link_users: true,
         auto_create_users: true,
       }
-    }
+    })
 
-    const response = await request(context.server)
-      .put(`/admin/identity-providers/${original.id}`)
-      .send(payload)
+    it("should return 200 with valid identity provider", async () => {
+      const original = await context.data.createIdentityProvider()
+      const payload = getPayload()
 
-    expect(response).toHaveStatus(200)
-    expect(response.body).toEqual(expect.objectContaining(payload))
+      const response = await request(context.server)
+        .put(`/admin/identity-providers/${original.id}`)
+        .send(payload)
 
-    const updated = await context.data.getIdentityProvider(original.id)
-    expect(response).toMatchEntity(updated)
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual(expect.objectContaining(payload))
+    })
+
+    it("should update the identity provider in the database", async () => {
+      const original = await context.data.createIdentityProvider()
+      const payload = getPayload()
+      
+      const response = await request(context.server)
+        .put(`/admin/identity-providers/${original.id}`)
+        .send(payload)
+
+      const updated = await context.data.getIdentityProvider(original.id)
+      expect(response).bodyToMatchEntity(updated)
+    })
+
+    it("should publish an event", async () => {
+      const original = await context.data.createIdentityProvider()
+      const payload = getPayload()
+
+      const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
+      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
+
+      await request(context.server)
+        .put(`/admin/identity-providers/${original.id}`)
+        .send(payload)
+
+      expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
+    })
   })
 
-  it("should return 404 when identity provider does not exist", async () => {
-    const response = await request(context.server)
-      .delete(`/admin/identity-providers/${crypto.randomUUID()}`)
-      .send()
+  describe("when the identity provider does not exist", () => {
+    it("should return 404", async () => {
+      const response = await request(context.server)
+        .delete(`/admin/identity-providers/${crypto.randomUUID()}`)
+        .send()
 
-    expect(response).toHaveStatus(404)
+      expect(response.status).toBe(404)
+    })
   })
 })

@@ -1,8 +1,9 @@
 import "@test/matchers/supertest"
 import { randomUUID } from "crypto"
 import request from "supertest"
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { EventPublisher } from "~/domain/adapters"
 
 describe("[POST] /admin/identity-providers", () => {
   let context: TestContext
@@ -11,8 +12,8 @@ describe("[POST] /admin/identity-providers", () => {
     context = getTestContext()
   })
 
-  it("should return 201 with valid identity provider", async () => {
-    const payload = {
+  describe("when the creation was successful", () => {
+    const getPayload = () => ({
       name: randomUUID(),
       issuer_url: "https://updated.test.com",
       audience: randomUUID(),
@@ -26,14 +27,42 @@ describe("[POST] /admin/identity-providers", () => {
         auto_link_users: true,
         auto_create_users: true,
       }
-    }
+    })
 
-    const response = await request(context.server)
-      .post("/admin/identity-providers")
-      .send(payload)
+    it("should return 201 with valid identity provider", async () => {
+      const payload = getPayload()
 
-    expect(response).toHaveStatus(201)
-    expect(response.body).toEqual(expect.objectContaining(payload))
-    expect(response.headers.location).toMatch(`/admin/identity-providers/${response.body.id}`)
+      const response = await request(context.server)
+        .post("/admin/identity-providers")
+        .send(payload)
+
+      expect(response.status).toBe(201)
+      expect(response.body).toEqual(expect.objectContaining(payload))
+      expect(response.headers.location).toMatch(`/admin/identity-providers/${response.body.id}`)
+    })
+
+    it("should create the identity provider in the database", async () => {
+      const payload = getPayload()
+      
+      const response = await request(context.server)
+        .post("/admin/identity-providers")
+        .send(payload)
+
+      const created = await context.data.getIdentityProvider(response.body.id)
+      expect(response).bodyToMatchEntity(created)
+    })
+
+    it("should publish an event", async () => {
+      const payload = getPayload()
+      
+      const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
+      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
+
+      await request(context.server)
+        .post("/admin/identity-providers")
+        .send(payload)
+
+      expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
+    })
   })
 })

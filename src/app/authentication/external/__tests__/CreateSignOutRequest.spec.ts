@@ -38,9 +38,11 @@ describe("[POST] /auth/external/sign-out", () => {
       .set("Cookie", [`auth-session=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(302)
-    expect(response).toHaveCookie("auth-state", ["HttpOnly", "Secure"])
+    expect(response.status).toBe(302)
     expect(response.headers.location).toBe("https://custom.provider.com/auth")
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)
+    ]))
 
     session = await context.data.getSession(session.id)
     expect(session.status).toBe(SessionStatus.TerminatedByUser)
@@ -56,7 +58,7 @@ describe("[POST] /auth/external/sign-out", () => {
       .set("Cookie", [`auth-session=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(400)
+    expect(response.status).toBe(400)
   })
 
   it("should return 401 when session cookie is missing", async () => {
@@ -64,7 +66,7 @@ describe("[POST] /auth/external/sign-out", () => {
       .get(`/auth/external/sign-out?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
       .send()
 
-    expect(response).toHaveStatus(401)
+    expect(response.status).toBe(401)
   })
 
   // Additional scenarios can be added here:

@@ -8,7 +8,7 @@ export interface AuthorizationEventDetails {
   claims?: Record<string, unknown>
 }
 
-export class AuthorizationEvent implements Event {
+export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
   readonly topic = "Authorization" as const
   readonly id: string
   readonly timestamp: Date

@@ -1,16 +1,16 @@
-import { Event, EventCallback, EventPublisher, EventTopic } from "~/domain/adapters"
+import { Event, EventCallback, EventPublisher } from "~/domain/adapters"
 
 export class EventBus implements EventPublisher {
-  private subscribers: Map<EventTopic, Set<EventCallback<any>>> = new Map()
+  private subscribers: Map<string, Set<EventCallback<any>>> = new Map()
 
-  subscribe<T extends Event>(topic: EventTopic, callback: EventCallback<T>): void {
+  subscribe<T extends Event<any>>(topic: string, callback: EventCallback<T>): void {
     if (!this.subscribers.has(topic)) {
       this.subscribers.set(topic, new Set())
     }
     this.subscribers.get(topic)!.add(callback)
   }
 
-  unsubscribe<T extends Event>(topic: EventTopic, callback: EventCallback<T>): void {
+  unsubscribe<T extends Event<any>>(topic: string, callback: EventCallback<T>): void {
     const callbacks = this.subscribers.get(topic)
     if (callbacks) {
       callbacks.delete(callback)
@@ -20,8 +20,8 @@ export class EventBus implements EventPublisher {
     }
   }
 
-  publishEvent(event: Event): void {
-    const callbacks = this.subscribers.get(event.topic as EventTopic)
+  publishEvent<T extends Event<any>>(event: T): void {
+    const callbacks = this.subscribers.get(event.topic)
     if (callbacks) {
       callbacks.forEach(callback => callback(event))
     }

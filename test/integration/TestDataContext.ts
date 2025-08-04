@@ -18,6 +18,11 @@ export class TestDataContext {
     return await repository.getById(id)
   }
 
+  getSigningKey = async (id: string) => {
+    const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
+    return await repository.getById(id)
+  }
+
   getUser = async (id: string) => {
     const repository = this.container.resolve<UserRepository>("userRepository")
     return await repository.getById(id)

@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
 import { GetJsonWebKeysHandler } from "../queries/GetJsonWebKeysHandler"
 
-export class MetadataController {
+export class WellKnownController {
   constructor(
     private readonly getOpenidConfigurationHandler: GetOpenidConfigurationHandler,
     private readonly getJsonWebKeysHandler: GetJsonWebKeysHandler,

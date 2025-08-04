@@ -10,7 +10,7 @@ export interface AuthenticationEventDetails {
   method: "Active Session" | "Password" | "Client Credentials" | "Identity Provider"
 }
 
-export class AuthenticationEvent implements Event {
+export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
   readonly topic = "Authentication" as const
   readonly id: string
   readonly timestamp: Date

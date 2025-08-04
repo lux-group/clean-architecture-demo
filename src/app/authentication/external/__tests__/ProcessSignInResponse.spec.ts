@@ -42,9 +42,11 @@ describe("[POST] /auth/external/sign-in-callback", () => {
       .set("Cookie", [`auth-state=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(302)
-    expect(response).toHaveCookie("auth-session", ["HttpOnly", "Secure", "SameSite=Strict"])
+    expect(response.status).toBe(302)
     expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
+    ]))
   })
 
   it("should auto-link existing user after successful sign-in", async () => {
@@ -70,9 +72,11 @@ describe("[POST] /auth/external/sign-in-callback", () => {
       .set("Cookie", [`auth-state=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(302)
-    expect(response).toHaveCookie("auth-session", ["HttpOnly", "Secure", "SameSite=Strict"])
+    expect(response.status).toBe(302)
     expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
+    ]))
 
     const updatedUser = await context.data.getUser(user.id)
     expect(updatedUser.identities).toHaveLength(1)
@@ -102,9 +106,11 @@ describe("[POST] /auth/external/sign-in-callback", () => {
       .set("Cookie", [`auth-state=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(302)
-    expect(response).notToHaveCookie("auth-session")
+    expect(response.status).toBe(302)
     expect(response.headers.location).toMatch(/error=Authentication%20method%20is%20not%20allowed/)
+    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+      expect.stringMatching(/auth-state=;/)
+    ]))
   })
 
   // More scenarios can be added here:

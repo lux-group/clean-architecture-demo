@@ -1,11 +1,14 @@
 import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { KeyPairGenerator } from "~/infrastructure/crypto"
+import { EventPublisher } from "~/domain/adapters"
+import { EntityChangeEvent } from "~/domain/events"
 
 export class CreateNewSigningKeyHandler {
   constructor(
     private readonly keyPairGenerator: KeyPairGenerator,
     private readonly signingKeyRepository: SigningKeyRepository,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(): Promise<SigningKey> {
@@ -22,10 +25,16 @@ export class CreateNewSigningKeyHandler {
 
     await this.signingKeyRepository.insert(newSigningKey)
 
+    let event = EntityChangeEvent.entityCreated("Signing Key", newSigningKey)
+    this.eventPublisher.publishEvent(event)
+
     // Deactivate the current signing key if it exists.
     if (currentSigningKey) {
       currentSigningKey.deactivate()
       await this.signingKeyRepository.update(currentSigningKey)
+
+      event = EntityChangeEvent.entityUpdated("Signing Key", currentSigningKey)
+      this.eventPublisher.publishEvent(event)
     }
 
     return newSigningKey

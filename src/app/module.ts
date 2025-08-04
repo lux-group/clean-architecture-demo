@@ -5,7 +5,7 @@ import registerSigningKeyAdminModule from "./admin/signing-key/module"
 import registerUserAdminModule from "./admin/user/module"
 import registerExternalAuthenticationModule from "./authentication/external/module"
 import registerLocalAuthenticationModule from "./authentication/local/module"
-import registerMetadataModule from "./authorization/metadata/module"
+import registerWellKnownModule from "./authorization/well-known/module"
 import registerTokenModule from "./authorization/token/module"
 import registerEntraIntegrationModule from "./integration/entra/module"
 import registerSharedModule from "./shared/module"
@@ -17,7 +17,7 @@ export default function registerApp(container: AwilixContainer) {
   registerUserAdminModule(container)
   registerExternalAuthenticationModule(container)
   registerLocalAuthenticationModule(container)
-  registerMetadataModule(container)
+  registerWellKnownModule(container)
   registerTokenModule(container)
   registerEntraIntegrationModule(container)
   registerSharedModule(container)

@@ -20,7 +20,7 @@ describe("[POST] /auth/local/sign-out", () => {
       .set("Cookie", [`auth-session=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(204)
+    expect(response.status).toBe(204)
   })
 
   it("should return 401 when session is already terminated", async () => {
@@ -38,7 +38,7 @@ describe("[POST] /auth/local/sign-out", () => {
       .set("Cookie", [`auth-session=${cookie}`])
       .send()
 
-    expect(response).toHaveStatus(401)
+    expect(response.status).toBe(401)
   })
 
   it("should return 401 when no cookie exists", async () => {
@@ -46,7 +46,7 @@ describe("[POST] /auth/local/sign-out", () => {
       .post("/auth/local/sign-out")
       .send()
 
-    expect(response).toHaveStatus(401)
+    expect(response.status).toBe(401)
   })
 })
 

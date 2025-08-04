@@ -1,16 +1,14 @@
-export interface Event {
+export interface Event<T extends Record<string, any>> {
   readonly topic: string
   readonly id: string
   readonly timestamp: Date
   readonly result: "Success" | "Failed" | "Warning"
   readonly reason?: string
-  readonly details?: Record<string, any>
+  readonly details?: T
 }
 
-export type EventTopic = "Authentication" | "Authorization" | "Session"
-
-export type EventCallback<T extends Event> = (event: T) => void
+export type EventCallback<T extends Event<any>> = (event: T) => void
 
 export interface EventPublisher {
-  publishEvent(event: Event): void
+  publishEvent<T extends Event<any>>(event: T): void
 }
