@@ -3,7 +3,9 @@ import { Session } from "~/domain/entities"
 import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
 import { SearchSessionsHandler, SearchSessionsQuery } from "../queries/SearchSessionsHandler"
 import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessionByIdHandler"
+import { Authorize, Controller, Get, Post } from "~/app/decorators"
 
+@Controller("/admin/sessions")
 export class SessionController {
   constructor(
     private readonly terminateSessionHandler: TerminateSessionHandler,
@@ -11,6 +13,8 @@ export class SessionController {
     private readonly searchSessionsHandler: SearchSessionsHandler,
   ) {}
 
+  @Get("/")
+  @Authorize({ scopes: ["sessions:read"] })
   async getAll(req: Request, res: Response) {
     const query: SearchSessionsQuery = {
       offset: Number(req.query.offset) || 0,
@@ -21,12 +25,16 @@ export class SessionController {
     res.json({ ...result, items: result.items.map(this.present) })
   }
 
+  @Get("/:id")
+  @Authorize({ scopes: ["sessions:read"] })
   async getById(req: Request, res: Response) {
     const query: GetSessionByIdQuery = { id: req.params.id }
     const item = await this.getSessionByIdHandler.execute(query)
     res.json(this.present(item))
   }
   
+  @Post("/:id/terminate")
+  @Authorize({ scopes: ["sessions:write"] })
   async terminate(req: Request, res: Response) {
     const command: TerminateSessionCommand = { sessionId: req.params.id }
     await this.terminateSessionHandler.execute(command)

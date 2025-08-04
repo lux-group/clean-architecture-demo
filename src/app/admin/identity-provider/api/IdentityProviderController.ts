@@ -5,7 +5,9 @@ import { DeleteIdentityProviderCommand, DeleteIdentityProviderHandler } from "..
 import { UpdateIdentityProviderCommand, UpdateIdentityProviderHandler } from "../commands/UpdateIdentityProviderHandler"
 import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "../queries/GetIdentityProviderByIdHandler"
 import { SearchIdentityProvidersHandler, SearchIdentityProvidersQuery } from "../queries/SearchIdentityProvidersHandler"
+import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
 
+@Controller("/admin/identity-providers")
 export class IdentityProviderController {
   constructor(
     private readonly baseUrl: string,
@@ -16,6 +18,8 @@ export class IdentityProviderController {
     private readonly searchIdentityProvidersHandler: SearchIdentityProvidersHandler,
   ) {}
 
+  @Get("/")
+  @Authorize({ scopes: ["identity-providers:read"] })
   async getAll(req: Request, res: Response) {
     const query: SearchIdentityProvidersQuery = {
       offset: Number(req.query.offset) || 0,
@@ -26,12 +30,16 @@ export class IdentityProviderController {
     res.json({ ...result, items: result.items.map(this.present) })
   }
 
+  @Get("/:id")
+  @Authorize({ scopes: ["identity-providers:read"] })
   async getById(req: Request, res: Response) {
     const query: GetIdentityProviderByIdQuery = { id: req.params.id }
     const item = await this.getIdentityProviderByIdHandler.execute(query)
     res.json(this.present(item))
   }
 
+  @Post("/")
+  @Authorize({ scopes: ["identity-providers:write"] })
   async create(req: Request, res: Response) {
     const command: CreateIdentityProviderCommand = this.parseBody(req.body)
     const item = await this.createIdentityProviderHandler.execute(command)
@@ -40,12 +48,16 @@ export class IdentityProviderController {
       .json(this.present(item))
   }
 
+  @Put("/:id")
+  @Authorize({ scopes: ["identity-providers:write"] })
   async update(req: Request, res: Response) {
     const command: UpdateIdentityProviderCommand = { id: req.params.id, ...this.parseBody(req.body) }
     const item = await this.updateIdentityProviderHandler.execute(command)
     res.json(this.present(item))
   }
 
+  @Delete("/:id")
+  @Authorize({ scopes: ["identity-providers:write"] })
   async delete(req: Request, res: Response) {
     const command: DeleteIdentityProviderCommand = { id: req.params.id }
     await this.deleteIdentityProviderHandler.execute(command)

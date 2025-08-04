@@ -2,7 +2,9 @@ import { Request, Response } from "express"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { SignInWithPasswordCommand, SignInWithPasswordHandler } from "../commands/SignInWithPasswordHandler"
 import { SignOutCommand, SignOutHandler } from "../commands/SignOutHandler"
+import { Controller, Post } from "~/app/decorators"
 
+@Controller("/auth/local")
 export class LocalAuthenticationController {
   constructor(
     private readonly secureCookieManager: SecureCookieManager,
@@ -13,6 +15,7 @@ export class LocalAuthenticationController {
   // TODO: What should we do if a user who already has active session tries to sign in
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
+  @Post("/sign-in")
   async signInWithPassword(req: Request, res: Response) {
     const command: SignInWithPasswordCommand = {
       brand: req.body?.brand,
@@ -25,6 +28,7 @@ export class LocalAuthenticationController {
     res.status(204).send()
   }
 
+  @Post("/sign-out")
   async signOut(req: Request, res: Response) {
     const cookie = this.secureCookieManager.getAndRemoveSessionCookie(req, res)
 

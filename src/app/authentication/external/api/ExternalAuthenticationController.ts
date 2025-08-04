@@ -6,7 +6,9 @@ import { CreateSignInRequestCommand, CreateSignInRequestHandler } from "../comma
 import { CreateSignOutRequestCommand, CreateSignOutRequestHandler } from "../commands/CreateSignOutRequestHandler"
 import { ProcessSignInResponseCommand, ProcessSignInResponseHandler } from "../commands/ProcessSignInResponseHandler"
 import { FrontChannelSignOutCommand, FrontChannelSignOutHandler } from "../commands/FrontChannelSignOutHandler"
+import { Controller, Get, Post } from "~/app/decorators"
 
+@Controller("/auth/external")
 export class ExternalAuthenticationController {
   constructor(
     private readonly secureCookieManager: SecureCookieManager,
@@ -19,6 +21,7 @@ export class ExternalAuthenticationController {
   // TODO: What should we do if a user who already has active session tries to sign in
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
+  @Get("/sign-in")
   async createSignInRequest(req: Request, res: Response) {
     const command: CreateSignInRequestCommand = {
       identityProviderName: req.query.provider as string,
@@ -30,12 +33,13 @@ export class ExternalAuthenticationController {
     res.redirect(request.url)
   }
 
+  @Get("/sign-in-callback")
   async processSignInResponse(req: Request, res: Response) {
     const signInState = this.secureCookieManager.getAndRemoveStateCookie<SignInState>(req, res)
     try {
       const command: ProcessSignInResponseCommand = {
         state: signInState,
-        url: "/auth/external" + req.url
+        url: req.url
       }
 
       const session = await this.processSignInResponseHandler.execute(command)
@@ -48,6 +52,7 @@ export class ExternalAuthenticationController {
     }
   }
 
+  @Get("/sign-out")
   async createSignOutRequest(req: Request, res: Response) {
     const cookie = this.secureCookieManager.getAndRemoveSessionCookie(req, res)
 
@@ -65,11 +70,13 @@ export class ExternalAuthenticationController {
     res.redirect(request.url)
   }
 
+  @Get("/sign-out-callback")
   async processSignOutResponse(req: Request, res: Response) {
     const signOutState = this.secureCookieManager.getAndRemoveStateCookie<SignOutState>(req, res)
     res.redirect(signOutState.redirectUrl)
   }
 
+  @Get("/frontchannel-sign-out")
   async frontChannelSignOut(req: Request, res: Response) {
     const command: FrontChannelSignOutCommand = {
       sid: req.query.sid as string

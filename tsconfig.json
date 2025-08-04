@@ -9,6 +9,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "outDir": "./dist",
     "baseUrl": ".",
     "types": ["node"],

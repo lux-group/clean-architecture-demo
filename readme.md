@@ -139,7 +139,6 @@ class MyService {
 
 // Function injection
 function myService(logger: Logger) {
-  return async (): Promise<IdentityProvider> => { ... }
 }
 ```
 

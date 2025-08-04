@@ -5,7 +5,9 @@ import { DeleteUserCommand, DeleteUserHandler } from "../commands/DeleteUserHand
 import { UpdateUserCommand, UpdateUserHandler } from "../commands/UpdateUserHandler"
 import { GetUserByIdHandler, GetUserByIdQuery } from "../queries/GetUserByIdHandler"
 import { SearchUsersHandler, SearchUsersQuery } from "../queries/SearchUsersHandler"
+import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
 
+@Controller("/admin/users")
 export class UserController {
   constructor(
     private readonly baseUrl: string,
@@ -16,6 +18,8 @@ export class UserController {
     private readonly searchUsersHandler: SearchUsersHandler,
   ) {}
 
+  @Get("/")
+  @Authorize({ scopes: ["users:read"] })
   async getAll(req: Request, res: Response) {
     const query: SearchUsersQuery = {
       offset: Number(req.query.offset) || 0,
@@ -26,12 +30,16 @@ export class UserController {
     res.json({ ...result, items: result.items.map(this.present) })
   }
 
+  @Get("/:id")
+  @Authorize({ scopes: ["users:read"] })
   async getById(req: Request, res: Response) {
     const query: GetUserByIdQuery = { id: req.params.id }
     const item = await this.getUserByIdHandler.execute(query)
     res.json(this.present(item))
   }
 
+  @Post("/")
+  @Authorize({ scopes: ["users:write"] })
   async create(req: Request, res: Response) {
     const command: CreateUserCommand = this.parseCreateBody(req.body)
     const item = await this.createUserHandler.execute(command)
@@ -40,12 +48,16 @@ export class UserController {
       .json(this.present(item))
   }
 
+  @Put("/:id")
+  @Authorize({ scopes: ["users:write"] })
   async update(req: Request, res: Response) {
     const command: UpdateUserCommand = { id: req.params.id, ...this.parseUpdateBody(req.body) }
     const item = await this.updateUserHandler.execute(command)
     res.json(this.present(item))
   }
 
+  @Delete("/:id")
+  @Authorize({ scopes: ["users:write"] })
   async delete(req: Request, res: Response) {
     const command: DeleteUserCommand = { id: req.params.id }
     await this.deleteUserHandler.execute(command)

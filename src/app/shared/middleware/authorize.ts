@@ -4,7 +4,13 @@ import { NextFunction, Request, Response } from "express";
 // DEMO middleware to authorize requests based on JWT scopes
 // Note that this does not verify the JWT signature or issuer.
 
-export function authorize(requiredScope: string, requiredAudience?: string) {
+export interface AuthorizeOptions {
+  roles?: string[];
+  scopes?: string[];
+  audiences?: string[];
+}
+
+export function authorize(options: AuthorizeOptions) {
   return (req: Request, res: Response, next: NextFunction) => {
     const authMiddleware = async () => {
       // const token = req.headers.authorization?.split(" ")[0]

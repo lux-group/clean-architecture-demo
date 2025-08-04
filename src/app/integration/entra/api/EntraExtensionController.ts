@@ -1,11 +1,14 @@
 import { Request, Response } from "express"
 import { User } from "~/domain/entities"
+import { Controller, Post } from "~/app/decorators"
 
+@Controller("/integration/entra")
 export class EntraExtensionController {
   /**
    * Called before sign-up to set default attribute values or block sign-up.
    * https://learn.microsoft.com/en-us/entra/identity-platform/custom-extension-onattributecollectionstart-retrieve-return-data
    */
+  @Post("/attribute-collection-start")
   async onAttributeCollectionStart(req: Request, res: Response) {
     const response = {
       data: {
@@ -30,6 +33,7 @@ export class EntraExtensionController {
    *   - For users who create a custom account, we can get it from issuerAssignedId
    *   - For all others, it is not available at all.
    */
+  @Post("/attribute-collection-submit")
   async onAttributeCollectionSubmit(req: Request, res: Response) {
     let displayName = this.getUserAttribute(req.body.data, "displayName")
     if (!displayName) {
@@ -59,6 +63,7 @@ export class EntraExtensionController {
   /**
    * Called when a token is issued to enrich it with additional claims.
    */
+  @Post("/token-issuance-start")
   async onTokenIssuanceStart(req: Request, res: Response) {
     res.json({})
   }
