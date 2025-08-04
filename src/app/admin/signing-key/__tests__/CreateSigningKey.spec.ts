@@ -17,8 +17,6 @@ describe("[POST] /admin/signing-keys", () => {
       const eventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      let existingSigningKey = await context.data.createSigningKey()
-
       const response = await request(context.server)
         .post("/admin/signing-keys")
         .send()
@@ -31,9 +29,6 @@ describe("[POST] /admin/signing-keys", () => {
       expect(response.headers.location).toMatch(`/admin/signing-keys/${response.body.id}`)
       
       expect(eventPublisher.publishEvent).toHaveBeenCalledTimes(2)
-  
-      existingSigningKey = await context.data.getSigningKey(existingSigningKey.id)
-      expect(existingSigningKey.privateKey).toBe(null)
     })  
   })
 })

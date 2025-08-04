@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import express, { Handler, Router } from "express"
+import express, { Handler, ErrorRequestHandler, Router } from "express"
 import { AwilixContainer } from "awilix"
 import { AuthorizeOptions } from "./shared/middleware/authorize"
 
@@ -19,6 +19,7 @@ interface MiddlewareInfo {
   propertyKey: string | symbol
   identifier: string
   args: unknown[]
+  isErrorHandler: boolean
 }
 
 function defineMethodMetadata<T extends object>(target: any, name: string, data: T) {
@@ -36,7 +37,11 @@ function routeDecoratorFactory(method: string) {
 }
 
 function registerMiddleware(target: any, propertyKey: string | symbol, identifier: string, args: unknown[] = []) {
-  defineMethodMetadata<MiddlewareInfo>(target, MetadataKeys.MIDDLEWARE, { propertyKey, identifier, args })
+  defineMethodMetadata<MiddlewareInfo>(target, MetadataKeys.MIDDLEWARE, { propertyKey, identifier, args, isErrorHandler: false })
+}
+
+function registerErrorHandler(target: any, propertyKey: string | symbol, identifier: string, args: unknown[] = []) {
+  defineMethodMetadata<MiddlewareInfo>(target, MetadataKeys.MIDDLEWARE, { propertyKey, identifier, args, isErrorHandler: true })
 }
 
 export const Get = routeDecoratorFactory("get")
@@ -59,9 +64,9 @@ export function Authorize(options: AuthorizeOptions) {
   }
 }
 
-export function OAuthErrors() {
+export function HandleOAuthErrors() {
   return function (target: any, propertyKey: string | symbol) {
-    registerMiddleware(target, propertyKey, "handleOAuthErrors", [])
+    registerErrorHandler(target, propertyKey, "handleOAuthErrors", [])
   }
 }
 
@@ -78,17 +83,24 @@ export function registerRoutesFromDecorators(container: AwilixContainer): Router
     const middlewareInfos: MiddlewareInfo[] = Reflect.getMetadata(MetadataKeys.MIDDLEWARE, controller.constructor) || []
 
     const middleware: Record<string, Handler[]> = {}
+    const errorHandlers: Record<string, ErrorRequestHandler[]> = {}
 
-    for (const { propertyKey, identifier, args } of middlewareInfos) {
+    for (const { propertyKey, identifier, args, isErrorHandler } of middlewareInfos) {
       const propertyName = String(propertyKey)
-      middleware[propertyName] = middleware[propertyName] ?? []
-      middleware[propertyName].push(container.resolve(identifier)(args));
+      if (isErrorHandler) {
+        errorHandlers[propertyName] = errorHandlers[propertyName] ?? []
+        errorHandlers[propertyName].push(container.resolve(identifier)(args));
+      } else {
+        middleware[propertyName] = middleware[propertyName] ?? []
+        middleware[propertyName].push(container.resolve(identifier)(args));
+      }
     }
 
     for (const { propertyKey, method, path } of routeInfos) {
       const propertyName = String(propertyKey)
       const routeMiddleware = middleware[propertyName] || []
-      router[method](basePath + path, ...routeMiddleware, controller[propertyName].bind(controller))
+      const routeErrorHandlers = errorHandlers[propertyName] || []
+      router[method](basePath + path, ...routeMiddleware, controller[propertyName].bind(controller), ...routeErrorHandlers)
     }
   }
 

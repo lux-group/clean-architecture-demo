@@ -25,7 +25,7 @@ describe("Handle OAuth Errors Middleware", () => {
       info: vi.fn()
     } satisfies Logger)
     
-    handler = handleOAuthErrors(mockLogger)
+    handler = handleOAuthErrors(mockLogger)()
   })
 
   test("AuthenticationError", () => {

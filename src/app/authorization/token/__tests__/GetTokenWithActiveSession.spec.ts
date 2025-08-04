@@ -21,6 +21,7 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
     expect(response.status).toBe(401)
+    expect(response.body.error).toBe("unauthorized_client")
   })
 
   it("should return 401 when the session has expired", async () => {
@@ -34,6 +35,7 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
     expect(response.status).toBe(401)
+    expect(response.body.error).toBe("unauthorized_client")
   })
 
   it("should return 200 and access token when session and cookie are valid", async () => {

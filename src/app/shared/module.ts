@@ -7,7 +7,7 @@ import { authorize } from "./middleware/authorize"
 
 export default function registerSharedModule(container: AwilixContainer) {
   container.register({
-    authorize: asFunction(() => authorize).singleton(),
+    authorize: asFunction(authorize).singleton(),
     handleClientErrors: asFunction(handleClientErrors).singleton(),
     handleOAuthErrors: asFunction(handleOAuthErrors).singleton(),
     handleServerErrors: asFunction(handleServerErrors).singleton(),

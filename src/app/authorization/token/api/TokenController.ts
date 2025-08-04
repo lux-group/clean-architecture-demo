@@ -5,7 +5,7 @@ import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"
 import { IssueTokenWithClientCredentialsHandler } from "../commands/IssueTokenWithClientCredentialsHandler"
 import { IssueTokenWithTokenExchangeHandler } from "../commands/IssueTokenWithTokenExchangeHandler"
-import { Controller, OAuthErrors, Post } from "~/app/decorators"
+import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
 
 const GrantType = {
   ClientCredentials: "client_credentials",
@@ -45,7 +45,7 @@ export class TokenController {
   ) {}
 
   @Post("/")
-  //@OAuthErrors()
+  @HandleOAuthErrors()
   async getAccessToken(req: Request, res: Response) {
     const body = req.body as TokenRequest
 
