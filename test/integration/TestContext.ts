@@ -10,8 +10,8 @@ import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
 
 export interface TestContext {
-  server: Application
   container: AwilixContainer
+  server: Application
   data: TestDataContext
 }
 
@@ -34,5 +34,5 @@ export const getTestContext = (): TestContext => {
   const container = createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
-  return { server, container, data }
+  return { container, server, data }
 }
