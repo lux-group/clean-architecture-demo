@@ -40,17 +40,17 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
 | &nbsp;&nbsp; 📁 [events](/src/domain/events) | Domain event messages |
 | &nbsp;&nbsp; 📁 [repositories](/src/domain/repositories) | Interfaces for data repositories.<br/>Their implementations can be found in [/infrastructure/repositories](/src/infrastructure/repositories). |
-| &nbsp;&nbsp; 📁 [services](/src/application/services) | Domain services shared by multiple use cases where logic does not fit into an entity. |
-| 📁 [infrastructure](/src/infrastructure) | Contains the concrete implementation of all interfaces and repositories. |
-| &nbsp;&nbsp; 📁 [adapters](/src/infrastructure/adapters) | Domain adapter implementations. |
+| &nbsp;&nbsp; 📁 [services](/src/domain/services) | Domain services shared by multiple use cases where logic does not fit into an entity. |
+| 📁 [infrastructure](/src/infrastructure) | Contains concrete implementations of domain interfaces and technical concerns |
+| &nbsp;&nbsp; 📁 [adapters](/src/infrastructure/adapters) | Implements domain adapter interfaces.<br/>(Password verification, Token validation/issuing, Event publishing, etc.) |
 | &nbsp;&nbsp; 📁 [auth](/src/infrastructure/auth) | OAuth2 Clients for OIDC (Entra ID, Google), Facebook, Apple |
 | &nbsp;&nbsp; 📁 [config](/src/infrastructure/config) | Application configuration |
 | &nbsp;&nbsp; 📁 [crypto](/src/infrastructure/crypto) | Cryptography utility services |
 | &nbsp;&nbsp; 📁 [logging](/src/infrastructure/logging) | Logger - currently just a simple console logger implementation |
-| &nbsp;&nbsp; 📁 [repositories](/src/infrastructure/repositories) | Domain repository implementations |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [memory](/src/infrastructure/repositories/memory) | In-memory repositories |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [prisma](/src/infrastructure/repositories/prisma) | Prisma repositories |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Redis caching decorator repositories |
+| &nbsp;&nbsp; 📁 [repositories](/src/infrastructure/repositories) | Repository implementations with different storage strategies |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [memory](/src/infrastructure/repositories/memory) | In-memory repositories for manual local testing. |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [prisma](/src/infrastructure/repositories/prisma) | Primary data storage using Prisma ORM |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Cache layer decorating Prisma repositories |
 | 📁 [lib](/src/lib) | Common utility libraries (no domain logic) |
 
 # Clean Architecture
