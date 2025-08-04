@@ -13,29 +13,23 @@ export class AuthenticationService {
   ) {}
 
   async authenticateWithActiveSession(session: Session): Promise<User> {
-    const eventDetails: AuthenticationEvent["details"] = {
-      method: "Active Session",
-      userId: session.userId,
-      sessionId: session.id
-    }
-
     if (!session.isActive) {
-      this.publishFailedEvent(commonErrors.sessionExpired, eventDetails)
+      this.publishEvent(AuthenticationEvent.activeSessionExpired(session))
       throw new AuthenticationError(commonErrors.sessionExpired)
     }
 
     const user = await this.userRepository.tryGetById(session.userId)
     if (!user) {
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.activeSessionFailed(session))
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
     if (!user.canSignInWithActiveSession()) {
-      this.publishFailedEvent(commonErrors.authenticationMethodNotAllowed, eventDetails)
+      this.publishEvent(AuthenticationEvent.activeSessionMethodNotAllowed(session))
       throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
     }
 
-    this.publishSuccessEvent(eventDetails)
+    this.publishEvent(AuthenticationEvent.activeSessionSuccess(session))
 
     return user
   }
@@ -43,56 +37,46 @@ export class AuthenticationService {
   async authenticateWithEmailAndPassword(brand: string, email: string, password: string): Promise<User> {
     const user = await this.userRepository.tryGetByBrandAndEmail(brand, email)
 
-    const eventDetails: AuthenticationEvent["details"] = {
-      method: "Password",
-      userId: user?.id,
-    }
-
     if (!user) {
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.passwordFailed())
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
     if (!user.canSignInWithPassword()) {
-      this.publishFailedEvent(commonErrors.authenticationMethodNotAllowed, eventDetails)
+      this.publishEvent(AuthenticationEvent.passwordMethodNotAllowed(user))
       throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
     }
 
     if (!user.passwordHash || !this.passwordVerifier.verifyPassword(password, user.passwordHash)) {
       user.handleFailedSignInAttempt()
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.passwordFailed(user))
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
-    this.publishSuccessEvent(eventDetails)
+    this.publishEvent(AuthenticationEvent.passwordSuccess(user))
 
     return user
   }
 
   async authenticateWithClientCredentials(clientId: string, clientSecret: string): Promise<User> {
-    const eventDetails: AuthenticationEvent["details"] = {
-      method: "Client Credentials",
-      userId: clientId
-    }
-
     const user = await this.userRepository.tryGetById(clientId)
     if (!user) {
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.clientCredentialsFailed(clientId))
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
     if (!user.canSignInWithClientSecret()) {
-      this.publishFailedEvent(commonErrors.authenticationMethodNotAllowed, eventDetails)
+      this.publishEvent(AuthenticationEvent.clientCredentialsMethodNotAllowed(clientId))
       throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
     }
 
     if (!user.passwordHash || !this.passwordVerifier.verifyPassword(clientSecret, user.passwordHash)) {
       user.handleFailedSignInAttempt()
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.clientCredentialsFailed(clientId))
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
-    this.publishSuccessEvent(eventDetails)
+    this.publishEvent(AuthenticationEvent.clientCredentialsSuccess(user))
 
     return user
   }
@@ -106,7 +90,7 @@ export class AuthenticationService {
       identityProvider = result.identityProvider
       profile = result.profile
     } catch (error) {
-      this.publishFailedEvent(commonErrors.authenticationFailed, { method: "Identity Provider" })
+      this.publishEvent(AuthenticationEvent.identityProviderTokenFailed())
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
@@ -156,44 +140,20 @@ export class AuthenticationService {
       }
     }
 
-    const eventDetails: AuthenticationEvent["details"] = {
-      method: "Identity Provider",
-      userId: user?.id,
-      identityProviderId,
-      identifierClaimValue
-    }
-
     if (!user) {
-      this.publishFailedEvent(commonErrors.authenticationFailed, eventDetails)
+      this.publishEvent(AuthenticationEvent.identityProviderFailed(identityProviderId, identifierClaimValue))
       throw new AuthenticationError(commonErrors.authenticationFailed)
     }
 
     if (!user.canSignInWithIdentityProvider()) {
-      this.publishFailedEvent(commonErrors.authenticationMethodNotAllowed, eventDetails)
+      this.publishEvent(AuthenticationEvent.identityProviderMethodNotAllowed(user, identityProviderId, identifierClaimValue))
       throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
     }
 
-    this.publishSuccessEvent(eventDetails)
+    this.publishEvent(AuthenticationEvent.identityProviderSuccess(user, identityProviderId, identifierClaimValue))
 
     return { user, newIdentity }
   }
 
-  private publishSuccessEvent(details: AuthenticationEvent["details"]): void {
-    this.eventPublisher.publishEvent("Authentication", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Success",
-      details,
-    })
-  }
-
-  private publishFailedEvent(reason: string, details: AuthenticationEvent["details"]): void {
-    this.eventPublisher.publishEvent("Authentication", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Failed",
-      reason,
-      details,
-    })
-  }
+  private publishEvent = (event: AuthenticationEvent) => this.eventPublisher.publishEvent(event)
 }

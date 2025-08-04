@@ -28,7 +28,7 @@ export class SessionService {
     session.ensureIsActive()
 
     if (session.nonce != nonce) {
-      this.publishNonceMismatchDetectedEvent(session)
+      this.eventPublisher.publishEvent(SessionEvent.nonceMismatchDetected(session))
       throw new AuthenticationError(commonErrors.sessionInvalid)
     } 
 
@@ -51,7 +51,7 @@ export class SessionService {
     const session = Session.createNew(props, this.sessionConfig.localSessionLifetimeHours)
     await this.sessionRepository.insert(session)
 
-    this.publishSessionCreatedEvent(session)
+    this.eventPublisher.publishEvent(SessionEvent.sessionCreated(session))
 
     return session
   }
@@ -67,28 +67,26 @@ export class SessionService {
 
     const session = Session.createNew(props, this.sessionConfig.externalSessionLifetimeHours)
     await this.sessionRepository.insert(session)
-
-    this.publishSessionCreatedEvent(session)
-
+    this.eventPublisher.publishEvent(SessionEvent.sessionCreated(session))
     return session
   }
 
   async terminateLocalSessionByUser(session: Session) {
     session.terminateLocalSessionByUser()
     await this.sessionRepository.update(session)
-    this.publishSessionTerminatedByUserEvent(session)
+    this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(session))
   }
   
   async terminateIdentityProviderSessionByUser(session: Session) {
     session.terminateIdentityProviderSessionByUser()
     await this.sessionRepository.update(session)
-    this.publishSessionTerminatedByUserEvent(session)
+    this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(session))
   }
 
   async terminateSessionByIdentityProvider(session: Session) {
     session.terminateSessionByIdentityProvider()
     await this.sessionRepository.update(session)
-    this.publishSessionTerminatedByIdentityProviderEvent(session)
+    this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByIdentityProvider(session))
   }
 
   async refreshSession(session: Session) {
@@ -123,70 +121,6 @@ export class SessionService {
   private async setLastSessionRefresh(session: Session, idToken?: string, refreshToken?: string) {
     session.setLastRefresh(idToken, refreshToken)
     await this.sessionRepository.update(session)
-    this.publishSessionRefreshedEvent(session)
-  }
-
-  private publishNonceMismatchDetectedEvent(session: Session) {
-    this.publishWarningEvent("Nonce mismatch indicating potential session hijacking attempt", {
-      activity: "Session validation failed",
-      sessionId: session.id,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId ?? undefined,
-    })
-  }
-
-  private publishSessionCreatedEvent(session: Session) {
-    this.publishSuccessEvent({
-      activity: "Session created",
-      sessionId: session.id,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId ?? undefined,
-    })
-  }
-
-  private publishSessionRefreshedEvent(session: Session) {
-    this.publishSuccessEvent({
-      activity: "Session refreshed",
-      sessionId: session.id,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId ?? undefined,
-    })
-  }
-
-  private publishSessionTerminatedByUserEvent(session: Session) {
-    this.publishSuccessEvent({
-      activity: "Session terminated by user",
-      sessionId: session.id,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId ?? undefined,
-    })
-  }
-
-  private publishSessionTerminatedByIdentityProviderEvent(session: Session) {
-    this.publishSuccessEvent({
-      activity: "Session terminated by identity provider",
-      sessionId: session.id,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId ?? undefined,
-    })
-  }
-
-  private publishSuccessEvent(details: SessionEvent["details"]) {
-    this.eventPublisher.publishEvent("Session", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Success",
-      details,
-    })
-  }
-
-  private publishWarningEvent(reason: string, details: SessionEvent["details"]) {
-    this.eventPublisher.publishEvent("Session", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Warning",
-      reason,
-      details,
-    })
+    this.eventPublisher.publishEvent(SessionEvent.sessionRefreshed(session))
   }
 }

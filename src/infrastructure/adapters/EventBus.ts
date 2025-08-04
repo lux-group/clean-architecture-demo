@@ -20,8 +20,8 @@ export class EventBus implements EventPublisher {
     }
   }
 
-  publishEvent<T extends Event>(topic: EventTopic, event: T): void {
-    const callbacks = this.subscribers.get(topic)
+  publishEvent(event: Event): void {
+    const callbacks = this.subscribers.get(event.topic as EventTopic)
     if (callbacks) {
       callbacks.forEach(callback => callback(event))
     }

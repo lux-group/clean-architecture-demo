@@ -1,9 +1,10 @@
 export interface Event {
-  id: string
-  timestamp: Date
-  result: "Success" | "Failed" | "Warning"
-  reason?: string
-  details?: Record<string, any>
+  readonly topic: string
+  readonly id: string
+  readonly timestamp: Date
+  readonly result: "Success" | "Failed" | "Warning"
+  readonly reason?: string
+  readonly details?: Record<string, any>
 }
 
 export type EventTopic = "Authentication" | "Authorization" | "Session"
@@ -11,5 +12,5 @@ export type EventTopic = "Authentication" | "Authorization" | "Session"
 export type EventCallback<T extends Event> = (event: T) => void
 
 export interface EventPublisher {
-  publishEvent<T extends Event>(topic: EventTopic, event: T): void
+  publishEvent(event: Event): void
 }

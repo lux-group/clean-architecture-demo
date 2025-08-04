@@ -24,12 +24,13 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback2)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       expect(callback1).toHaveBeenCalledWith(testEvent)
       expect(callback2).toHaveBeenCalledWith(testEvent)
@@ -43,19 +44,21 @@ describe("EventBus", () => {
       eventBus.subscribe("Session", sessionCallback)
 
       const authEvent: Event = {
+        topic: "Authentication",
         id: "auth-1",
         timestamp: new Date(),
         result: "Success"
       }
 
       const sessionEvent: Event = {
+        topic: "Session",
         id: "session-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", authEvent)
-      eventBus.publishEvent("Session", sessionEvent)
+      eventBus.publishEvent(authEvent)
+      eventBus.publishEvent(sessionEvent)
 
       expect(authCallback).toHaveBeenCalledWith(authEvent)
       expect(authCallback).not.toHaveBeenCalledWith(sessionEvent)
@@ -70,12 +73,13 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       // Should only be called once despite being registered twice
       expect(callback).toHaveBeenCalledTimes(1)
@@ -91,12 +95,13 @@ describe("EventBus", () => {
       eventBus.unsubscribe("Authentication", callback)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       expect(callback).not.toHaveBeenCalled()
     })
@@ -110,12 +115,13 @@ describe("EventBus", () => {
       eventBus.unsubscribe("Authentication", callback1)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       expect(callback1).not.toHaveBeenCalled()
       expect(callback2).toHaveBeenCalledWith(testEvent)
@@ -137,6 +143,7 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
@@ -144,7 +151,7 @@ describe("EventBus", () => {
         details: { userId: "123" }
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       expect(callback).toHaveBeenCalledTimes(1)
       expect(callback).toHaveBeenCalledWith(testEvent)
@@ -160,12 +167,13 @@ describe("EventBus", () => {
       eventBus.subscribe("Authentication", callback3)
 
       const testEvent: Event = {
+        topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
         result: "Success"
       }
 
-      eventBus.publishEvent("Authentication", testEvent)
+      eventBus.publishEvent(testEvent)
 
       expect(callback1).toHaveBeenCalledWith(testEvent)
       expect(callback2).toHaveBeenCalledWith(testEvent)

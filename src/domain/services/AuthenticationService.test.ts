@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockEventPublisher, mockPasswordVerifier, mockTokenValidator, mockUserRepository } from "@test/mocks"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationEvent } from "~/domain/events"
 import { AuthenticationService } from "./AuthenticationService"
 
 const mockProfile = {
@@ -33,7 +34,12 @@ describe("AuthenticationService", () => {
       const result = await service.authenticateWithActiveSession(session)
 
       expect(result).toBe(user)
-      expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          topic: "Authentication",
+          result: "Success"
+        })
+      )
     })
 
     it("should throw error when session is not active", async () => {
@@ -43,8 +49,9 @@ describe("AuthenticationService", () => {
       await expect(service.authenticateWithActiveSession(session))
         .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
 
-      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith("Authentication",
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
+          topic: "Authentication",
           result: "Failed",
           reason: commonErrors.sessionExpired
         })
@@ -79,8 +86,11 @@ describe("AuthenticationService", () => {
 
       expect(result).toBe(user)
       expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("password", user.passwordHash)
-      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith("Authentication",
-        expect.objectContaining({ result: "Success" })
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ 
+          topic: "Authentication",
+          result: "Success" 
+        })
       )
     })
 
@@ -162,8 +172,9 @@ describe("AuthenticationService", () => {
       await expect(service.authenticateWithExternalIdentityToken("invalid-token"))
         .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
 
-      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith("Authentication",
+      expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
+          topic: "Authentication",
           result: "Failed",
           reason: commonErrors.authenticationFailed
         })

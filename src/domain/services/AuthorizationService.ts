@@ -27,7 +27,7 @@ export class AuthorizationService {
 
     // Handle user impersonation.
     if (impersonatedByUser && !impersonatedByUser.canImpersonateUser(user)) {
-      this.publishImpersonationFailedEvent(impersonatedByUser, user, session)
+      this.eventPublisher.publishEvent(AuthorizationEvent.impersonationFailed(impersonatedByUser, user, session))
       throw new AuthorizationError(commonErrors.impersonationNotAllowed)
     }
 
@@ -37,47 +37,12 @@ export class AuthorizationService {
       impersonated_by_sub: impersonatedByUser?.id
     }
 
-    this.publishTokenIssuedEvent(session, claims)
+    this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(session, claims))
 
     return this.tokenIssuer.createAccessToken(user, signingKey, {
       sessionId: session?.id,
       audience,
       claims
-    })
-  }
-
-  private publishTokenIssuedEvent(session?: Session, claims?: Record<string, unknown>) {
-    this.publishSuccessEvent({
-      sessionId: session?.id,
-      userId: session?.userId,
-      claims
-    })
-  }
-
-  private publishImpersonationFailedEvent(impersonatedByUser: User, user: User, session?: Session) {
-    this.publishFailedEvent(commonErrors.impersonationNotAllowed, {
-      sessionId: session?.id,
-      userId: impersonatedByUser.id,
-      userToImpersonateId: user.id,
-    })
-  }
-
-  private publishSuccessEvent(details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent("Authorization", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Success",
-      details,
-    })
-  }
-
-  private publishFailedEvent(reason: string, details: AuthorizationEvent["details"]) {
-    this.eventPublisher.publishEvent("Authorization", {
-      id: crypto.randomUUID(),
-      timestamp: new Date(),
-      result: "Failed",
-      reason,
-      details,
     })
   }
 }
