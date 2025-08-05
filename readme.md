@@ -197,7 +197,7 @@ Internal Integration Tests are used to verify the full application behavior incl
 #### External Integration Tests
 External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation.
 
-- [Postgres Repositories](/src/infrastructure/repositories/postgres)
+- [Prisma Repositories](/src/infrastructure/repositories/prisma)
 - [Redis Repositories](/src/infrastructure/repositories/redis)
 
 ### Unit Tests
