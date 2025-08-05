@@ -1,5 +1,5 @@
-export type KeyTransformer = (key: string) => string;
-export type ValueTransformer = (value: any) => any;
+export type KeyTransformer = (key: string) => string
+export type ValueTransformer = (value: any) => any
 
 export class ObjectTransformer {
   public static transform(obj: any, keyTransformers: KeyTransformer[], valueTransformers: ValueTransformer[]): any {

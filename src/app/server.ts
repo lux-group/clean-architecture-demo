@@ -2,7 +2,7 @@ import { AwilixContainer } from "awilix"
 import express from "express"
 import cookieParser from "cookie-parser"
 import helmet, { HelmetOptions } from "helmet"
-import { registerRoutesFromDecorators } from "./decorators"
+import { createRouterFromDecorators } from "./decorators"
 
 export default function createServer(container: AwilixContainer) {
   const helmetOptions: HelmetOptions = {
@@ -20,7 +20,7 @@ export default function createServer(container: AwilixContainer) {
     .use(express.json())
     .use(express.urlencoded())
     .use("/", express.static(__dirname + "/public"))
-    .use(registerRoutesFromDecorators(container))
+    .use(createRouterFromDecorators(container))
     .use(container.resolve("handleClientErrors"))
     .use(container.resolve("handleServerErrors"))
 }

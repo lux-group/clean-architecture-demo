@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { User } from "~/domain/entities"
 import { Controller, Post } from "~/app/decorators"
+import { User } from "~/domain/entities"
 
 @Controller("/integration/entra")
 export class EntraExtensionController {

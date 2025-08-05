@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
+import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
 import { User } from "~/domain/entities"
 import { CreateUserCommand, CreateUserHandler } from "../commands/CreateUserHandler"
 import { DeleteUserCommand, DeleteUserHandler } from "../commands/DeleteUserHandler"
 import { UpdateUserCommand, UpdateUserHandler } from "../commands/UpdateUserHandler"
 import { GetUserByIdHandler, GetUserByIdQuery } from "../queries/GetUserByIdHandler"
 import { SearchUsersHandler, SearchUsersQuery } from "../queries/SearchUsersHandler"
-import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
 
 @Controller("/admin/users")
 export class UserController {

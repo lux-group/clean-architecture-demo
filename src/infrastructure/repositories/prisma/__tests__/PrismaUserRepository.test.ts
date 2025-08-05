@@ -164,8 +164,8 @@ describe("PrismaUserRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createUser()
-      const user1 = new User({ ...original.props });
-      const user2 = new User({ ...original.props });
+      const user1 = new User({ ...original.props })
+      const user2 = new User({ ...original.props })
 
       user1.update({
         isEnabled: true,

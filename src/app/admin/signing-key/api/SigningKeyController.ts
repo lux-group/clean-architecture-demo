@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
+import { Authorize, Controller, Delete, Get, Post } from "~/app/decorators"
 import { SigningKey } from "~/domain/entities"
 import { CreateNewSigningKeyHandler } from "../commands/CreateNewSigningKeyHandler"
 import { DeleteSigningKeyCommand, DeleteSigningKeyHandler } from "../commands/DeleteSigningKeyHandler"
 import { GetSigningKeyByIdHandler, GetSigningKeyByIdQuery } from "../queries/GetSigningKeyByIdHandler"
 import { SearchSigningKeysHandler, SearchSigningKeysQuery } from "../queries/SearchSigningKeysHandler"
-import { Authorize, Controller, Delete, Get, Post } from "~/app/decorators"
 
 @Controller("/admin/signing-keys")
 export class SigningKeyController {

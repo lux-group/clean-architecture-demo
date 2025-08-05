@@ -10,13 +10,13 @@ const base64urlDecode = (input: string): Uint8Array => {
   const base64 = input
     .replace(/-/g, "+")
     .replace(/_/g, "/")
-    .padEnd(Math.ceil(input.length / 4) * 4, "=");
+    .padEnd(Math.ceil(input.length / 4) * 4, "=")
   return Buffer.from(base64, "base64")
 }
 
 export const UUIDToShort = (uuid: string): string => {
   const hex = uuid.replace(/-/g, "")
-  const elements = Array.from(hex.match(/.{2}/g) ?? []).map(byte => parseInt(byte, 16))
+  const elements = Array.from(hex.match(/.{2}/g)!).map(byte => parseInt(byte, 16))
   const bytes = Uint8Array.from(elements)
   return base64urlEncode(bytes)
 }

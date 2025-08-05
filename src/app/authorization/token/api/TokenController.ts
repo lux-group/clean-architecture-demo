@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
+import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
+import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { InvalidOperationError } from "~/domain/errors"
 import { TokenResponse } from "~/domain/adapters"
-import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"
 import { IssueTokenWithClientCredentialsHandler } from "../commands/IssueTokenWithClientCredentialsHandler"
 import { IssueTokenWithTokenExchangeHandler } from "../commands/IssueTokenWithTokenExchangeHandler"
-import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
 
 const GrantType = {
   ClientCredentials: "client_credentials",

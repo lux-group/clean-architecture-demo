@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
+import { Controller, Post } from "~/app/decorators"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { SignInWithPasswordCommand, SignInWithPasswordHandler } from "../commands/SignInWithPasswordHandler"
 import { SignOutCommand, SignOutHandler } from "../commands/SignOutHandler"
-import { Controller, Post } from "~/app/decorators"
 
 @Controller("/auth/local")
 export class LocalAuthenticationController {

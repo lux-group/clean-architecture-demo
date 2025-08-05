@@ -1,4 +1,4 @@
-import { Config } from "./schema";
+import { Config } from "./schema"
 
 export const config: Config = {
   apiHost: "http://localhost:3000",

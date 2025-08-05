@@ -2,7 +2,7 @@ import { generateKeyPair } from "node:crypto"
 import { promisify } from "node:util"
 import { KeyPairGenerator } from "."
 
-const generateKeyPairAsync = promisify(generateKeyPair);
+const generateKeyPairAsync = promisify(generateKeyPair)
 
 export class NodeKeyPairGenerator implements KeyPairGenerator {
   async generateKeyPair(): Promise<{ publicKey: string; privateKey: string }> {

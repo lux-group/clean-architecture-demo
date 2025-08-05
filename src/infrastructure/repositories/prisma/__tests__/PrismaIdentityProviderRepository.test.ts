@@ -174,8 +174,8 @@ describe("PrismaIdentityProviderRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createAndStoreIdentityProvider()
-      const idp1 = new IdentityProvider({ ...original.props });
-      const idp2 = new IdentityProvider({ ...original.props });
+      const idp1 = new IdentityProvider({ ...original.props })
+      const idp2 = new IdentityProvider({ ...original.props })
 
       idp1.update({
         name: "Updated by User 1",

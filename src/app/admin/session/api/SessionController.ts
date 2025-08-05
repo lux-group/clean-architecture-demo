@@ -1,9 +1,9 @@
 import { Request, Response } from "express"
+import { Authorize, Controller, Get, Post } from "~/app/decorators"
 import { Session } from "~/domain/entities"
 import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
 import { SearchSessionsHandler, SearchSessionsQuery } from "../queries/SearchSessionsHandler"
 import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessionByIdHandler"
-import { Authorize, Controller, Get, Post } from "~/app/decorators"
 
 @Controller("/admin/sessions")
 export class SessionController {

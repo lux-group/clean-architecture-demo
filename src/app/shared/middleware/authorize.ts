@@ -1,14 +1,11 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express"
 import { Logger } from "~/infrastructure/logging"
 
-// DEMO middleware to authorize requests based on JWT scopes
-// Note that this does not verify the JWT signature or issuer.
-
 export interface AuthorizeOptions {
-  roles?: string[];
-  scopes?: string[];
-  audiences?: string[];
+  roles?: string[]
+  scopes?: string[]
+  audiences?: string[]
 }
 
 // The first wrapper function is user for dependency injection.
@@ -24,22 +21,29 @@ export function authorize(logger: Logger) {
         // }
 
         // let audience: string | undefined
-        // let scope: string | undefined
+        // let scopes: string[] = []
+        // let roles: string[] = []
         // try {
         //   const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
         //   audience = (decodedJwt.payload as JwtPayload).aud as string
-        //   scope = (decodedJwt.payload as JwtPayload).scope
+        //   scopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
+        //   roles = (decodedJwt.payload as JwtPayload).roles
         // } catch {
         //   res.status(401).send()
         //   return
         // }
 
-        // if (requiredAudience && audience !== requiredAudience) {
+        // if (options.audiences && !options.audiences.includes(audience)) {
         //   res.status(403).send()
         //   return
         // }
 
-        // if (!scope || !scope.split(" ").includes(requiredScope)) {
+        // if (options.roles && !options.roles.some(role => roles.includes(role))) {
+        //   res.status(403).send()
+        //   return
+        // }
+
+        // if (options.scopes && !options.scopes.some(scope => scopes.includes(scope))) {
         //   res.status(403).send()
         //   return
         // }
