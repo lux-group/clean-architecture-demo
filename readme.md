@@ -191,8 +191,8 @@ Internal Integration Tests are used to verify the full application behavior incl
   - [external](/src/app/authentication/external/__tests__)
   - [local](/src/app/authentication/local/__tests__)
 - Authorization Modules
-  - [well-known](/src/app/authorization/external/__tests__)
-  - [token](/src/app/authorization/local/__tests__)
+  - [well-known](/src/app/authorization/well-known/__tests__)
+  - [token](/src/app/authorization/token/__tests__)
 
 #### External Integration Tests
 External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation.
