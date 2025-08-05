@@ -183,16 +183,16 @@ const myService = container.resolve<MyService>("myService")
 Internal Integration Tests are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases (command and query handlers).
 
 - Admin Modules
-  - [identity-provider](/app/admin/identity-provider/__tests__)
-  - [session](/app/admin/session/__tests__)
-  - [signing-Key](/app/admin/signing-key/__tests__)
-  - [user](/app/admin/user/__tests__)
+  - [identity-provider](/src/app/admin/identity-provider/__tests__)
+  - [session](/src/app/admin/session/__tests__)
+  - [signing-Key](/src/app/admin/signing-key/__tests__)
+  - [user](/src/app/admin/user/__tests__)
 - Authentication Modules
-  - [external](/app/authentication/external/__tests__)
-  - [local](/app/authentication/local/__tests__)
+  - [external](/src/app/authentication/external/__tests__)
+  - [local](/src/app/authentication/local/__tests__)
 - Authorization Modules
-  - [well-known](/app/authorization/external/__tests__)
-  - [token](/app/authorization/local/__tests__)
+  - [well-known](/src/app/authorization/external/__tests__)
+  - [token](/src/app/authorization/local/__tests__)
 
 #### External Integration Tests
 External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation.
@@ -204,8 +204,8 @@ External Integration Tests verify the behavior of integrations with external ser
 This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit testing.
 
 This project contains unit tests for:
-- [API Middleware](/app/shared/middleware) (solitary)
-- [Domain Entities](/domain/entities) (solitary)
-- [Domain Services](/domain/services) (sociable)
-- [Infrastructure Services](/infrastructure) (solitary)
-- [Utility Libraries](/lib) (solitary)
+- [API Middleware](/src/app/shared/middleware) (solitary)
+- [Domain Entities](/src/domain/entities) (solitary)
+- [Domain Services](/src/domain/services) (sociable)
+- [Infrastructure Services](/src/infrastructure) (solitary)
+- [Utility Libraries](/src/lib) (solitary)
