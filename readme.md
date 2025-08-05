@@ -178,19 +178,34 @@ const myService = container.resolve<MyService>("myService")
 - **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
 
 # Test Strategy
+### Integration Tests
+#### Internal Integration Tests
+Internal Integration Tests are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases (command and query handlers).
+
+- Admin Modules
+  - [identity-provider](/app/admin/identity-provider/__tests__)
+  - [session](/app/admin/session/__tests__)
+  - [signing-Key](/app/admin/signing-key/__tests__)
+  - [user](/app/admin/user/__tests__)
+- Authentication Modules
+  - [external](/app/authentication/external/__tests__)
+  - [local](/app/authentication/local/__tests__)
+- Authorization Modules
+  - [well-known](/app/authorization/external/__tests__)
+  - [token](/app/authorization/local/__tests__)
+
+#### External Integration Tests
+External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation.
+
+- [Postgres Repositories](/src/infrastructure/repositories/postgres)
+- [Redis Repositories](/src/infrastructure/repositories/redis)
+
 ### Unit Tests
 This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit testing.
 
 This project contains unit tests for:
-- API Middleware (solitary)
-- Domain Entities (solitary)
-- Domain Services (sociable)
-- Infrastructure Services (solitary)
-- Utility Libraries (solitary)
-
-### Integration Tests
-#### Internal
-Internal Integration Tests (aka. Component Tests) are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases. These tests are in the [app](/src/app) feature folders and have the extension *.spec.ts*. The tests are structured around application use cases rather than code artifacts.
-
-#### External
-External Integration Tests verify the behavior of integrations with external services or infrastructure such as Postgres and Redis. They are located next to the integration they test, for example [infrastructure/repositories/postgres](/src/infrastructure/repositories/postgres).
+- [API Middleware](/app/shared/middleware) (solitary)
+- [Domain Entities](/domain/entities) (solitary)
+- [Domain Services](/domain/services) (sociable)
+- [Infrastructure Services](/infrastructure) (solitary)
+- [Utility Libraries](/lib) (solitary)

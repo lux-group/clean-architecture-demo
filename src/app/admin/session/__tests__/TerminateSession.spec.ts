@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { EventPublisher } from "~/domain/adapters"
 
-describe("[POST] /admin/sessions/:id/terminate", () => {
+describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
   let context: TestContext
 
   beforeAll(() => {

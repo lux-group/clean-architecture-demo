@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { EventPublisher } from "~/domain/adapters"
 
-describe("[POST] /admin/identity-providers", () => {
+describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
   let context: TestContext
 
   beforeAll(() => {

@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { EventPublisher } from "~/domain/adapters"
 
-describe("[PUT] /admin/identity-providers/:id", () => {
+describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
   let context: TestContext
 
   beforeAll(() => {

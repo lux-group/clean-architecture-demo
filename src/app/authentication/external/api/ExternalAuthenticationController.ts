@@ -23,9 +23,19 @@ export class ExternalAuthenticationController {
 
   @Get("/sign-in")
   async createSignInRequest(req: Request, res: Response) {
+    const identityProviderName = req.query.provider as string
+    if (!identityProviderName) {
+      throw new InvalidOperationError("Provider parameter is required")
+    }
+
+    const redirectUrl = req.query.redirect_uri as string
+    if (!redirectUrl) {
+      throw new InvalidOperationError("Redirect URI parameter is required")
+    }
+
     const command: CreateSignInRequestCommand = {
-      identityProviderName: req.query.provider as string,
-      redirectUrl: req.query.redirect_uri as string,
+      identityProviderName,
+      redirectUrl,
     }
 
     const request = await this.createSignInRequestHandler.execute(command)
@@ -54,12 +64,17 @@ export class ExternalAuthenticationController {
 
   @Get("/sign-out")
   async createSignOutRequest(req: Request, res: Response) {
+    const redirectUrl = req.query.redirect_uri as string
+    if (!redirectUrl) {
+      throw new InvalidOperationError("Redirect URI parameter is required")
+    }
+
     const cookie = this.secureCookieManager.getAndRemoveSessionCookie(req, res)
 
     const command: CreateSignOutRequestCommand = {
       sessionId: cookie.id,
       nonce: cookie.nonce,
-      redirectUrl: req.query.redirect_uri as string,
+      redirectUrl,
     }
 
     const request = await this.createSignOutRequestHandler.execute(command)

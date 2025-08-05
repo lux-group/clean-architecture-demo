@@ -3,7 +3,7 @@ import request from "supertest"
 import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 
-describe("[GET] /admin/signing-keys", () => {
+describe("[GET] /admin/signing-keys (SearchSigningKeys)", () => {
   let context: TestContext
 
   beforeAll(() => {

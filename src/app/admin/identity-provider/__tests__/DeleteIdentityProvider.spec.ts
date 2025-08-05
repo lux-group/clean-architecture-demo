@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { EventPublisher } from "~/domain/adapters"
 
-describe("[DELETE] /admin/identity-providers/:id", () => {
+describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () => {
   let context: TestContext
 
   beforeAll(() => {

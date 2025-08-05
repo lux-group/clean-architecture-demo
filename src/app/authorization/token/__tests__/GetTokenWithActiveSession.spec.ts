@@ -1,10 +1,9 @@
-import "@test/matchers/supertest"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { User } from "~/domain/entities"
 
-describe("[POST] /oauth2/token - Active Session", () => {
+describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
   let context: TestContext
   let user: User
 
@@ -16,70 +15,78 @@ describe("[POST] /oauth2/token - Active Session", () => {
     await context.data.createSigningKey()
   })
 
-  it("should return 401 when no cookie exists", async () => {
-    const response = await request(context.server)
-      .post("/oauth2/token")
-      .type('form')
-      .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
+  describe("when no session cookie exists", () => {
+    it("should return 401", async () => {
+      const response = await request(context.server)
+        .post("/oauth2/token")
+        .type('form')
+        .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response.status).toBe(401)
-    expect(response.body.error).toBe("unauthorized_client")
+      expect(response.status).toBe(401)
+      expect(response.body.error).toBe("unauthorized_client")
+    })
   })
 
-  it("should return 401 when the session has expired", async () => {
-    const session = await context.data.createSession({ userId: user.id }, -1)
-    const cookie = context.data.createAuthSessionCookie(session)
+  describe("when the session has expired", () => {
+    it("should return 401", async () => {
+      const session = await context.data.createSession({ userId: user.id }, -1)
+      const cookie = context.data.createAuthSessionCookie(session)
 
-    const response = await request(context.server)
-      .post("/oauth2/token")
-      .set("Cookie", [`auth-session=${cookie}`])
-      .type('form')
-      .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
+      const response = await request(context.server)
+        .post("/oauth2/token")
+        .set("Cookie", [`auth-session=${cookie}`])
+        .type('form')
+        .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response.status).toBe(401)
-    expect(response.body.error).toBe("unauthorized_client")
+      expect(response.status).toBe(401)
+      expect(response.body.error).toBe("unauthorized_client")
+    })
   })
 
-  it("should return 200 and access token when session and cookie are valid", async () => {
-    const session = await context.data.createSession({ userId: user.id }, 1)
-    const cookie = context.data.createAuthSessionCookie(session)
+  describe("when session and cookie are valid", () => {
+    it("should return 200 and access token", async () => {
+      const session = await context.data.createSession({ userId: user.id }, 1)
+      const cookie = context.data.createAuthSessionCookie(session)
 
-    const response = await request(context.server)
-      .post("/oauth2/token")
-      .set("Cookie", [`auth-session=${cookie}`])
-      .type('form')
-      .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
+      const response = await request(context.server)
+        .post("/oauth2/token")
+        .set("Cookie", [`auth-session=${cookie}`])
+        .type('form')
+        .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
-    expect(response.status).toBe(200)
-    expect(response.body.expires_in).toBe(3600)
-    expect(response.body.access_token).toMatch(/^ey/)
+      expect(response.status).toBe(200)
+      expect(response.body.expires_in).toBe(3600)
+      expect(response.body.access_token).toMatch(/^ey/)
 
-    const claims = getTokenClaims(response.body.access_token)
-    expect(claims.sub).toBe(user.id)
-    expect(claims.roles).toEqual(["employee"])
+      const claims = getTokenClaims(response.body.access_token)
+      expect(claims.sub).toBe(user.id)
+      expect(claims.roles).toEqual(["employee"])
+    })
   })
 
-  it("should return 200 and access token when session and cookie are valid", async () => {
-    const session = await context.data.createSession({ userId: user.id }, 1)
-    const cookie = context.data.createAuthSessionCookie(session)
+  describe("when impersonating another user", () => {
+    it("should return 200 and access token with impersonation claims", async () => {
+      const session = await context.data.createSession({ userId: user.id }, 1)
+      const cookie = context.data.createAuthSessionCookie(session)
 
-    const userToImpersonate = await context.data.createUser({ roles: [] })
+      const userToImpersonate = await context.data.createUser({ roles: [] })
 
-    const response = await request(context.server)
-      .post("/oauth2/token")
-      .set("Cookie", [`auth-session=${cookie}`])
-      .type('form')
-      .send({
-        grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
-        subject_to_impersonate_id: userToImpersonate.id
-      })
+      const response = await request(context.server)
+        .post("/oauth2/token")
+        .set("Cookie", [`auth-session=${cookie}`])
+        .type('form')
+        .send({
+          grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
+          subject_to_impersonate_id: userToImpersonate.id
+        })
 
-    expect(response.status).toBe(200)
-    expect(response.body.expires_in).toBe(3600)
-    expect(response.body.access_token).toMatch(/^ey/)
+      expect(response.status).toBe(200)
+      expect(response.body.expires_in).toBe(3600)
+      expect(response.body.access_token).toMatch(/^ey/)
 
-    const claims = getTokenClaims(response.body.access_token)
-    expect(claims.sub).toBe(userToImpersonate.id)
-    expect(claims.impersonated_by_sub).toBe(user.id)
+      const claims = getTokenClaims(response.body.access_token)
+      expect(claims.sub).toBe(userToImpersonate.id)
+      expect(claims.impersonated_by_sub).toBe(user.id)
+    })
   })
 })

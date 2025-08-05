@@ -1,10 +1,9 @@
-import "@test/matchers/supertest"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { User } from "~/domain/entities"
 
-describe("[POST] /auth/local/sign-in", () => {
+describe("[POST] /auth/local/sign-in (SignInWithPassword)", () => {
   let context: TestContext
   let enabledUser: User
   let disabledUser: User
@@ -16,42 +15,50 @@ describe("[POST] /auth/local/sign-in", () => {
     disabledUser = await context.data.createUser({ password, isEnabled: false })
   })
 
-  it("should return 204 when email and password are valid", async () => {
-    const response = await request(context.server)
-      .post("/auth/local/sign-in")
-      .send({ brand: enabledUser.brand, email: enabledUser.email, password })
+  describe("when credentials are valid", () => {
+    it("should return 204 and set session cookie", async () => {
+      const response = await request(context.server)
+        .post("/auth/local/sign-in")
+        .send({ brand: enabledUser.brand, email: enabledUser.email, password })
 
-    expect(response.status).toBe(204)
-    expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-      expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
-    ]))
+      expect(response.status).toBe(204)
+      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
+        expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
+      ]))
+    })
   })
 
-  it("should return 401 when email is invalid", async () => {
-    const response = await request(context.server)
-      .post("/auth/local/sign-in")
-      .send({ brand: enabledUser.brand, email: "invalid@example.com", password })
+  describe("when email is invalid", () => {
+    it("should return 401", async () => {
+      const response = await request(context.server)
+        .post("/auth/local/sign-in")
+        .send({ brand: enabledUser.brand, email: "invalid@example.com", password })
 
-    expect(response.status).toBe(401)
-    expect(response.headers["set-cookie"]).toBeUndefined()
+      expect(response.status).toBe(401)
+      expect(response.headers["set-cookie"]).toBeUndefined()
+    })
   })
 
-  it("should return 401 when password is invalid", async () => {
-    const response = await request(context.server)
-      .post("/auth/local/sign-in")
-      .send({ brand: enabledUser.brand, email: enabledUser.email, password: "invalid" })
+  describe("when password is invalid", () => {
+    it("should return 401", async () => {
+      const response = await request(context.server)
+        .post("/auth/local/sign-in")
+        .send({ brand: enabledUser.brand, email: enabledUser.email, password: "invalid" })
 
-    expect(response.status).toBe(401)
-    expect(response.headers["set-cookie"]).toBeUndefined()
+      expect(response.status).toBe(401)
+      expect(response.headers["set-cookie"]).toBeUndefined()
+    })
   })
 
-  it("should return 401 when user is disabled", async () => {
-    const response = await request(context.server)
-      .post("/auth/local/sign-in")
-      .send({ brand: disabledUser.brand, email: disabledUser.email, password })
+  describe("when user is disabled", () => {
+    it("should return 401", async () => {
+      const response = await request(context.server)
+        .post("/auth/local/sign-in")
+        .send({ brand: disabledUser.brand, email: disabledUser.email, password })
 
-    expect(response.status).toBe(401)
-    expect(response.headers["set-cookie"]).toBeUndefined()
+      expect(response.status).toBe(401)
+      expect(response.headers["set-cookie"]).toBeUndefined()
+    })
   })
 })
 
