@@ -8,9 +8,11 @@ describe("[POST] /oauth2/token - Active Session", () => {
   let context: TestContext
   let user: User
 
+  const getTokenClaims = (token: string) => JSON.parse(atob(token.split(".")[1]))
+
   beforeAll(async () => {
     context = getTestContext()
-    user = await context.data.createUser({ })
+    user = await context.data.createUser({ roles: ["employee"] })
     await context.data.createSigningKey()
   })
 
@@ -49,12 +51,35 @@ describe("[POST] /oauth2/token - Active Session", () => {
       .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
     expect(response.status).toBe(200)
-    expect(response.body.access_token).toMatch(/^ey/)
     expect(response.body.expires_in).toBe(3600)
+    expect(response.body.access_token).toMatch(/^ey/)
+
+    const claims = getTokenClaims(response.body.access_token)
+    expect(claims.sub).toBe(user.id)
+    expect(claims.roles).toEqual(["employee"])
   })
 
-  // Additional test cases can be added here to cover more scenarios
-  // - such as invalid grant type, missing parameters, etc.
-  // - impersonation
-})
+  it("should return 200 and access token when session and cookie are valid", async () => {
+    const session = await context.data.createSession({ userId: user.id }, 1)
+    const cookie = context.data.createAuthSessionCookie(session)
 
+    const userToImpersonate = await context.data.createUser({ roles: [] })
+
+    const response = await request(context.server)
+      .post("/oauth2/token")
+      .set("Cookie", [`auth-session=${cookie}`])
+      .type('form')
+      .send({
+        grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
+        subject_to_impersonate_id: userToImpersonate.id
+      })
+
+    expect(response.status).toBe(200)
+    expect(response.body.expires_in).toBe(3600)
+    expect(response.body.access_token).toMatch(/^ey/)
+
+    const claims = getTokenClaims(response.body.access_token)
+    expect(claims.sub).toBe(userToImpersonate.id)
+    expect(claims.impersonated_by_sub).toBe(user.id)
+  })
+})

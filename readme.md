@@ -173,10 +173,6 @@ const myService = container.resolve<MyService>("myService")
 - **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
 - **Input/Output DTOs**: Clear command/query interfaces with typed inputs/outputs
 
-### Specification Pattern (Implicit)
-- **Entity Validation**: Business rules encapsulated in entity methods like `canSignInWithActiveSession()`
-- **Zod Schemas**: Validation specifications separate from business logic
-
 ### Observer Pattern
 - **Domain Events**: `EventPublisher` allows multiple subscribers to domain events
 - **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
@@ -198,6 +194,3 @@ Internal Integration Tests (aka. Component Tests) are used to verify the full ap
 
 #### External
 External Integration Tests verify the behavior of integrations with external services or infrastructure such as Postgres and Redis. They are located next to the integration they test, for example [infrastructure/repositories/postgres](/src/infrastructure/repositories/postgres).
-
-# Comparison with typical LE Architecture
-Pending
