@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextFunction, Request, Response } from "express"
 import { Logger } from "~/infrastructure/logging"
 import { handleServerErrors } from "./handleServerErrors"
@@ -28,7 +28,7 @@ describe("Handle Server Errors Middleware", () => {
     handler = handleServerErrors(mockLogger)
   })
 
-  test("should handle object errors", () => {
+  it("should handle object errors", () => {
     const error = new Error("test error")
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -39,7 +39,7 @@ describe("Handle Server Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("should handle string errors", () => {
+  it("should handle string errors", () => {
     const error = "String error" as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -50,7 +50,7 @@ describe("Handle Server Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("should handle null/undefined errors", () => {
+  it("should handle null/undefined errors", () => {
     const error = null as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)

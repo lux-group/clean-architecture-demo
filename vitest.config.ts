@@ -16,6 +16,7 @@ export default defineConfig({
         "src/domain/adapters",
         "src/domain/events",
         "src/domain/repositories",
+        "src/infrastructure/config",
         "src/infrastructure/repositories/memory",
       ],
     },
@@ -33,7 +34,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "integration",
-          include: ["src/**/*.spec.ts"],
+          include: ["src/app/**/*.spec.ts"],
           globalSetup: "./test/integration/vitest-setup.ts",
         }
       },

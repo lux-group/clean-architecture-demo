@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextFunction, Request, Response } from "express"
 import { Logger } from "~/infrastructure/logging"
 import { AuthenticationError, AuthorizationError, ConcurrencyError, InvalidOperationError, NotFoundError, ValidationError } from "~/domain/errors"
@@ -28,7 +28,7 @@ describe("Handle Client Errors Middleware", () => {
     handler = handleClientErrors(mockLogger)
   })
 
-  test("AuthenticationError", () => {
+  it("should handle AuthenticationError", () => {
     const error = new AuthenticationError("Authentication error")
     const expectedResponse = {
       message: "Authentication error",
@@ -43,7 +43,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("AuthorizationError", () => {
+  it("should handle AuthorizationError", () => {
     const error = new AuthorizationError("Authorization error")
     const expectedResponse = {
       message: "Authorization error",
@@ -58,7 +58,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("InvalidOperationError", () => {
+  it("should handle InvalidOperationError", () => {
     const error = new InvalidOperationError("Invalid operation")
     const expectedResponse = {
       message: "Invalid operation",
@@ -73,7 +73,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("NotFoundError", () => {
+  it("should handle NotFoundError", () => {
     const error = new NotFoundError("Not found error")
     const expectedResponse = {
       message: "Not found error",
@@ -88,7 +88,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("ValidationError", () => {
+  it("should handle ValidationError", () => {
     const error = new ValidationError("Validation error", [{ path: "field", message: "Invalid value" }])
     const expectedResponse = {
       message: "Validation error",
@@ -104,7 +104,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("ConcurrencyError", () => {
+  it("should handle ConcurrencyError", () => {
     const error = new ConcurrencyError("Concurrency error")
     const expectedResponse = {
       message: "Concurrency error",
@@ -119,7 +119,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("other errors", () => {
+  it("should handle other errors", () => {
     const error = new Error("test error")
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -130,7 +130,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 
-  test("should handle non-Error objects", () => {
+  it("should handle non-Error objects", () => {
     const error = "String error" as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -141,7 +141,7 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 
-  test("should handle null/undefined errors", () => {
+  it("should handle null/undefined errors", () => {
     const error = null as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)

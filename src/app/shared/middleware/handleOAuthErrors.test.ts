@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextFunction, Request, Response } from "express"
 import { Logger } from "~/infrastructure/logging"
 import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
@@ -28,7 +28,7 @@ describe("Handle OAuth Errors Middleware", () => {
     handler = handleOAuthErrors(mockLogger)()
   })
 
-  test("AuthenticationError", () => {
+  it("should handle AuthenticationError", () => {
     const error = new AuthenticationError("Authentication error")
     const expectedResponse = {
       error: "unauthorized_client",
@@ -43,7 +43,7 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("AuthorizationError", () => {
+  it("should handle AuthorizationError", () => {
     const error = new AuthorizationError("Authorization error")
     const expectedResponse = {
       error: "access_denied",
@@ -58,7 +58,7 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("InvalidOperationError", () => {
+  it("should handle InvalidOperationError", () => {
     const error = new InvalidOperationError("Invalid operation")
     const expectedResponse = {
       error: "invalid_request",
@@ -73,7 +73,7 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 
-  test("other errors", () => {
+  it("should handle other errors", () => {
     const error = new Error("test error")
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -84,7 +84,7 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 
-  test("should handle non-Error objects", () => {
+  it("should handle non-Error objects", () => {
     const error = "String error" as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)
@@ -95,7 +95,7 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 
-  test("should handle null/undefined errors", () => {
+  it("should handle null/undefined errors", () => {
     const error = null as unknown as Error
 
     handler(error, mockRequest, mockResponse, nextFunction)
