@@ -1,4 +1,6 @@
 import { AwilixContainer } from "awilix"
+import { DeepPartial } from "~/lib/types"
+
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
 import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session } from "~/domain/entities"
 import { PasswordVerifier } from "~/domain/adapters"
@@ -28,7 +30,7 @@ export class TestDataContext {
     return await repository.getById(id)
   }
 
-  createIdentityProvider = async (props: Partial<CreateIdentityProviderProps> = {}) => {
+  createIdentityProvider = async (props: DeepPartial<CreateIdentityProviderProps> = {}) => {
     const identityProvider = factories.createIdentityProvider(props)
     const repository = this.container.resolve<IdentityProviderRepository>("identityProviderRepository")
     await repository.insert(identityProvider)

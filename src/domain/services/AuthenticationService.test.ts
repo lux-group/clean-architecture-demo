@@ -201,11 +201,6 @@ describe("AuthenticationService", () => {
       const user = factories.createUser({ email: mockProfile.email })
       const idp = factories.createIdentityProvider({
         authSettings: {
-          type: "ENTRA",
-          brand: "test-brand",
-          clientId: "client-123",
-          clientSecret: "secret-123",
-          redirectUrls: ["https://example.com/callback"],
           autoLinkUsers: true,
           autoCreateUsers: false
         }
@@ -227,11 +222,6 @@ describe("AuthenticationService", () => {
     it("should auto-create new user when configured", async () => {
       const idp = factories.createIdentityProvider({
         authSettings: {
-        type: "ENTRA",
-        brand: "unused",
-        clientId: "unused-client-id",
-        clientSecret: "unused-client-secret",
-        redirectUrls: ["https://unused"],
           autoLinkUsers: false,
           autoCreateUsers: true
         }
@@ -262,11 +252,6 @@ describe("AuthenticationService", () => {
     it("should throw error when user not found and auto-creation disabled", async () => {
       const idp = factories.createIdentityProvider({
         authSettings: {
-        type: "ENTRA",
-        brand: "unused",
-        clientId: "unused-client-id",
-        clientSecret: "unused-client-secret",
-        redirectUrls: ["https://unused"],
           autoLinkUsers: false,
           autoCreateUsers: false
         }

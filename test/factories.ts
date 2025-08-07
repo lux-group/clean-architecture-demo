@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import { DeepPartial } from "~/lib/types"
 import {
   CreateIdentityProviderProps,
   CreateSessionProps,
@@ -10,14 +11,14 @@ import {
   User
 } from "~/domain/entities"
 
-export function createIdentityProvider(props: Partial<CreateIdentityProviderProps> = {}) {
+export function createIdentityProvider(props: DeepPartial<CreateIdentityProviderProps> = {}) {
   return IdentityProvider.createNew({
     name: randomUUID(),
     issuerUrl: "https://login.test.com",
     audience: randomUUID(),
     identifierClaimName: "sub",
     ...props,
-    authSettings: {
+    authSettings: props.authSettings === null ? null : {
       type: "ENTRA",
       brand: "Test Brand",
       clientId: randomUUID(),

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockAuthClient } from "@test/mocks"
-import { IdentityProviderType } from "~/domain/entities"
+import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
+import { InvalidOperationError } from "~/domain/errors"
 import { ClientFactory } from "./ClientFactory"
 import { OidcClient } from "./OidcClient"
 import { FacebookClient } from "./FacebookClient"
@@ -29,12 +30,6 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Entra,
-          brand: "microsoft",
-          clientId: "entra-client-id",
-          clientSecret: "entra-client-secret",
-          redirectUrls: ["https://auth.example.com/callback"],
-          autoLinkUsers: false,
-          autoCreateUsers: true,
         }
       })
 
@@ -50,12 +45,6 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Google,
-          brand: "google",
-          clientId: "google-client-id",
-          clientSecret: "google-client-secret",
-          redirectUrls: ["https://auth.example.com/callback"],
-          autoLinkUsers: false,
-          autoCreateUsers: true,
         }
       })
 
@@ -71,12 +60,6 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Apple,
-          brand: "apple",
-          clientId: "apple-client-id",
-          clientSecret: "apple-client-secret",
-          redirectUrls: ["https://auth.example.com/callback"],
-          autoLinkUsers: false,
-          autoCreateUsers: true,
         }
       })
 
@@ -92,12 +75,6 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Facebook,
-          brand: "facebook",
-          clientId: "facebook-client-id",
-          clientSecret: "facebook-client-secret",
-          redirectUrls: ["https://auth.example.com/callback"],
-          autoLinkUsers: false,
-          autoCreateUsers: true,
         }
       })
 
@@ -107,6 +84,15 @@ describe("ClientFactory", () => {
 
       expect(MockFacebookClient).toHaveBeenCalledWith(baseUrl, identityProvider)
       expect(result).toBe(mockAuthClient)
+    })
+
+    it("should throw InvalidOperationError when identity provider has no authSettings", () => {
+      const identityProvider = factories.createIdentityProvider({
+        authSettings: null
+      })
+
+      expect(() => clientFactory.createClient(identityProvider)).toThrow(InvalidOperationError)
+      expect(() => clientFactory.createClient(identityProvider)).toThrow("The identity provider is not configured for authentication.")
     })
   })
 })
