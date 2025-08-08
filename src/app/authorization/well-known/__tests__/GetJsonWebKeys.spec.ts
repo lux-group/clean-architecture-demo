@@ -6,7 +6,7 @@ describe("[GET] /oauth2/.well-known/jwks (GetJsonWebKeys)", () => {
   let context: TestContext
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     await context.data.createSigningKey()
   })
 

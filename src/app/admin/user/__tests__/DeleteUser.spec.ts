@@ -7,8 +7,8 @@ import { EventPublisher } from "~/domain/adapters"
 describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the deletion was successful", () => {

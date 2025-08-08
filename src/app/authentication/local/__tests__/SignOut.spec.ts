@@ -5,8 +5,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[POST] /auth/local/sign-out (SignOut)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when a valid session cookie exists", () => {

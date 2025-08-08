@@ -15,23 +15,23 @@ export interface TestContext {
   data: TestDataContext
 }
 
-const createTestContainer = () => {
+const createTestContainer = async () => {
   const container = createContainer({
     injectionMode: InjectionMode.CLASSIC,
     strict: true,
   })
 
-  registerConfig(container, "test")
-  registerApp(container)
-  registerDomainServices(container)
-  registerInfrastructureServices(container)
-  registerPrismaRepositories(container)
-  registerRedisDecoratorRepositories(container)
+  await registerConfig(container, "test")
+  await registerApp(container)
+  await registerDomainServices(container)
+  await registerInfrastructureServices(container)
+  await registerPrismaRepositories(container)
+  await registerRedisDecoratorRepositories(container)
   return container
 }
 
-export const getTestContext = (): TestContext => {
-  const container = createTestContainer()
+export const getTestContext = async (): Promise<TestContext> => {
+  const container = await createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
   return { container, server, data }

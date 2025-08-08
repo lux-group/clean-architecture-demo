@@ -6,7 +6,7 @@ import { UpdateIdentityProviderHandler } from "./commands/UpdateIdentityProvider
 import { SearchIdentityProvidersHandler } from "./queries/SearchIdentityProvidersHandler"
 import { GetIdentityProviderByIdHandler } from "./queries/GetIdentityProviderByIdHandler"
 
-export default function registerIdentityProviderAdminModule(container: AwilixContainer) {
+export default async function registerIdentityProviderAdminModule(container: AwilixContainer) {
   container.register({
     identityProviderController: asClass(IdentityProviderController).singleton(),
 

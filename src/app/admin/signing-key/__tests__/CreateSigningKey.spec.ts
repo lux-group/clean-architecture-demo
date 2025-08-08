@@ -6,8 +6,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the creation was successful", () => {

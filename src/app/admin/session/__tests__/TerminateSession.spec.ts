@@ -7,8 +7,8 @@ import { EventPublisher } from "~/domain/adapters"
 describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the termination was successful", () => {

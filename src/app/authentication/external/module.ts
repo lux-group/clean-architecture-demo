@@ -5,7 +5,7 @@ import { CreateSignOutRequestHandler } from "./commands/CreateSignOutRequestHand
 import { FrontChannelSignOutHandler } from "./commands/FrontChannelSignOutHandler"
 import { ProcessSignInResponseHandler } from "./commands/ProcessSignInResponseHandler"
 
-export default function registerExternalAuthenticationModule(container: AwilixContainer) {
+export default async function registerExternalAuthenticationModule(container: AwilixContainer) {
   container.register({
     externalAuthenticationController: asClass(ExternalAuthenticationController).singleton(),
 

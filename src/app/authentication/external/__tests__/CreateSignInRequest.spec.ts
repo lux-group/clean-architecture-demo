@@ -9,7 +9,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 

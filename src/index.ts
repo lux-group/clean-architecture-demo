@@ -10,17 +10,21 @@ import createTestData from "~/data"
 const environment = process.env.NODE_ENV || "dev"
 const port = process.env.PORT || 3000
 
-const container = createContainer({
-  injectionMode: InjectionMode.CLASSIC,
-  strict: true,
-})
+async function main() {
+  const container = createContainer({
+    injectionMode: InjectionMode.CLASSIC,
+    strict: true,
+  })
+  
+  await registerConfig(container, environment)
+  await registerApp(container)
+  await registerDomainServices(container)
+  await registerInfrastructureServices(container)
+  await registerMemoryRepositories(container)
+  
+  await createTestData(container)
+  
+  createServer(container).listen(port, () => console.log(`Listening on port ${port}`))  
+}
 
-registerConfig(container, environment)
-registerApp(container)
-registerDomainServices(container)
-registerInfrastructureServices(container)
-registerMemoryRepositories(container)
-
-createTestData(container)
-
-createServer(container).listen(port, () => console.log(`Listening on port ${port}`))
+main().catch(console.error)

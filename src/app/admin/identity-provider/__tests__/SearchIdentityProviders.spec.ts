@@ -6,8 +6,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[GET] /admin/identity-providers (SearchIdentityProviders)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when identity providers exist", () => {

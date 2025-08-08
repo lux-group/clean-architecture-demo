@@ -11,13 +11,13 @@ function decorate(container: AwilixContainer, name: string, resolver: Resolver<a
   })
 }
 
-export default function registerRedisDecoratorRepositories(container: AwilixContainer) {
+export default async function registerRedisDecoratorRepositories(container: AwilixContainer) {
   const logger = container.resolve("logger")
   const { redisUrl } = container.resolve("config")
 
   const client = createClient({ url: redisUrl })
   client.on('error', err => logger.error("Redis Client Error:", err))
-  client.connect()
+  await client.connect()
 
   container.register({
     redisClient: asFunction(() => client).singleton().disposer(c => c.quit()),

@@ -6,8 +6,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[GET] /admin/users (SearchUsers)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when users exist", () => {

@@ -5,7 +5,7 @@ import { DeleteSigningKeyHandler } from "./commands/DeleteSigningKeyHandler"
 import { GetSigningKeyByIdHandler } from "./queries/GetSigningKeyByIdHandler"
 import { SearchSigningKeysHandler } from "./queries/SearchSigningKeysHandler"
 
-export default function registerSigningKeyAdminModule(container: AwilixContainer) {
+export default async function registerSigningKeyAdminModule(container: AwilixContainer) {
   container.register({
     signingKeyController: asClass(SigningKeyController).singleton(),
 

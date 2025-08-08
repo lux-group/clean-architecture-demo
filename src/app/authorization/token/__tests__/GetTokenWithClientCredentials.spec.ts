@@ -11,7 +11,7 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
   const password = "foo@bar01"
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     employeeUser = await context.data.createUser({ password, roles: ["employee"] })
     serviceUser = await context.data.createUser({ password, roles: ["service"] })
     await context.data.createSigningKey()

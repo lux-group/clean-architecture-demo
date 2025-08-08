@@ -8,8 +8,8 @@ import { EventPublisher } from "~/domain/adapters"
 describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the creation was successful", () => {

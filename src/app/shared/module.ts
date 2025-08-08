@@ -5,7 +5,7 @@ import { handleServerErrors } from "./middleware/handleServerErrors"
 import { SecureCookieManager } from "./utils/SecureCookieManager"
 import { authorize } from "./middleware/authorize"
 
-export default function registerSharedModule(container: AwilixContainer) {
+export default async function registerSharedModule(container: AwilixContainer) {
   container.register({
     authorize: asFunction(authorize).singleton(),
     handleClientErrors: asFunction(handleClientErrors).singleton(),

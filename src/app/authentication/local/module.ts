@@ -3,7 +3,7 @@ import { LocalAuthenticationController } from "./api/LocalAuthenticationControll
 import { SignInWithPasswordHandler } from "./commands/SignInWithPasswordHandler"
 import { SignOutHandler } from "./commands/SignOutHandler"
 
-export default function registerLocalAuthenticationModule(container: AwilixContainer) {
+export default async function registerLocalAuthenticationModule(container: AwilixContainer) {
   container.register({
     localAuthenticationController: asClass(LocalAuthenticationController).singleton(),
 

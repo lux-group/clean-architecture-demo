@@ -4,7 +4,7 @@ import { IssueTokenWithActiveSessionHandler } from "./commands/IssueTokenWithAct
 import { IssueTokenWithClientCredentialsHandler } from "./commands/IssueTokenWithClientCredentialsHandler"
 import { IssueTokenWithTokenExchangeHandler } from "./commands/IssueTokenWithTokenExchangeHandler"
 
-export default function registerTokenModule(container: AwilixContainer) {
+export default async function registerTokenModule(container: AwilixContainer) {
   container.register({
     tokenController: asClass(TokenController).singleton(),
 

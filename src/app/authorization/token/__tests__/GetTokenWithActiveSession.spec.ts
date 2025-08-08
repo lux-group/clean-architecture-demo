@@ -10,7 +10,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
   const getTokenClaims = (token: string) => JSON.parse(atob(token.split(".")[1]))
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     user = await context.data.createUser({ roles: ["employee"] })
     await context.data.createSigningKey()
   })

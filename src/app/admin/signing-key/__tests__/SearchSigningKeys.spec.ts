@@ -6,8 +6,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[GET] /admin/signing-keys (SearchSigningKeys)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when signing keys exist", () => {

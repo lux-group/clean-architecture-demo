@@ -10,7 +10,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 

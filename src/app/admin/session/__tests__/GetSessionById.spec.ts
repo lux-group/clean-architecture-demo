@@ -6,8 +6,8 @@ import { getTestContext, TestContext } from "@test/integration/TestContext"
 describe("[GET] /admin/sessions/:id (GetSessionById)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the session exists", () => {

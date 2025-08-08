@@ -4,7 +4,7 @@ import { MemorySessionRepository } from "./MemorySessionRepository"
 import { MemorySigningKeyRepository } from "./MemorySigningKeyRepository"
 import { MemoryUserRepository } from "./MemoryUserRepository"
 
-export default function registerMemoryRepositories(container: AwilixContainer) {
+export default async function registerMemoryRepositories(container: AwilixContainer) {
   container.register({
     identityProviderRepository: asClass(MemoryIdentityProviderRepository).singleton(),
     sessionRepository: asClass(MemorySessionRepository).singleton(),

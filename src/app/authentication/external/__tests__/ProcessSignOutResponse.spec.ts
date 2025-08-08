@@ -8,7 +8,7 @@ describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () 
   let identityProvider: IdentityProvider
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     identityProvider = await context.data.createIdentityProvider()
   })
 

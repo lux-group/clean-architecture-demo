@@ -6,7 +6,7 @@ describe("[GET] /oauth2/.well-known/openid-configuration (GetOpenidConfiguration
   let context: TestContext
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
   })
 
   describe("when requesting OpenID configuration", () => {

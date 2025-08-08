@@ -8,8 +8,8 @@ import { EventPublisher } from "~/domain/adapters"
 describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
   let context: TestContext
 
-  beforeAll(() => {
-    context = getTestContext()
+  beforeAll(async () => {
+    context = await getTestContext()
   })
 
   describe("when the update was successful", () => {

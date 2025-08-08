@@ -14,7 +14,7 @@ function readConfig(environment: string): Config {
   }
 }
 
-export default function registerConfig(container: AwilixContainer, environment: string) {
+export default async function registerConfig(container: AwilixContainer, environment: string) {
   const configData = readConfig(environment)
   const configResult = schema.safeParse(configData)
   if (!configResult.success) {

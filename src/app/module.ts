@@ -10,15 +10,15 @@ import registerTokenModule from "./authorization/token/module"
 import registerEntraIntegrationModule from "./integration/entra/module"
 import registerSharedModule from "./shared/module"
 
-export default function registerApp(container: AwilixContainer) {
-  registerIdentityProviderAdminModule(container)
-  registerSessionAdminModule(container)
-  registerSigningKeyAdminModule(container)
-  registerUserAdminModule(container)
-  registerExternalAuthenticationModule(container)
-  registerLocalAuthenticationModule(container)
-  registerWellKnownModule(container)
-  registerTokenModule(container)
-  registerEntraIntegrationModule(container)
-  registerSharedModule(container)
+export default async function registerApp(container: AwilixContainer) {
+  await registerIdentityProviderAdminModule(container)
+  await registerSessionAdminModule(container)
+  await registerSigningKeyAdminModule(container)
+  await registerUserAdminModule(container)
+  await registerExternalAuthenticationModule(container)
+  await registerLocalAuthenticationModule(container)
+  await registerWellKnownModule(container)
+  await registerTokenModule(container)
+  await registerEntraIntegrationModule(container)
+  await registerSharedModule(container)
 }

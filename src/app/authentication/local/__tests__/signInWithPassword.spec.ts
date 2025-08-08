@@ -10,7 +10,7 @@ describe("[POST] /auth/local/sign-in (SignInWithPassword)", () => {
   const password = "foo@bar01"
 
   beforeAll(async () => {
-    context = getTestContext()
+    context = await getTestContext()
     enabledUser = await context.data.createUser({ password, isEnabled: true })
     disabledUser = await context.data.createUser({ password, isEnabled: false })
   })

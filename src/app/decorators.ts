@@ -82,7 +82,7 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
       const propertyName = String(propertyKey)
       const collection = isErrorHandler ? errorHandlers : middleware
       collection[propertyName] = collection[propertyName] ?? []
-      collection[propertyName].push(container.resolve(identifier)(args))
+      collection[propertyName].push(container.resolve(identifier)(...args))
     }
 
     // Register all routes for the controller.

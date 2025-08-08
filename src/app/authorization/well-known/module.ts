@@ -3,7 +3,7 @@ import { WellKnownController } from "./api/WellKnownController"
 import { GetJsonWebKeysHandler } from "./queries/GetJsonWebKeysHandler"
 import { GetOpenidConfigurationHandler } from "./queries/GetOpenidConfigurationHandler"
 
-export default function registerWellKnownModule(container: AwilixContainer) {
+export default async function registerWellKnownModule(container: AwilixContainer) {
   container.register({
     wellKnownController: asClass(WellKnownController).singleton(),
 

@@ -6,7 +6,7 @@ import { UpdateUserHandler } from "./commands/UpdateUserHandler"
 import { GetUserByIdHandler } from "./queries/GetUserByIdHandler"
 import { SearchUsersHandler } from "./queries/SearchUsersHandler"
 
-export default function registerUserAdminModule(container: AwilixContainer) {
+export default async function registerUserAdminModule(container: AwilixContainer) {
   container.register({
     userController: asClass(UserController).singleton(),
 

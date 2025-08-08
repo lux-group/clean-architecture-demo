@@ -9,7 +9,7 @@ import { NodeEncryptionProvider } from "./crypto/NodeEncryptionProvider"
 import { NodeKeyPairGenerator } from "./crypto/NodeKeyPairGenerator"
 import { ConsoleLogger } from "./logging/ConsoleLogger"
 
-export default function registerInfrastructureServices(container: AwilixContainer) {
+export default async function registerInfrastructureServices(container: AwilixContainer) {
   container.register({
     eventPublisher: aliasTo("eventBus"),
     eventBus: asClass(EventBus).singleton(),

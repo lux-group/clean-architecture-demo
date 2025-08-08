@@ -4,7 +4,7 @@ import { TerminateSessionHandler } from "./commands/TerminateSessionHandler"
 import { GetSessionByIdHandler } from "./queries/GetSessionByIdHandler"
 import { SearchSessionsHandler } from "./queries/SearchSessionsHandler"
 
-export default function registerSessionAdminModule(container: AwilixContainer) {
+export default async function registerSessionAdminModule(container: AwilixContainer) {
   container.register({
     sessionController: asClass(SessionController).singleton(),
 

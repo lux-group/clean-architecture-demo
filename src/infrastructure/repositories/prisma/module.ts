@@ -1,4 +1,4 @@
-import { asClass, asValue, AwilixContainer } from "awilix"
+import { asClass, asFunction, AwilixContainer } from "awilix"
 import { createPrismaClient } from "./PrismaClient"
 import { PrismaUnitOfWork } from "./PrismaUnitOfWork"
 import { PrismaIdentityProviderRepository } from "./PrismaIdentityProviderRepository"
@@ -6,12 +6,13 @@ import { PrismaUserRepository } from "./PrismaUserRepository"
 import { PrismaSessionRepository } from "./PrismaSessionRepository"
 import { PrismaSigningKeyRepository } from "./PrismaSigningKeyRepository"
 
-export default function registerPrismaRepositories(container: AwilixContainer) {
+export default async function registerPrismaRepositories(container: AwilixContainer) {
   const { postgresReadOnlyUrl, postgresReadWriteUrl } = container.resolve("config")
   const prismaClient = createPrismaClient(postgresReadOnlyUrl, postgresReadWriteUrl)
+  await prismaClient.$connect()
 
   container.register({
-    prismaClient: asValue(prismaClient),
+    prismaClient: asFunction(() => prismaClient).singleton().disposer(c => c.$disconnect()),
     unitOfWork: asClass(PrismaUnitOfWork).transient(),
     
     identityProviderRepository: asClass(PrismaIdentityProviderRepository).singleton(),
