@@ -8,7 +8,9 @@
     "dev": "nodemon src/index.ts",
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
-    "test:coverage": "vitest run --coverage --config vitest.config.ts"
+    "test:coverage": "vitest run --coverage --config vitest.config.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init"
   },
   "author": "",
   "license": "ISC",
