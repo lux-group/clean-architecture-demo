@@ -179,7 +179,7 @@ const myService = container.resolve<MyService>("myService")
 
 # Test Strategy
 ### Unit Tests
-This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit testing.
+This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit tests.
 
 This project contains unit tests for:
 - [API Middleware](/src/app/shared/middleware) (solitary)
@@ -191,7 +191,7 @@ This project contains unit tests for:
 ### Integration Tests
 #### Internal Integration Tests
 
-The application does not utilise unit testing for areas that only contain orchestration logic, such as API controllers and application use cases (command and query handlers). These are tested with internal integration tests instead that verify the behavious of the entire application in isolation.
+The application does not utilise unit testing for areas that only contain orchestration logic, such as API controllers and application use cases (command and query handlers). These are tested with Internal Integration Tests instead that verify the behaviour of the entire application in isolation.
 
 - Admin Module: [identity-provider](/src/app/admin/identity-provider/__tests__)
 - Admin Module: [session](/src/app/admin/session/__tests__)
@@ -205,5 +205,5 @@ The application does not utilise unit testing for areas that only contain orches
 #### External Integration Tests
 External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation. The application contains two examples for Prisma (Postgres) and Redis.
 
-- [Prisma Repositories](/src/infrastructure/repositories/prisma)
-- [Redis Repositories](/src/infrastructure/repositories/redis)
+- [Prisma Repositories](/src/infrastructure/repositories/prisma/__tests__)
+- [Redis Repositories](/src/infrastructure/repositories/redis/__tests__)
