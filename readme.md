@@ -178,28 +178,6 @@ const myService = container.resolve<MyService>("myService")
 - **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
 
 # Test Strategy
-### Integration Tests
-#### Internal Integration Tests
-Internal Integration Tests are used to verify the full application behavior including areas that are not good candidates for unit testing because they only contain orchestration logic, such as API controllers and application use cases (command and query handlers).
-
-- Admin Modules
-  - [identity-provider](/src/app/admin/identity-provider/__tests__)
-  - [session](/src/app/admin/session/__tests__)
-  - [signing-Key](/src/app/admin/signing-key/__tests__)
-  - [user](/src/app/admin/user/__tests__)
-- Authentication Modules
-  - [external](/src/app/authentication/external/__tests__)
-  - [local](/src/app/authentication/local/__tests__)
-- Authorization Modules
-  - [well-known](/src/app/authorization/well-known/__tests__)
-  - [token](/src/app/authorization/token/__tests__)
-
-#### External Integration Tests
-External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation.
-
-- [Prisma Repositories](/src/infrastructure/repositories/prisma)
-- [Redis Repositories](/src/infrastructure/repositories/redis)
-
 ### Unit Tests
 This project demonstrates how clean architecture produces small modules that encapsulate self-contained business or utility logic, characterized by high cohesion and low coupling. This is a critical prerequisite for writing reliable and maintainable unit testing.
 
@@ -209,3 +187,23 @@ This project contains unit tests for:
 - [Domain Services](/src/domain/services) (sociable)
 - [Infrastructure Services](/src/infrastructure) (solitary)
 - [Utility Libraries](/src/lib) (solitary)
+
+### Integration Tests
+#### Internal Integration Tests
+
+The application does not utilise unit testing for areas that only contain orchestration logic, such as API controllers and application use cases (command and query handlers). These are tested with internal integration tests instead that verify the behavious of the entire application in isolation.
+
+- Admin Module: [identity-provider](/src/app/admin/identity-provider/__tests__)
+- Admin Module: [session](/src/app/admin/session/__tests__)
+- Admin Module: [signing-Key](/src/app/admin/signing-key/__tests__)
+- Admin Module: [user](/src/app/admin/user/__tests__)
+- Authentication Module: [external](/src/app/authentication/external/__tests__)
+- Authentication Module: [local](/src/app/authentication/local/__tests__)
+- Authorization Module: [token](/src/app/authorization/token/__tests__)
+- Authorization Module: [well-known](/src/app/authorization/well-known/__tests__)
+
+#### External Integration Tests
+External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation. The application contains two examples for Prisma (Postgres) and Redis.
+
+- [Prisma Repositories](/src/infrastructure/repositories/prisma)
+- [Redis Repositories](/src/infrastructure/repositories/redis)
