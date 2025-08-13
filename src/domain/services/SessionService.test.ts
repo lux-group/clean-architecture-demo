@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockAuthClient, mockAuthClientFactory, mockEventPublisher, mockIdentityProviderRepository, mockSessionRepository } from "@test/mocks"

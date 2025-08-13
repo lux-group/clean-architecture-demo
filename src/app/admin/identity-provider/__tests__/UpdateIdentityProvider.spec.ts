@@ -1,5 +1,5 @@
 import "@test/matchers/supertest"
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -71,7 +71,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
   describe("when the identity provider does not exist", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
-        .delete(`/admin/identity-providers/${crypto.randomUUID()}`)
+        .delete(`/admin/identity-providers/${randomUUID()}`)
         .send()
 
       expect(response.status).toBe(404)

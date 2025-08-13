@@ -1,4 +1,5 @@
 import "@test/matchers/supertest"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -53,7 +54,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
   describe("when the session does not exist", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
-        .post(`/admin/sessions/${crypto.randomUUID()}/terminate`)
+        .post(`/admin/sessions/${randomUUID()}/terminate`)
         .send()
 
       expect(response.status).toBe(404)

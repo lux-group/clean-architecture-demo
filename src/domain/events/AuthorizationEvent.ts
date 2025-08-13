@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { Event } from "../adapters"
 import { Session, User } from "../entities"
 
@@ -48,7 +49,7 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
 
   private static success(details: AuthorizationEventDetails): AuthorizationEvent {
     return new AuthorizationEvent(
-      crypto.randomUUID(),
+      randomUUID(),
       new Date(),
       "Success",
       details
@@ -57,7 +58,7 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
 
   private static failed(reason: string, details: AuthorizationEventDetails): AuthorizationEvent {
     return new AuthorizationEvent(
-      crypto.randomUUID(),
+      randomUUID(),
       new Date(),
       "Failed",
       details,
@@ -67,7 +68,7 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
 
   private static warning(reason: string, details: AuthorizationEventDetails): AuthorizationEvent {
     return new AuthorizationEvent(
-      crypto.randomUUID(),
+      randomUUID(),
       new Date(),
       "Warning",
       details,

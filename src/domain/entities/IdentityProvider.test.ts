@@ -80,10 +80,10 @@ describe("IdentityProvider", () => {
         if (path.includes(".")) {
           const [ parent, child ] = path.split(".")
           path = parent
-          value = { ...mockCreateProps[parent], [child]: value } as any
+          value = { ...((mockCreateProps as any)[parent]), [child]: value } as any
         }
 
-        IdentityProvider.createNew({ ...mockCreateProps, [path]: value })
+        IdentityProvider.createNew({ ...(mockCreateProps as any), [path]: value } as any)
         fail("Expected validation error to be thrown")
       } catch (thrownError: ValidationError | any) {
         expect(thrownError.errors).toBeDefined()

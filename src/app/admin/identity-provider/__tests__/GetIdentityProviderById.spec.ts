@@ -1,4 +1,5 @@
 import "@test/matchers/supertest"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -26,7 +27,7 @@ describe("[GET] /admin/identity-providers/:id (GetIdentityProviderById)", () => 
   describe("when the identity provider does not exist", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
-        .get(`/admin/identity-providers/${crypto.randomUUID()}`)
+        .get(`/admin/identity-providers/${randomUUID()}`)
         .send()
 
       expect(response.status).toBe(404)

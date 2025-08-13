@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { Event } from "../adapters"
 import { Entity, EntityProps } from "../entities"
 
@@ -57,6 +58,6 @@ export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
   }
 
   private static success(timestamp: Date, details: EntityChangeEventDetails): EntityChangeEvent {
-    return new EntityChangeEvent(crypto.randomUUID(), timestamp, "Success", details)
+    return new EntityChangeEvent(randomUUID(), timestamp, "Success", details)
   }
 }

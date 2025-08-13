@@ -1,4 +1,5 @@
 import "@test/matchers/supertest"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -50,7 +51,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
   describe("when the user does not exist", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
-        .delete(`/admin/users/${crypto.randomUUID()}`)
+        .delete(`/admin/users/${randomUUID()}`)
         .send()
 
       expect(response.status).toBe(404)

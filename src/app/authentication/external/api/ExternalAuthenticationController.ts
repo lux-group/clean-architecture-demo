@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { Controller, Get } from "~/app/decorators"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
+import { Logger } from "~/infrastructure/logging"
 import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
 import { SignInState, SignOutState } from "~/domain/adapters"
 import { CreateSignInRequestCommand, CreateSignInRequestHandler } from "../commands/CreateSignInRequestHandler"
@@ -11,6 +12,7 @@ import { FrontChannelSignOutCommand, FrontChannelSignOutHandler } from "../comma
 @Controller("/auth/external")
 export class ExternalAuthenticationController {
   constructor(
+    private readonly logger: Logger,
     private readonly secureCookieManager: SecureCookieManager,
     private readonly createSignInRequestHandler: CreateSignInRequestHandler,
     private readonly createSignOutRequestHandler: CreateSignOutRequestHandler,
@@ -57,7 +59,7 @@ export class ExternalAuthenticationController {
       res.redirect(signInState.redirectUrl)
     }
     catch (err) {
-      console.error(err)
+      this.logger.error(err)
       res.redirect(signInState.redirectUrl + "?error=" + encodeURIComponent(this.getErrorMessage(err)))
     }
   }

@@ -15,13 +15,15 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
     return entities
   }
 
-  async tryGet(filters: {}): Promise<T | undefined> {
+  async tryGet(filters: Record<string, unknown>): Promise<T | undefined> {
     const entities = Object.entries(filters)
-    const entity = Object.values(this.store).find(obj => entities.every(([key, value]) => obj[key] === value))
+    const entity = Object.values(this.store).find(obj =>
+      entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value)
+    )
     return Promise.resolve(entity)
   }
 
-  async get(filters: {}): Promise<T> {
+  async get(filters: Record<string, unknown>): Promise<T> {
     const entity = await this.tryGet(filters)
     if (!entity) {
       const filterString = Object.entries(filters).map(([key, value]) => `${key} ${value}`).join(", ")

@@ -20,11 +20,11 @@ export class ObjectTransformer {
   }
 }
 
-export function toCamelCase(key: any) {
-  return key.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase())
+export function toCamelCase(key: string) {
+  return key.replace(/_([a-z])/g, (_: string, letter: string) => letter.toUpperCase())
 }
 
-export function toSnakeCase(key: any) {
+export function toSnakeCase(key: string) {
   return key.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`)
 }
 

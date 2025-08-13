@@ -1,4 +1,5 @@
 import "@test/matchers/supertest"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -70,7 +71,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       }
 
       const response = await request(context.server)
-        .put(`/admin/users/${crypto.randomUUID()}`)
+        .put(`/admin/users/${randomUUID()}`)
         .send(payload)
 
       expect(response.status).toBe(404)

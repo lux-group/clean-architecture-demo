@@ -4,19 +4,19 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 # Auth Service V2
 ### Demonstrated features
 - Sign-up, sign-in, and sign-out with Entra ID
-  - Front-channel logout
+  - Front-channel sign-out
   - Check session state using refresh tokens
-  - Extensions called by Entra ID to customize the sign-up flow
+  - Extensions called by Entra ID to customise the sign-up flow
 - Sign-in with Google, Apple, Facebook
 - Local authentication with email and password
 - User impersonation (spoofing)
 - Session management with secure, encrypted, HTTP-only cookies.
 - OAuth2 Token endpoint
-  - Custom grant to get access token with session cookie
-  - Client Credentials grant using user-id and password
+  - Custom grant to get an access token with a session cookie
+  - Client Credentials grant using user ID and password
   - Token Exchange grant
 - OIDC metadata & JWKS endpoints
-- Profile edit or anonymisation in Entra ID via MS Graph API.
+- Profile editing or anonymisation in Entra ID via MS Graph API.
 - Authorization with `audience` and `scope` (structure only)
 - Audit logging using domain events
 
@@ -28,7 +28,7 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 | Folder | Responsibility |
 | --- | --- |
 | 📁 [app](/src/app) | Application use case implementations and triggers (API, scheduled tasks, event subscribers) |
-| &nbsp;&nbsp; 📁 \[feature] | The app folder is segregated into feature modules.<br/>In most cases, there are two levels. |
+| &nbsp;&nbsp; 📁 \[module] | The app folder is segregated into feature modules.<br/>In most cases, there are two levels. |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 api | API controllers, routes, presenters, and middleware |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 events | Event handlers |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 jobs | Scheduled jobs |
@@ -36,14 +36,14 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 queries | Application use case implementations that do not change state. |
 | 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) but other [styles](https://aussiecommerce.atlassian.net/wiki/x/EYDp0w) like Transaction Script are also possible. |
 | &nbsp;&nbsp; 📁 [adapters](/src/domain/adapters) | Interfaces for infrastructure services used by domain services.<br/>Their implementations can be found in [/infrastructure/adapters](/src/infrastructure/adapters). |
-| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the applications core business structures and rules. |
+| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the application's core business structures and rules. |
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
 | &nbsp;&nbsp; 📁 [events](/src/domain/events) | Domain event messages |
 | &nbsp;&nbsp; 📁 [repositories](/src/domain/repositories) | Interfaces for data repositories.<br/>Their implementations can be found in [/infrastructure/repositories](/src/infrastructure/repositories). |
 | &nbsp;&nbsp; 📁 [services](/src/domain/services) | Domain services shared by multiple use cases where logic does not fit into an entity. |
 | 📁 [infrastructure](/src/infrastructure) | Contains concrete implementations of domain interfaces and technical concerns |
-| &nbsp;&nbsp; 📁 [adapters](/src/infrastructure/adapters) | Implements domain adapter interfaces.<br/>(Password verification, Token validation/issuing, Event publishing, etc.) |
-| &nbsp;&nbsp; 📁 [auth](/src/infrastructure/auth) | OAuth2 Clients for OIDC (Entra ID, Google), Facebook, Apple |
+| &nbsp;&nbsp; 📁 [adapters](/src/infrastructure/adapters) | Implements domain adapter interfaces.<br/>(password verification, token validation/issuing, event publishing, etc.) |
+| &nbsp;&nbsp; 📁 [auth](/src/infrastructure/auth) | OAuth2 clients for OIDC (Entra ID, Google), Facebook, Apple |
 | &nbsp;&nbsp; 📁 [config](/src/infrastructure/config) | Application configuration |
 | &nbsp;&nbsp; 📁 [crypto](/src/infrastructure/crypto) | Cryptography utility services |
 | &nbsp;&nbsp; 📁 [logging](/src/infrastructure/logging) | Logger - currently just a simple console logger implementation |
@@ -55,7 +55,7 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 
 # Clean Architecture
 ## Introduction
-The key difference between the traditional layered architecture usually adopted at Luxury Escapes and [Clean Architecture](https://www.amazon.com.au/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164/ref=pd_bxgy_d_sccl_1/358-2171586-5171204) (aka. Onion Architecture, Hexagon Architecture) lies in the direction of dependencies.
+The key difference between the traditional layered architecture usually adopted at Luxury Escapes and [Clean Architecture](https://www.amazon.com.au/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164/ref=pd_bxgy_d_sccl_1/358-2171586-5171204) (aka Onion Architecture, Hexagonal Architecture) lies in the direction of dependencies.
 
 In traditional layered architectures, dependencies flow downward — from core domain logic to external components like databases, caches, or third-party APIs. As a result, the domain layer must orchestrate every dependency directly, in addition to handling business rules. This tight coupling can lead to bloated, unfocused code that becomes increasingly difficult to understand, test, and maintain as complexity grows.
 
@@ -87,7 +87,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 - **Consumer-focused REST APIs**: The REST APIs are segregated into consumer-focused areas that can be versioned and evolve independently. 
 - **Specific Repository Interfaces**: `UserRepository` extends base `Repository` with only user-specific methods
 - **Focused Adapter Interfaces**: Each adapter interface (`TokenIssuer`, `TokenValidator`, `PasswordVerifier`) is minimal and focused
-- **Event Bus Interfaces**: Dedicated `EventPublisher` interface that does not contain subscription management.
+- **Event Bus Interfaces**: Dedicated `EventPublisher` interface without subscription management.
 - **Domain Events**: Specific event types (`AuthenticationEvent`, `SessionEvent`) rather than one large interface
 
 ### Dependency Inversion Principle (DIP)
@@ -98,13 +98,13 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ## Design Patterns Applied
 
 ### Domain Model Pattern
-There are a few well-known patterns for implementing business/domain logic, such as Transaction Script, Active Record, and Domain Model. This application uses a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) which is great for managing complex domain logic and making the code expressive and easier.
+There are a few well-known patterns for implementing business/domain logic, such as Transaction Script, Active Record, and Domain Model. This application uses a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) which is great for managing complex domain logic and making the code expressive and easier to reason about.
 
 ### Domain Events / Event-Driven Architecture
-The application raises events for completed or attempted actions such as sing-in or issued tokens. An audit log consumer subscribes to these events to log them for auditing. Additional consumers could be added for other purposes such as publishing events to an event bus for consumption by others services.
+The application raises events for completed or attempted actions such as sign-in or issued tokens. An audit log consumer subscribes to these events to log them for auditing. Additional consumers could be added for other purposes such as publishing events to an event bus for consumption by other services.
 
 ### Repository Pattern
-Domain repositories abstract data persistence from the domain (core) and take care of all data-related concerns such is generating SQL statements (with the help of ORMs) and mapping data between the domain model and the database model. 
+Domain repositories abstract data persistence from the domain (core) and take care of all data-related concerns such as generating SQL statements (with the help of ORMs) and mapping data between the domain model and the database model. 
 
 ```typescript
 // Domain defines the interface independent of the data store
@@ -117,7 +117,7 @@ export class PrismaUserRepository implements UserRepository
 ```
 
 ### Decorator Pattern
-The [Redis Repositories](/src/infrastructure//repositories/redis) are implemented as decorators for [Prisma Repositories](/src/infrastructure//repositories/prisma). This means, they both implement the same [Repository Interface](/src/domain//repositories/) but the Redis repositories sit on top of the Prisma Repositories and proxy requests through to Prisma but add caching.
+The [Redis Repositories](/src/infrastructure/repositories/redis) are implemented as decorators for [Prisma Repositories](/src/infrastructure/repositories/prisma). This means they both implement the same [Repository Interface](/src/domain/repositories/), and the Redis repositories sit on top of the Prisma repositories and proxy requests through to Prisma while adding caching.
 
 ```typescript
 // Redis repositories decorate Prisma repositories with caching
@@ -127,9 +127,9 @@ export class RedisUserRepository implements UserRepository {
 ```
 
 ### Dependency Injection Pattern
-To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead all dependencies are "injected" into the consumers that need them, usually via class constructors.
+To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead, all dependencies are "injected" into the consumers that need them, usually via class constructors.
 
-```TypeScript
+```typescript
 import { Logger } from "~/infrastructure/logging"
 
 // Constructor injection
@@ -144,7 +144,7 @@ function myService(logger: Logger) {
 
 To automate dependency injection, the application uses [awilix](https://github.com/jeffijoe/awilix). The library is non-intrusive and easy to replace or remove. Unlike decorator-based DI containers, awilix works fine with functions and even primitive values. But be aware that it relies on consistent dependency names.
 
-```TypeScript
+```typescript
 import { asClass, asFunction } from "awilix"
 import { ConsoleLogger } from "~/infrastructure/logging/ConsoleLogger"
 
@@ -203,7 +203,19 @@ The application does not utilise unit testing for areas that only contain orches
 - Authorization Module: [well-known](/src/app/authorization/well-known/__tests__)
 
 #### External Integration Tests
-External Integration Tests verify the behavior of integrations with external services or infrastructure in isolation. The application contains two examples for Prisma (Postgres) and Redis.
+External Integration Tests verify the behaviour of integrations with external services or infrastructure in isolation. The application contains two examples for Prisma (Postgres) and Redis.
 
 - [Prisma Repositories](/src/infrastructure/repositories/prisma/__tests__)
 - [Redis Repositories](/src/infrastructure/repositories/redis/__tests__)
+
+# AI-Friendly Code Architecture
+The codebase is intentionally structured to optimise compatibility with AI coding assistants, enabling them to understand, generate, and maintain code more efficiently and reliably.
+
+Key optimisations include:
+- **Familiar Design Patterns**: The architecture leverages widely recognised design patterns and coding styles that AI models are trained on, enhancing comprehension and predictability.
+- **Consistent Structure**: Repetition of familiar patterns and structures allows AI to generalise and apply solutions more effectively across the codebase.
+- **Clear Abstractions**: Components are separated by well-defined abstractions, minimising the cognitive load required for AI to interpret and work with specific parts of the system.
+- **Meaningful Naming Conventions**: All identifiers are clear, consistent, and free from abbreviations, making the code self-explanatory and easier to navigate. The conventions are documented in *CONVENTIONS.md* and *readme.md* which are referenced in *.cursorrules*.
+- **Descriptive Domain Models**: Domain-driven design ensures that code is semantically rich and intuitive for both developers and AI, improving readability and maintainability.
+- **Focused Functions and Methods**: Functions and class methods are concise, purpose-driven, and named to clearly reflect their behaviour. Wherever feasible, they are kept pure and stateless to simplify reasoning.
+- **Strict Type Usage**: The codebase is written entirely in TypeScript with all *strict* options turned on, providing strong typing and explicit definitions for data structures and functions, which aids both human and AI understanding.

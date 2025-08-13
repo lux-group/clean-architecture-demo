@@ -1,6 +1,7 @@
+import { randomUUID } from "node:crypto"
+import { commonErrors } from "~/domain/errors"
 import { Event } from "../adapters"
 import { Session, User } from "../entities"
-import { commonErrors } from "~/domain/errors"
 
 export interface AuthenticationEventDetails {
   userId?: string
@@ -138,7 +139,7 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
 
   private static success(details: AuthenticationEventDetails): AuthenticationEvent {
     return new AuthenticationEvent(
-      crypto.randomUUID(),
+      randomUUID(),
       new Date(),
       "Success",
       details
@@ -147,7 +148,7 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
 
   private static failed(reason: string, details: AuthenticationEventDetails): AuthenticationEvent {
     return new AuthenticationEvent(
-      crypto.randomUUID(),
+      randomUUID(),
       new Date(),
       "Failed",
       details,

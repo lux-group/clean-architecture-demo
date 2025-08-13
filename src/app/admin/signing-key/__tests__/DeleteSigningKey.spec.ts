@@ -1,4 +1,5 @@
 import "@test/matchers/supertest"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
@@ -62,7 +63,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
   describe("when the signing key does not exist", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
-        .delete(`/admin/signing-keys/${crypto.randomUUID()}`)
+        .delete(`/admin/signing-keys/${randomUUID()}`)
         .send()
 
       expect(response.status).toBe(404)

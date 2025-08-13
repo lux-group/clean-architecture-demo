@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { Event } from "../adapters"
 import { Session } from "../entities"
 
@@ -76,10 +77,10 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   private static success(details: SessionEventDetails): SessionEvent {
-    return new SessionEvent(crypto.randomUUID(), new Date(), "Success", details)
+    return new SessionEvent(randomUUID(), new Date(), "Success", details)
   }
 
   private static warning(reason: string, details: SessionEventDetails): SessionEvent {
-    return new SessionEvent(crypto.randomUUID(), new Date(), "Warning", details, reason)
+    return new SessionEvent(randomUUID(), new Date(), "Warning", details, reason)
   }
 }

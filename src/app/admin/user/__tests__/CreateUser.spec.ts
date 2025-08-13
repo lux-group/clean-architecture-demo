@@ -1,5 +1,5 @@
 import "@test/matchers/supertest"
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"

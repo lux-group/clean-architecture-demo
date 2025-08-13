@@ -11,7 +11,7 @@ enum MetadataKeys {
 
 interface Route {
   propertyKey: string | symbol
-  method: string
+  method: HttpMethod
   path: string
 }
 
@@ -22,7 +22,9 @@ interface Middleware {
   isErrorHandler: boolean
 }
 
-function routeDecoratorFactory(method: string) {
+type HttpMethod = "get" | "delete" | "head" | "options" | "patch" | "post" | "put"
+
+function routeDecoratorFactory(method: HttpMethod) {
   return function (path: string) {
     return function (target: any, propertyKey: string | symbol) {
       const info: Route = { propertyKey, method, path }
@@ -90,7 +92,21 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
       const propertyName = String(propertyKey)
       const routeMiddleware = middleware[propertyName] || []
       const routeErrorHandlers = errorHandlers[propertyName] || []
-      router[method](basePath + path, ...routeMiddleware, controller[propertyName].bind(controller), ...routeErrorHandlers)
+      const methodToRegister: Record<HttpMethod, (path: string, ...handlers: any[]) => Router> = {
+        get: router.get.bind(router),
+        delete: router.delete.bind(router),
+        head: router.head.bind(router),
+        options: router.options.bind(router),
+        patch: router.patch.bind(router),
+        post: router.post.bind(router),
+        put: router.put.bind(router),
+      }
+      methodToRegister[method](
+        basePath + path,
+        ...routeMiddleware,
+        controller[propertyName].bind(controller),
+        ...routeErrorHandlers,
+      )
     }
   }
 

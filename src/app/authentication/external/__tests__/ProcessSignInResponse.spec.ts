@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import request from "supertest"
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { mockAuthClient } from "@test/mocks"

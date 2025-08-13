@@ -4,7 +4,7 @@ export interface Event<T extends Record<string, any>> {
   readonly timestamp: Date
   readonly result: "Success" | "Failed" | "Warning"
   readonly reason?: string
-  readonly details?: T
+  readonly details: T
 }
 
 export type EventCallback<T extends Event<any>> = (event: T) => void
