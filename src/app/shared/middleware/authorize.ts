@@ -8,7 +8,7 @@ export interface AuthorizeOptions {
   audiences?: string[]
 }
 
-// The first wrapper function is user for dependency injection.
+// The first wrapper function is used for dependency injection.
 export function authorize(logger: Logger) {
   // The second wrapper function is used by the decorator to inject arguments.
   return (options: AuthorizeOptions) => {

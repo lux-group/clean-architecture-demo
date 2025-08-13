@@ -209,13 +209,78 @@ External Integration Tests verify the behaviour of integrations with external se
 - [Redis Repositories](/src/infrastructure/repositories/redis/__tests__)
 
 # AI-Friendly Code Architecture
-The codebase is intentionally structured to optimise compatibility with AI coding assistants, enabling them to understand, generate, and maintain code more efficiently and reliably.
 
-Key optimisations include:
-- **Familiar Design Patterns**: The architecture leverages widely recognised design patterns and coding styles that AI models are trained on, enhancing comprehension and predictability.
-- **Consistent Structure**: Repetition of familiar patterns and structures allows AI to generalise and apply solutions more effectively across the codebase.
-- **Clear Abstractions**: Components are separated by well-defined abstractions, minimising the cognitive load required for AI to interpret and work with specific parts of the system.
-- **Meaningful Naming Conventions**: All identifiers are clear, consistent, and free from abbreviations, making the code self-explanatory and easier to navigate. The conventions are documented in *CONVENTIONS.md* and *readme.md* which are referenced in *.cursorrules*.
-- **Descriptive Domain Models**: Domain-driven design ensures that code is semantically rich and intuitive for both developers and AI, improving readability and maintainability.
-- **Focused Functions and Methods**: Functions and class methods are concise, purpose-driven, and named to clearly reflect their behaviour. Wherever feasible, they are kept pure and stateless to simplify reasoning.
-- **Strict Type Usage**: The codebase is written entirely in TypeScript with all *strict* options turned on, providing strong typing and explicit definitions for data structures and functions, which aids both human and AI understanding.
+This codebase is intentionally structured to optimize compatibility with AI coding assistants, enabling them to understand, generate, and maintain code more efficiently and reliably.
+
+## Key AI Optimizations
+
+### 🎯 **Familiar Design Patterns**
+The architecture leverages widely recognized design patterns that AI models are trained on:
+- **Clean Architecture**: Well-established pattern with clear layer separation
+- **Repository Pattern**: Standard data access abstraction
+- **Dependency Injection**: Mainstream IoC pattern using Awilix
+- **Domain-Driven Design**: Rich domain models with business logic encapsulation
+
+### 🔄 **Consistent Structure & Conventions**
+Repetitive patterns allow AI to generalize solutions across the codebase:
+- **File Naming**: Matches primary export (e.g., `CreateUserHandler.ts`)
+- **DI Registration**: Predictable camelCase keys (`createUserHandler`)
+- **Module Structure**: Standardized folder layout (`api/`, `commands/`, `queries/`)
+- **Import Paths**: Consistent aliases (`~/domain`, `@test/`)
+
+### 📚 **Comprehensive Documentation**
+Extensive documentation helps AI understand context and intent:
+- **Architecture Decision Records** in `/docs/adr/`
+- **Conventions** in `/docs/CONVENTIONS.md/` for consistent generation
+
+### 🔍 **Clear Abstractions & Boundaries**
+Well-defined interfaces minimize cognitive load:
+- **Layer Isolation**: Domain completely independent of infrastructure
+- **Interface Segregation**: Focused, single-purpose interfaces
+- **Error Boundaries**: Structured error handling with context
+- **Type Safety**: Strong TypeScript typing with Zod validation
+
+### 📝 **Meaningful Naming Conventions**
+Self-explanatory identifiers reduce ambiguity:
+- **No Abbreviations**: Full descriptive names (`UserRepository` not `UserRepo`)
+- **Business Language**: Domain terminology in code matches business requirements
+- **Consistent Prefixes**: `Create`, `Update`, `Delete` for commands; `Get`, `Search` for queries
+- **Clear Intent**: Method names describe what they do, not how
+
+### 🎨 **Descriptive Domain Models**
+Domain-driven design ensures semantic richness:
+- **Rich Entities**: Business logic encapsulated in domain entities
+- **Domain Events**: Clear representation of business state changes
+- **Ubiquitous Language**: Consistent terminology throughout the codebase; external terminology translated at the boundary
+
+### ⚡ **Focused Functions & Methods**
+Purpose-driven, stateless functions where possible:
+- **Single Responsibility**: Each method has one clear purpose
+- **Pure Functions**: Minimal side effects, predictable outputs
+- **Command/Query Separation**: Clear distinction between state changes and reads
+- **Composable Logic**: Small, reusable building blocks
+
+### 🛡️ **Strict Type System**
+TypeScript with all strict options provides explicit contracts:
+- **Compile-time Safety**: Catch errors before runtime
+- **IntelliSense Support**: Better AI code completion and suggestions
+- **Schema Validation**: Zod schemas for runtime type checking
+- **Explicit Nullability**: Clear handling of optional values
+
+## AI Development Workflow
+
+### 🤖 **For AI Assistants**
+When working with this codebase:
+
+1. **Read Documentation First**: Check `/docs/` for context and templates
+2. **Follow Established Patterns**: Mirror existing code structure and naming
+3. **Use Type Information**: Leverage TypeScript definitions for accuracy
+4. **Validate Against Schema**: Ensure new code follows Zod validation patterns
+5. **Include Tests**: Generate corresponding unit/integration tests
+
+### 👨‍💻 **For Human Developers**
+The AI-friendly design also benefits human developers:
+- **Predictable Structure**: Easy to navigate and understand
+- **Self-Documenting Code**: Clear intent without deep diving
+- **Consistent Patterns**: Reduced cognitive load when switching contexts
+- **Comprehensive Testing**: Reliable refactoring and maintenance

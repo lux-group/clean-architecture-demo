@@ -29,7 +29,8 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)
@@ -49,14 +50,16 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "auth-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       const sessionEvent: Event<SessionEventDetails> = {
         topic: "Session",
         id: "session-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { activity: "", userId: "123" }
       }
 
       eventBus.publishEvent(authEvent)
@@ -78,7 +81,8 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)
@@ -100,7 +104,8 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)
@@ -120,7 +125,8 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)
@@ -172,7 +178,8 @@ describe("EventBus", () => {
         topic: "Authentication",
         id: "test-1",
         timestamp: new Date(),
-        result: "Success"
+        result: "Success",
+        details: { method: "Active Session", userId: "123" }
       }
 
       eventBus.publishEvent(testEvent)

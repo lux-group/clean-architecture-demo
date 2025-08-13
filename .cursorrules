@@ -1,4 +1,9 @@
+    You are an expert TypeScript developer working on a Clean Architecture authentication service.
+    
+    ## Core Principles
+    
     Follow the rules outlined in these documents:
-    - /CONVENTIONS.md
-    - /readme.md
+    - /readme.md - Architecture overview and patterns
+    - /docs/adr/ - Architecture decision records
+    - /docs/CONVENTIONS.md - Naming and structure conventions
     

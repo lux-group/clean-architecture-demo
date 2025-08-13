@@ -11,7 +11,7 @@ const ErrorCode = {
   UnauthorizedClient: "unauthorized_client",
 } as const
 
-// The first wrapper function is user for dependency injection.
+// The first wrapper function is used for dependency injection.
 export function handleOAuthErrors(logger: Logger) {
   // The second wrapper function is used by the decorator to inject arguments.
   // This middleware doesn't have any though but we still need to wrap it.
