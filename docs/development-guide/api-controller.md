@@ -34,8 +34,10 @@ Routing assembly uses decorator metadata + DI: see `src/app/decorators.ts` and `
 
 ## Testing
 
-- Write API integration tests under `src/app/<feature>/__tests__/` using Supertest against the Express app.
+- Write API integration tests under `src/app/<module>/__tests__/` using Supertest against the Express app.
 - Handlers are exercised through controllers in these tests.
+- Each use case (query or command handler) should have a corresponding test. The file must use the extension `.spec.ts` to indicate to the test framework that a containerised envirnment is required.
+- A custom matcher function `bodyToMatchEntity` from `@test/matchers/supertest` can be used to compare API payloads to domain entities.
 
 ### Example integration test outline
 

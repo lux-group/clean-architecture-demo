@@ -49,5 +49,4 @@ container.register({
 
 ## Testing
 
-- Handlers are covered by API integration tests in the feature’s `__tests__` folder.
-- Keep handlers free of framework concerns; pass DTOs from the controller.
+Handlers are covered by [API integration tests](./api-controller.md).
