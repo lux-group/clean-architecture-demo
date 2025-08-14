@@ -1,9 +1,10 @@
 import { IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
-import { PrismaClient } from "./PrismaClient"
+import { Query, QueryResult } from "~/lib/types"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { NotFoundError } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaIdentityProviderRepository implements IdentityProviderRepository {
   constructor(
@@ -11,13 +12,23 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(offset?: number, limit?: number): Promise<IdentityProvider[]> {
-    const identityProviders = await this.prismaClient.identityProvider.findMany({
-      skip: offset,
-      take: limit
-    })
+  async query(options: Query<IdentityProvider>): Promise<QueryResult<IdentityProvider>> {
+    const [total, identityProviders] = await this.prismaClient.$transaction([
+      this.prismaClient.identityProvider.count({
+        where: options.where
+      }),
+      this.prismaClient.identityProvider.findMany({
+        where: options.where,
+        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
+        skip: options.offset,
+        take: options.limit
+      }),
+    ])
 
-    return identityProviders.map(idp => this.mapToIdentityProvider(idp))
+    return {
+      items: identityProviders.map(idp => this.mapToIdentityProvider(idp)),
+      total
+    }
   }
 
   async getById(id: string): Promise<IdentityProvider> {

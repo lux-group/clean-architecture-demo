@@ -1,9 +1,10 @@
 import { SigningKey as PrismaSigningKey } from "@prisma/client"
-import { PrismaClient } from "./PrismaClient"
+import { Query, QueryResult } from "~/lib/types"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { NotFoundError } from "~/domain/errors"
 import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaSigningKeyRepository implements SigningKeyRepository {
   constructor(
@@ -11,14 +12,23 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(offset?: number, limit?: number): Promise<SigningKey[]> {
-    const signingKeys = await this.prismaClient.signingKey.findMany({
-      orderBy: { createdAt: "desc" },
-      skip: offset,
-      take: limit
-    })
+  async query(options: Query<SigningKey>): Promise<QueryResult<SigningKey>> {
+    const [total, signingKeys] = await this.prismaClient.$transaction([
+      this.prismaClient.signingKey.count({
+        where: options.where
+      }),
+      this.prismaClient.signingKey.findMany({
+        where: options.where,
+        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
+        skip: options.offset,
+        take: options.limit
+      }),
+    ])
 
-    return signingKeys.map(sk => this.mapToSigningKey(sk))
+    return {
+      items: signingKeys.map(sk => this.mapToSigningKey(sk)),
+      total
+    }
   }
 
   async getById(id: string): Promise<SigningKey> {

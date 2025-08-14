@@ -1,16 +1,10 @@
+import { Query, QueryResult } from "~/lib/types"
 import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 
-export interface SearchIdentityProvidersQuery {
-  offset: number
-  limit: number
-}
+export type SearchIdentityProvidersQuery = Query<IdentityProvider>
 
-export interface SearchIdentityProvidersResult {
-  offset: number
-  limit: number
-  items: IdentityProvider[]
-}
+export type SearchIdentityProvidersResult = QueryResult<IdentityProvider>
 
 export class SearchIdentityProvidersHandler {
   constructor(
@@ -18,11 +12,6 @@ export class SearchIdentityProvidersHandler {
   ) {}
 
   async execute(query: SearchIdentityProvidersQuery): Promise<SearchIdentityProvidersResult> {
-    const items = await this.identityProviderRepository.query(query.offset, query.limit)
-    return {
-      offset: query.offset,
-      limit: query.limit,
-      items
-    }
+    return await this.identityProviderRepository.query(query)
   }
 }

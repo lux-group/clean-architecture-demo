@@ -1,16 +1,10 @@
+import { Query, QueryResult } from "~/lib/types"
 import { User } from "~/domain/entities"
 import { UserRepository } from "~/domain/repositories"
 
-export interface SearchUsersQuery {
-  offset: number
-  limit: number
-}
+export type SearchUsersQuery = Query<User>
 
-export interface SearchUsersResult {
-  offset: number
-  limit: number
-  items: User[]
-}
+export type SearchUsersResult = QueryResult<User>
 
 export class SearchUsersHandler {
   constructor(
@@ -18,11 +12,6 @@ export class SearchUsersHandler {
   ) {}
 
   async execute(query: SearchUsersQuery): Promise<SearchUsersResult> {
-    const items = await this.userRepository.query(query.offset, query.limit)
-    return {
-      offset: query.offset,
-      limit: query.limit,
-      items
-    }
+    return await this.userRepository.query(query)
   }
 }

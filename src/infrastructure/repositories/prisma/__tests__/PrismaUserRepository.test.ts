@@ -47,9 +47,9 @@ describe("PrismaUserRepository", () => {
     it("should return all users", async () => {
       await createUser()
 
-      const users = await userRepository.query()
+      const found = await userRepository.query({ limit: 10, offset: 0 })
 
-      expect(users.length).toBeGreaterThanOrEqual(1)
+      expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
   })
 

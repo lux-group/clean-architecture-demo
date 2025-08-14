@@ -1,7 +1,8 @@
-import { Entity, EntityProps } from "../entities"
+import { Query, QueryResult } from "~/lib/types"
+import { Entity, EntityProps } from "~/domain/entities"
 
 export interface Repository<T extends Entity<EntityProps>> {
-  query(offset?: number, limit?: number): Promise<T[]>
+  query(options: Query<T>): Promise<QueryResult<T>>
   getById(id: string): Promise<T>
   tryGetById(id: string): Promise<T | undefined>
   insert(entity: T): Promise<void>

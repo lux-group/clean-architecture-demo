@@ -27,7 +27,7 @@ export class IdentityProviderController {
     }
     
     const result = await this.searchIdentityProvidersHandler.execute(query)
-    res.json({ ...result, items: result.items.map(this.present) })
+    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

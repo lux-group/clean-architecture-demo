@@ -22,7 +22,7 @@ export class SessionController {
     }
 
     const result = await this.searchSessionsHandler.execute(query)
-    res.json({ ...result, items: result.items.map(this.present) })
+    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

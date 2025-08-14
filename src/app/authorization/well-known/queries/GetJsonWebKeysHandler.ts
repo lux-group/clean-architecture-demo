@@ -1,5 +1,7 @@
 import { importSPKI, exportJWK } from "jose"
+import { Query } from "~/lib/types"
 import { UUIDToShort } from "~/lib/ShortUUID"
+import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
 
 export class GetJsonWebKeysHandler {
@@ -8,7 +10,14 @@ export class GetJsonWebKeysHandler {
   ) {}
 
   async execute(): Promise<object> {
-    const validationKeys = await this.signingKeyRepository.query()
+    const query: Query<SigningKey> = {
+      offset: 0,
+      limit: 10,
+      orderBy: "createdAt",
+      orderDirection: "desc"
+    }
+    
+    const { items: validationKeys } = await this.signingKeyRepository.query(query)
 
     const keys = await Promise.all(
       validationKeys.map(async key => {

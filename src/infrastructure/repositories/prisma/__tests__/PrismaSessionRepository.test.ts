@@ -56,9 +56,9 @@ describe("PrismaSessionRepository", () => {
     it("should return all sessions", async () => {
       const original = await createAndStoreSession()
 
-      const found = await sessionRepository.query()
+      const found = await sessionRepository.query({ limit: 10, offset: 0 })
 
-      expect(found.length).toBeGreaterThanOrEqual(1)
+      expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
   })
 

@@ -1,9 +1,10 @@
 import { Session as PrismaSession } from "@prisma/client"
-import { PrismaClient } from "./PrismaClient"
+import { Query, QueryResult } from "~/lib/types"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { NotFoundError } from "~/domain/errors"
 import { Session, SessionStatus } from "~/domain/entities"
 import { SessionRepository } from "~/domain/repositories"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaSessionRepository implements SessionRepository {
   constructor(
@@ -11,13 +12,23 @@ export class PrismaSessionRepository implements SessionRepository {
     private readonly encryptionProvider: EncryptionProvider
   ) { }
 
-  async query(offset?: number, limit?: number): Promise<Session[]> {
-    const sessions = await this.prismaClient.session.findMany({
-      skip: offset,
-      take: limit
-    })
-    
-    return sessions.map(s => this.mapToSession(s))
+  async query(options: Query<Session>): Promise<QueryResult<Session>> {
+    const [total, sessions] = await this.prismaClient.$transaction([
+      this.prismaClient.session.count({
+        where: options.where
+      }),
+      this.prismaClient.session.findMany({
+        where: options.where,
+        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
+        skip: options.offset,
+        take: options.limit
+      }),
+    ])
+
+    return {
+      items: sessions.map(s => this.mapToSession(s)),
+      total
+    }
   }
 
   async getById(id: string): Promise<Session> {

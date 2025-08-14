@@ -28,9 +28,9 @@ describe("PrismaIdentityProviderRepository", () => {
     it("should return all identity providers", async () => {
       await createAndStoreIdentityProvider()
 
-      const found = await identityProviderRepository.query()
+      const found = await identityProviderRepository.query({ limit: 10, offset: 0 })
 
-      expect(found.length).toBeGreaterThanOrEqual(1)
+      expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
   })
 

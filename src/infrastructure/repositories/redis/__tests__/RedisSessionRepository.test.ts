@@ -43,19 +43,9 @@ describe("RedisSessionRepository", () => {
       const sessions = [createLocalSession(), createIdentityProviderSession()]
       mockRepository.query.mockResolvedValue(sessions)
 
-      const result = await redisSessionRepository.query()
+      const result = await redisSessionRepository.query({ limit: 10, offset: 20 })
 
-      expect(mockRepository.query).toHaveBeenCalledWith(undefined, undefined)
-      expect(result).toEqual(sessions)
-    })
-
-    it("should pass offset and limit to underlying repository", async () => {
-      const sessions = [createLocalSession()]
-      mockRepository.query.mockResolvedValue(sessions)
-
-      const result = await redisSessionRepository.query(10, 5)
-
-      expect(mockRepository.query).toHaveBeenCalledWith(10, 5)
+      expect(mockRepository.query).toHaveBeenCalledWith({ limit: 10, offset: 20 })
       expect(result).toEqual(sessions)
     })
   })

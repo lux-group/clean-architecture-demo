@@ -1,3 +1,4 @@
+import { Query, QueryResult } from "~/lib/types"
 import { NotFoundError } from "~/domain/errors"
 import { Entity, EntityProps } from "~/domain/entities"
 import { Repository } from "~/domain/repositories"
@@ -7,12 +8,12 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
 
   constructor(private readonly resourceName: string) { }
 
-  async query(offset?: number, limit?: number): Promise<T[]> {
+  async query(options: Query<T>): Promise<QueryResult<T>> {
     const entities = Object.values(this.store)
-    if (offset !== undefined && limit !== undefined) {
-      return entities.slice(offset, offset + limit)
+    return {
+      items: entities.slice(options.offset, options.offset + options.limit),
+      total: entities.length
     }
-    return entities
   }
 
   async tryGet(filters: Record<string, unknown>): Promise<T | undefined> {

@@ -28,9 +28,9 @@ describe("PrismaSigningKeyRepository", () => {
     it("should return all signing keys", async () => {
       await createSigningKey()
 
-      const found = await signingKeyRepository.query()
-
-      expect(found.length).toBeGreaterThanOrEqual(1)
+      const found = await signingKeyRepository.query({ limit: 10, offset: 0 })
+      
+      expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
   })
 

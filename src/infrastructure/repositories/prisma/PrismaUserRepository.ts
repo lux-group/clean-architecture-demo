@@ -1,24 +1,35 @@
 import { User as PrismaUser, UserIdentity as PrismaUserIdentity } from "@prisma/client"
-import { PrismaClient } from "./PrismaClient"
+import { Query, QueryResult } from "~/lib/types"
 import { NotFoundError } from "~/domain/errors"
 import { User, UserIdentity } from "~/domain/entities"
 import { UserRepository } from "~/domain/repositories"
+import { PrismaClient } from "./PrismaClient"
 
 type PrismaUserWithIdentities = PrismaUser & {
   identities: PrismaUserIdentity[]
 }
 
 export class PrismaUserRepository implements UserRepository {
-  constructor(private prismaClient: PrismaClient) {}
+    constructor(private prismaClient: PrismaClient) {}
 
-  async query(offset?: number, limit?: number): Promise<User[]> {
-    const users = await this.prismaClient.user.findMany({
-      include: { identities: true },
-      skip: offset,
-      take: limit
-    })
+    async query(options: Query<User>): Promise<QueryResult<User>> {
+    const [total, users] = await this.prismaClient.$transaction([
+      this.prismaClient.user.count({
+        where: options.where
+      }),
+      this.prismaClient.user.findMany({
+        where: options.where,
+        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
+        include: { identities: true },
+        skip: options.offset,
+        take: options.limit
+      }),
+    ])
 
-    return users.map(u => this.mapToUser(u))
+    return {
+      items: users.map(u => this.mapToUser(u)),
+      total
+    }
   }
 
   async getById(id: string): Promise<User> {

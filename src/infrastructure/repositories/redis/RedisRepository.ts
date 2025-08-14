@@ -1,4 +1,5 @@
 import { RedisClientType } from "redis"
+import { Query, QueryResult } from "~/lib/types"
 import { Entity, EntityProps } from "~/domain/entities"
 import { Repository } from "~/domain/repositories"
 
@@ -10,8 +11,8 @@ export abstract class RedisRepository<T extends Entity<EntityProps>, R extends R
     protected readonly repository: R,
   ) {}
 
-  async query(offset?: number, limit?: number): Promise<T[]> {
-    return await this.repository.query(offset, limit)
+  async query(options: Query<T>): Promise<QueryResult<T>> {
+    return await this.repository.query(options)
   }
 
   async getById(id: string): Promise<T> {

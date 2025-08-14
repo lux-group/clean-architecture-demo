@@ -39,19 +39,9 @@ describe("RedisSigningKeyRepository", () => {
       const signingKeys = [createSigningKey(), createSigningKey()]
       mockRepository.query.mockResolvedValue(signingKeys)
 
-      const result = await redisSigningKeyRepository.query()
+      const result = await redisSigningKeyRepository.query({ limit: 10, offset: 20 })
 
-      expect(mockRepository.query).toHaveBeenCalledWith(undefined, undefined)
-      expect(result).toEqual(signingKeys)
-    })
-
-    it("should pass offset and limit to underlying repository", async () => {
-      const signingKeys = [createSigningKey()]
-      mockRepository.query.mockResolvedValue(signingKeys)
-
-      const result = await redisSigningKeyRepository.query(10, 5)
-
-      expect(mockRepository.query).toHaveBeenCalledWith(10, 5)
+      expect(mockRepository.query).toHaveBeenCalledWith({ limit: 10, offset: 20 })
       expect(result).toEqual(signingKeys)
     })
   })

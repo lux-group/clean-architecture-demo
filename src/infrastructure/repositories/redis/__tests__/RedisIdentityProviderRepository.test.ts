@@ -39,19 +39,9 @@ describe("RedisIdentityProviderRepository", () => {
       const identityProviders = [createIdentityProvider(), createIdentityProvider()]
       mockRepository.query.mockResolvedValue(identityProviders)
 
-      const result = await redisIdentityProviderRepository.query()
+      const result = await redisIdentityProviderRepository.query({ limit: 10, offset: 20 })
 
-      expect(mockRepository.query).toHaveBeenCalledWith(undefined, undefined)
-      expect(result).toEqual(identityProviders)
-    })
-
-    it("should pass offset and limit to underlying repository", async () => {
-      const identityProviders = [createIdentityProvider()]
-      mockRepository.query.mockResolvedValue(identityProviders)
-
-      const result = await redisIdentityProviderRepository.query(10, 5)
-
-      expect(mockRepository.query).toHaveBeenCalledWith(10, 5)
+      expect(mockRepository.query).toHaveBeenCalledWith({ limit: 10, offset: 20 })
       expect(result).toEqual(identityProviders)
     })
   })

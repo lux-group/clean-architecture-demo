@@ -27,7 +27,7 @@ export class UserController {
     }
 
     const result = await this.searchUsersHandler.execute(query)
-    res.json({ ...result, items: result.items.map(this.present) })
+    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

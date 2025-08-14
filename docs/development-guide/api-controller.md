@@ -1,0 +1,80 @@
+# Development Guide: API Controller
+
+Controllers translate HTTP requests to DTOs and call a handler. They are lightweight and use custom decorators for routing and middleware.
+
+## Structure
+- Location: `src/app/<feature>/api/XxxController.ts`
+- Decorators: `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, `@Authorize`
+- DI: Register with a key ending in `Controller` (router discovery depends on it)
+
+```ts
+@Controller("/admin/users")
+export class UserController {
+  constructor(private readonly baseUrl: string, private readonly createUserHandler: CreateUserHandler) {}
+
+  @Post("/")
+  @Authorize({ scopes: ["users:write"] })
+  async create(req: Request, res: Response) {
+    const command: CreateUserCommand = { /* parse */ }
+    const item = await this.createUserHandler.execute(command)
+    res.status(201).header("Location", `${this.baseUrl}/admin/users/${item.id}`).json(this.present(item))
+  }
+}
+```
+
+Register in module:
+
+```ts
+container.register({
+  userController: asClass(UserController).singleton(),
+})
+```
+
+Routing assembly uses decorator metadata + DI: see `src/app/decorators.ts` and `createRouterFromDecorators(container)`.
+
+## Testing
+
+- Write API integration tests under `src/app/<feature>/__tests__/` using Supertest against the Express app.
+- Handlers are exercised through controllers in these tests.
+
+### Example integration test outline
+
+Use a top-level `describe` that includes the HTTP method, path, and use case name in parentheses. Create a `describe` block for each scenario, with one or more `it` blocks for expected outcomes.
+
+```ts
+import "@test/matchers/supertest"
+import request from "supertest"
+import { beforeAll, describe, expect, it } from "vitest"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
+
+describe("[POST] /admin/users (CreateUser)", () => {
+  let context: TestContext
+
+  beforeAll(async () => {
+    context = await getTestContext()
+  })
+
+  describe("when the creation was successful", () => {
+    it("returns 201 with the created resource", async () => {
+      const response = await request(context.server)
+        .post("/admin/users")
+        .send({ /* payload */ })
+      expect(response.status).toBe(201)
+    })
+
+    it("persists the entity", async () => {
+      const res = await request(context.server).post("/admin/users").send({ /* payload */ })
+      const created = await context.data.getUser(res.body.id)
+      expect(res).bodyToMatchEntity(created)
+    })
+  })
+
+  describe("when input is invalid", () => {
+    it("returns 400 with validation details", async () => {
+      const response = await request(context.server).post("/admin/users").send({})
+      expect(response.status).toBe(400)
+    })
+  })
+})
+```
+
