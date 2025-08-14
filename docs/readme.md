@@ -31,12 +31,12 @@
 ## Implementation Guides
 | Document | Purpose |
 | --- | --- |
-| [test-strategy.md](/src/docs/development-guide/test-strategy.md) | Explains the overall test staretgy of the codebase. |
-| [dependency-injection.md](/src/docs/development-guide/dependency-injection.md) | Explains how DI works with Awilix and how to register dependencies. |
-| [domain-entity.md](/src/docs/development-guide/domain-entity.md) | Explains how to implement a new domain entity class. |
-| [domain-repository.md](/src/docs/development-guide/domain-repository.md) | Explains how to implement a new repository. |
-| [use-case.md](/src/docs/development-guide/use-case.md) | Explains how to implement a new command or query handler. |
-| [api-controller.md](/src/docs/development-guide/api-controller.md) | Explains how to implement a new API controller with integration tests. |
+| [test-strategy.md](/docs/development-guide/test-strategy.md) | Explains the overall test staretgy of the codebase. |
+| [dependency-injection.md](/docs/development-guide/dependency-injection.md) | Explains how DI works with Awilix and how to register dependencies. |
+| [domain-entity.md](/docs/development-guide/domain-entity.md) | Explains how to implement a new domain entity class. |
+| [domain-repository.md](/docs/development-guide/domain-repository.md) | Explains how to implement a new repository. |
+| [use-case.md](/docs/development-guide/use-case.md) | Explains how to implement a new command or query handler. |
+| [api-controller.md](/docs/development-guide/api-controller.md) | Explains how to implement a new API controller with integration tests. |
 
 ### Path Aliases
 The `tsconfig.json` file defines two path aliases.
