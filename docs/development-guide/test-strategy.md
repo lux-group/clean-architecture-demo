@@ -13,7 +13,7 @@ This project contains unit tests for:
 - [Utility Libraries](/src/lib) (solitary)
 
 ## External Integration Tests
-External Integration Tests verify the behaviour of integrations with external services or infrastructure in isolation. For more information about how to write external integration tests, refer to [domain-repository.md](./domain-repository.md).
+External Integration Tests verify the behaviour of integrations with external services or infrastructure in isolation. For more information about how to write external integration tests, refer to [domain-repository.md](./domain-repository.md#tests-with-testcontainers).
 
 The application contains two examples for Prisma (Postgres) and Redis.
 
@@ -22,7 +22,7 @@ The application contains two examples for Prisma (Postgres) and Redis.
 
 ## Internal Integration Tests
 
-The application does not utilise unit testing for areas that only contain orchestration logic, such as API controllers and application use cases (command and query handlers). These are tested with Internal Integration Tests instead that verify the behaviour of the entire application in isolation. For more information about how to write internal integration tests, refer to [api-controller.md](./api-controller.md).
+The application does not utilise unit testing for areas that only contain orchestration logic, such as API controllers and application use cases (command and query handlers). These are tested with Internal Integration Tests instead that verify the behaviour of the entire application in isolation. For more information about how to write internal integration tests, refer to [api-controller.md](./api-controller.md#testing).
 
 The application contains internal integration tests for all its modules.
 
