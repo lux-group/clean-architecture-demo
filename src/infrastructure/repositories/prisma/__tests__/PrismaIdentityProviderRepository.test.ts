@@ -32,6 +32,20 @@ describe("PrismaIdentityProviderRepository", () => {
 
       expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
+
+    it("should return filtered identity providers", async () => {
+      const original = await createAndStoreIdentityProvider()
+
+      const found = await identityProviderRepository.query({
+        limit: 10,
+        offset: 0,
+        orderBy: { property: "id", direction: "asc" },
+        where: { property: "name", operator: "equals", value: original.name }
+      })
+
+      expect(found.items.length).toBe(1)
+      expect(found.items[0].id).toBe(original.id)
+    })
   })
 
   describe("getById", () => {
@@ -140,7 +154,7 @@ describe("PrismaIdentityProviderRepository", () => {
     it("should encrypt client secret when inserting", async () => {
       const original = await createAndStoreIdentityProvider()
 
-      const found = await testContext.prismaClient.identityProvider.findUnique({ where: { id: original.id } })
+      const found = await testContext.prismaClient.$primary().identityProvider.findUnique({ where: { id: original.id } })
 
       expect(found!.authSettingsClientSecret).toBe("encrypted_" + original.authSettings!.clientSecret)
     })
@@ -185,6 +199,8 @@ describe("PrismaIdentityProviderRepository", () => {
         authSettings: null
       })
 
+      await identityProviderRepository.update(idp1)
+
       idp2.update({
         name: "Updated by User 2",
         issuerUrl: idp2.issuerUrl,
@@ -192,8 +208,6 @@ describe("PrismaIdentityProviderRepository", () => {
         identifierClaimName: idp2.identifierClaimName,
         authSettings: null
       })
-
-      await identityProviderRepository.update(idp1)
 
       await expect(identityProviderRepository.update(idp2))
         .rejects

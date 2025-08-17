@@ -32,11 +32,18 @@ container.register({
 
 Routing assembly uses decorator metadata + DI: see `src/app/decorators.ts` and `createRouterFromDecorators(container)`.
 
+## Querying
+The admin APIs support advanced query options.
+
+- parameters `limit` and `offset` for pagination
+- parameters `order_by` and optional `order_direction=asc|desc` for sorting
+- filtering based on predefined set of fields, e.g. `/users?email=test@host.com`. The value can contain an asterisk at the beginning or end. 
+
 ## Testing
 
 - Write API integration tests under `src/app/<module>/__tests__/` using Supertest against the Express app.
 - Handlers are exercised through controllers in these tests.
-- Each use case (query or command handler) should have a corresponding test. The file must use the extension `.spec.ts` to indicate to the test framework that a containerised envirnment is required.
+- Each use case (query or command handler) should have a corresponding test. The file must use the extension `.spec.ts` to indicate to the test framework that a containerized environment is required.
 - A custom matcher function `bodyToMatchEntity` from `@test/matchers/supertest` can be used to compare API payloads to domain entities.
 
 ### Example integration test outline

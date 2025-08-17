@@ -4,6 +4,7 @@
     
     Follow the rules outlined in these documents:
     - /readme.md - Architecture overview and patterns
+    - /docs/readme.md - Development guide overview
     - /docs/adr/ - Architecture decision records
-    - /docs/CONVENTIONS.md - Naming and structure conventions
+    - /docs/development-guide.md - Development guides
     

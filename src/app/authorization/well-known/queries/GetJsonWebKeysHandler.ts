@@ -13,8 +13,7 @@ export class GetJsonWebKeysHandler {
     const query: Query<SigningKey> = {
       offset: 0,
       limit: 10,
-      orderBy: "createdAt",
-      orderDirection: "desc"
+      orderBy: { property: "createdAt", direction: "desc" },
     }
     
     const { items: validationKeys } = await this.signingKeyRepository.query(query)

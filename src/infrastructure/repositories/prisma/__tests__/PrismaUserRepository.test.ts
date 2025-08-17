@@ -28,7 +28,7 @@ describe("PrismaUserRepository", () => {
 
     identityProviderId = randomUUID()
 
-    await testContext.prismaClient.identityProvider.create({
+    await testContext.prismaClient.$primary().identityProvider.create({
       data: {
         id: identityProviderId,
         name: randomUUID(),
@@ -50,6 +50,21 @@ describe("PrismaUserRepository", () => {
       const found = await userRepository.query({ limit: 10, offset: 0 })
 
       expect(found.items.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it("should return filtered users", async () => {
+      const original = await createUser()
+
+      const found = await userRepository.query({
+        limit: 10,
+        offset: 0,
+        orderBy: { property: "id", direction: "asc" },
+        where: { property: "email", operator: "equals", value: original.email }
+
+      })
+
+      expect(found.items.length).toBe(1)
+      expect(found.items[0].id).toBe(original.id)
     })
   })
 
@@ -126,7 +141,7 @@ describe("PrismaUserRepository", () => {
     it("should insert a new user", async () => {
       const original = await createUser({}, 1)
 
-      const remainingIdentities = await testContext.prismaClient.userIdentity.findMany({ where: { userId: original.id }})
+      const remainingIdentities = await testContext.prismaClient.$primary().userIdentity.findMany({ where: { userId: original.id }})
       expect(remainingIdentities).toHaveLength(1)
 
       const insertedUser = await userRepository.getById(original.id)
@@ -177,6 +192,8 @@ describe("PrismaUserRepository", () => {
         roles: user1.roles
       })
 
+      await userRepository.update(user1)
+
       user2.update({
         isEnabled: true,
         givenName: user2.givenName,
@@ -186,8 +203,6 @@ describe("PrismaUserRepository", () => {
         postcode: null,
         roles: user1.roles
       })
-
-      await userRepository.update(user1)
 
       await expect(userRepository.update(user2))
         .rejects
@@ -204,7 +219,7 @@ describe("PrismaUserRepository", () => {
       const deletedUser = await userRepository.tryGetById(original.id)
       expect(deletedUser).toBeUndefined()
 
-      const remainingIdentities = await testContext.prismaClient.userIdentity.findMany({ where: { userId: original.id }})
+      const remainingIdentities = await testContext.prismaClient.$primary().userIdentity.findMany({ where: { userId: original.id }})
       expect(remainingIdentities).toHaveLength(0)
     })
   })

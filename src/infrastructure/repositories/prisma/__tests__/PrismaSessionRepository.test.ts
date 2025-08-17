@@ -25,7 +25,7 @@ describe("PrismaSessionRepository", () => {
     identityProviderId = randomUUID()
     userId = randomUUID()
     
-    await testContext.prismaClient.identityProvider.create({
+    await testContext.prismaClient.$primary().identityProvider.create({
       data: {
         id: identityProviderId,
         name: randomUUID(),
@@ -35,7 +35,7 @@ describe("PrismaSessionRepository", () => {
       }
     })
 
-    await testContext.prismaClient.user.create({
+    await testContext.prismaClient.$primary().user.create({
       data: {
         id: userId,
         isEnabled: true,
@@ -54,11 +54,25 @@ describe("PrismaSessionRepository", () => {
 
   describe("query", () => {
     it("should return all sessions", async () => {
-      const original = await createAndStoreSession()
+      await createAndStoreSession()
 
       const found = await sessionRepository.query({ limit: 10, offset: 0 })
 
       expect(found.items.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it("should return filtered sessions", async () => {
+      const original = await createAndStoreSession()
+
+      const found = await sessionRepository.query({
+        limit: 10,
+        offset: 0,
+        orderBy: { property: "id", direction: "asc" },
+        where: { property: "identityProviderSessionId", operator: "equals", value: original.identityProviderSessionId }
+      })
+
+      expect(found.items.length).toBe(1)
+      expect(found.items[0].id).toBe(original.id)
     })
   })
 
@@ -123,7 +137,7 @@ describe("PrismaSessionRepository", () => {
     it("should encrypt refresh token when inserting", async () => {
       const original = await createAndStoreSession()
 
-      const rawSession = await testContext.prismaClient.session.findUnique({ where: { id: original.id } })
+      const rawSession = await testContext.prismaClient.$primary().session.findUnique({ where: { id: original.id } })
       expect(rawSession!.refreshToken).toMatch(/^encrypted_/)
     })
   })
@@ -147,6 +161,7 @@ describe("PrismaSessionRepository", () => {
       const session2 = await sessionRepository.getById(original.id)
 
       session1.setLastRefresh("token1")
+
       await sessionRepository.update(session1)
 
       session2.setLastRefresh("token2")

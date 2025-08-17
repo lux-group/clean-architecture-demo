@@ -5,7 +5,8 @@ import { CreateIdentityProviderCommand, CreateIdentityProviderHandler } from "..
 import { DeleteIdentityProviderCommand, DeleteIdentityProviderHandler } from "../commands/DeleteIdentityProviderHandler"
 import { UpdateIdentityProviderCommand, UpdateIdentityProviderHandler } from "../commands/UpdateIdentityProviderHandler"
 import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "../queries/GetIdentityProviderByIdHandler"
-import { SearchIdentityProvidersHandler, SearchIdentityProvidersQuery } from "../queries/SearchIdentityProvidersHandler"
+import { SearchIdentityProvidersHandler } from "../queries/SearchIdentityProvidersHandler"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/identity-providers")
 export class IdentityProviderController {
@@ -20,14 +21,10 @@ export class IdentityProviderController {
 
   @Get("/")
   @Authorize({ scopes: ["identity-providers:read"] })
-  async getAll(req: Request, res: Response) {
-    const query: SearchIdentityProvidersQuery = {
-      offset: Number(req.query.offset) || 0,
-      limit: Number(req.query.limit) || 10,
-    }
-    
+  async search(req: Request, res: Response) {
+    const query = parseQuery<IdentityProvider>(req.query, ["createdAt", "name"], ["name"])
     const result = await this.searchIdentityProvidersHandler.execute(query)
-    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

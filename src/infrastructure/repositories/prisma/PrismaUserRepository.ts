@@ -1,33 +1,27 @@
-import { User as PrismaUser, UserIdentity as PrismaUserIdentity } from "@prisma/client"
+import { Prisma, User as PrismaUser, UserIdentity as PrismaUserIdentity } from "@prisma/client"
 import { Query, QueryResult } from "~/lib/types"
 import { NotFoundError } from "~/domain/errors"
 import { User, UserIdentity } from "~/domain/entities"
 import { UserRepository } from "~/domain/repositories"
 import { PrismaClient } from "./PrismaClient"
+import { mapQuery } from "./helpers"
 
 type PrismaUserWithIdentities = PrismaUser & {
   identities: PrismaUserIdentity[]
 }
 
 export class PrismaUserRepository implements UserRepository {
-    constructor(private prismaClient: PrismaClient) {}
+  constructor(private prismaClient: PrismaClient) {}
 
-    async query(options: Query<User>): Promise<QueryResult<User>> {
-    const [total, users] = await this.prismaClient.$transaction([
-      this.prismaClient.user.count({
-        where: options.where
-      }),
-      this.prismaClient.user.findMany({
-        where: options.where,
-        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
-        include: { identities: true },
-        skip: options.offset,
-        take: options.limit
-      }),
+  async query(options: Query<User>): Promise<QueryResult<User>> {
+    const query = mapQuery(options, ["identities"]) as Prisma.UserFindManyArgs
+    const [total, users] = await this.prismaClient.$replica().$transaction([
+      this.prismaClient.$replica().user.count({ where: query.where }),
+      this.prismaClient.$replica().user.findMany(query),
     ])
 
     return {
-      items: users.map(u => this.mapToUser(u)),
+      items: users.map((u: any) => this.mapToUser(u)),
       total
     }
   }
@@ -42,7 +36,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async tryGetById(id: string): Promise<User | undefined> {
-    const user = await this.prismaClient.user.findUnique({
+    const user = await this.prismaClient.$primary().user.findUnique({
       where: { id },
       include: { identities: true }
     })
@@ -51,7 +45,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async tryGetByBrandAndEmail(brand: string, email: string): Promise<User | undefined> {
-    const user = await this.prismaClient.user.findUnique({
+    const user = await this.prismaClient.$primary().user.findUnique({
       where: {
         unique_brand_email: {
           brand,
@@ -67,7 +61,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async tryGetByExternalIdentity(identityProviderId: string, identifierClaimValue: string): Promise<User | undefined> {
-    const userIdentity = await this.prismaClient.userIdentity.findUnique({
+    const userIdentity = await this.prismaClient.$primary().userIdentity.findUnique({
       where: {
         unique_identity_provider_claim: {
           identityProviderId,
@@ -87,7 +81,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async insert(user: User): Promise<void> {
-    await this.prismaClient.user.create({
+    await this.prismaClient.$primary().user.create({
       data: {
         ...this.mapToPrismaUser(user),
         identities: {
@@ -100,7 +94,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async update(user: User): Promise<void> {
-    await this.prismaClient.user.update({
+    await this.prismaClient.$primary().user.update({
       where: { id: user.id, updatedAt: user.originalUpdatedAt },
       data: {
         ...this.mapToPrismaUser(user),
@@ -119,7 +113,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async delete(user: User): Promise<void> {
-    await this.prismaClient.user.delete({
+    await this.prismaClient.$primary().user.delete({
       where: { id: user.id, updatedAt: user.originalUpdatedAt },
     })
   }

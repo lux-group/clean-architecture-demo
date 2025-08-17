@@ -1,10 +1,11 @@
-import { SigningKey as PrismaSigningKey } from "@prisma/client"
+import { Prisma, SigningKey as PrismaSigningKey } from "@prisma/client"
 import { Query, QueryResult } from "~/lib/types"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { NotFoundError } from "~/domain/errors"
 import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { PrismaClient } from "./PrismaClient"
+import { mapQuery } from "./helpers"
 
 export class PrismaSigningKeyRepository implements SigningKeyRepository {
   constructor(
@@ -13,16 +14,10 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
   ) { }
 
   async query(options: Query<SigningKey>): Promise<QueryResult<SigningKey>> {
-    const [total, signingKeys] = await this.prismaClient.$transaction([
-      this.prismaClient.signingKey.count({
-        where: options.where
-      }),
-      this.prismaClient.signingKey.findMany({
-        where: options.where,
-        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
-        skip: options.offset,
-        take: options.limit
-      }),
+    const query = mapQuery(options) as Prisma.SigningKeyFindManyArgs
+    const [total, signingKeys] = await this.prismaClient.$replica().$transaction([
+      this.prismaClient.$replica().signingKey.count({ where: query.where}),
+      this.prismaClient.$replica().signingKey.findMany(query),
     ])
 
     return {
@@ -41,14 +36,14 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
   }
 
   async tryGetById(id: string): Promise<SigningKey | undefined> {
-    const signingKey = await this.prismaClient.signingKey.findUnique({
+    const signingKey = await this.prismaClient.$primary().signingKey.findUnique({
       where: { id }
     })
     return signingKey ? this.mapToSigningKey(signingKey) : undefined
   }
 
   async tryGetActiveSigningKey(): Promise<SigningKey | undefined> {
-    const signingKey = await this.prismaClient.signingKey.findFirst({
+    const signingKey = await this.prismaClient.$primary().signingKey.findFirst({
       where: {
         privateKey: {
           not: null
@@ -61,13 +56,13 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
   }
 
   async insert(signingKey: SigningKey): Promise<void> {
-    await this.prismaClient.signingKey.create({
+    await this.prismaClient.$primary().signingKey.create({
       data: this.mapToPrismaSigningKey(signingKey)
     })
   }
 
   async update(signingKey: SigningKey): Promise<void> {
-    await this.prismaClient.signingKey.update({
+    await this.prismaClient.$primary().signingKey.update({
       where: { id: signingKey.id, updatedAt: signingKey.originalUpdatedAt },
       data: this.mapToPrismaSigningKey(signingKey)
     })
@@ -76,7 +71,7 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
   }
 
   async delete(signingKey: SigningKey): Promise<void> {
-    await this.prismaClient.signingKey.delete({
+    await this.prismaClient.$primary().signingKey.delete({
       where: { id: signingKey.id, updatedAt: signingKey.originalUpdatedAt },
     })
   }

@@ -1,10 +1,10 @@
-import { PrismaClient } from "./PrismaClient"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { TransactionalRepositories, UnitOfWork } from "~/domain/repositories/UnitOfWork"
 import { PrismaIdentityProviderRepository } from "./PrismaIdentityProviderRepository"
 import { PrismaSessionRepository } from "./PrismaSessionRepository"
 import { PrismaSigningKeyRepository } from "./PrismaSigningKeyRepository"
 import { PrismaUserRepository } from "./PrismaUserRepository"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaUnitOfWork implements UnitOfWork {
   constructor(
@@ -13,7 +13,7 @@ export class PrismaUnitOfWork implements UnitOfWork {
   ) {}
 
   async execute<T>(operation: (repositories: TransactionalRepositories) => Promise<T>): Promise<T> {
-    return await this.prismaClient.$transaction(async (transaction: unknown) => {
+    return await this.prismaClient.$primary().$transaction(async (transaction: unknown) => {
       const repositories: TransactionalRepositories = {
         identityProviderRepository: new PrismaIdentityProviderRepository(transaction as PrismaClient, this.encryptionProvider),
         sessionRepository: new PrismaSessionRepository(transaction as PrismaClient, this.encryptionProvider),

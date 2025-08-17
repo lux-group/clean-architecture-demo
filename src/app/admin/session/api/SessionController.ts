@@ -2,8 +2,9 @@ import { Request, Response } from "express"
 import { Authorize, Controller, Get, Post } from "~/app/decorators"
 import { Session } from "~/domain/entities"
 import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
-import { SearchSessionsHandler, SearchSessionsQuery } from "../queries/SearchSessionsHandler"
 import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessionByIdHandler"
+import { SearchSessionsHandler } from "../queries/SearchSessionsHandler"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/sessions")
 export class SessionController {
@@ -15,14 +16,10 @@ export class SessionController {
 
   @Get("/")
   @Authorize({ scopes: ["sessions:read"] })
-  async getAll(req: Request, res: Response) {
-    const query: SearchSessionsQuery = {
-      offset: Number(req.query.offset) || 0,
-      limit: Number(req.query.limit) || 10,
-    }
-
+  async search(req: Request, res: Response) {
+    const query = parseQuery<Session>(req.query, ["createdAt"], ["userId", "identityProviderId"])
     const result = await this.searchSessionsHandler.execute(query)
-    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

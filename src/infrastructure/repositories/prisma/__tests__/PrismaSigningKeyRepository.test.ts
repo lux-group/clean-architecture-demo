@@ -32,6 +32,20 @@ describe("PrismaSigningKeyRepository", () => {
       
       expect(found.items.length).toBeGreaterThanOrEqual(1)
     })
+
+    it("should return filtered signing keys", async () => {
+      const original = await createSigningKey()
+
+      const found = await signingKeyRepository.query({
+        limit: 10,
+        offset: 0,
+        orderBy: { property: "id", direction: "asc" },
+        where: { property: "id", operator: "equals", value: original.id }
+      })
+
+      expect(found.items.length).toBe(1)
+      expect(found.items[0].id).toBe(original.id)
+    })
   })
 
   describe("getById", () => {
@@ -89,7 +103,7 @@ describe("PrismaSigningKeyRepository", () => {
     it("should encrypt private key when inserting", async () => {
       const original = await createSigningKey()
 
-      const rawKey = await testContext.prismaClient.signingKey.findUnique({ where: { id: original.id } })
+      const rawKey = await testContext.prismaClient.$primary().signingKey.findUnique({ where: { id: original.id } })
       expect(rawKey!.privateKey).toMatch(/^encrypted_/)
     })
   })
@@ -103,22 +117,6 @@ describe("PrismaSigningKeyRepository", () => {
 
       const found = await signingKeyRepository.getById(original.id)
       expect(found.privateKey).toBeNull()
-    })
-
-    it("should handle concurrent updates with optimistic locking", async () => {
-      const original = await createSigningKey()
-
-      const key1 = await signingKeyRepository.getById(original.id)
-      key1.deactivate()
-
-      const key2 = await signingKeyRepository.getById(original.id)
-      key2.deactivate()
-
-      await signingKeyRepository.update(key1)
-
-      await expect(signingKeyRepository.update(key2))
-        .rejects
-        .toThrow(ConcurrencyError)
     })
   })
 

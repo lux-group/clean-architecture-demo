@@ -5,7 +5,8 @@ import { CreateUserCommand, CreateUserHandler } from "../commands/CreateUserHand
 import { DeleteUserCommand, DeleteUserHandler } from "../commands/DeleteUserHandler"
 import { UpdateUserCommand, UpdateUserHandler } from "../commands/UpdateUserHandler"
 import { GetUserByIdHandler, GetUserByIdQuery } from "../queries/GetUserByIdHandler"
-import { SearchUsersHandler, SearchUsersQuery } from "../queries/SearchUsersHandler"
+import { SearchUsersHandler } from "../queries/SearchUsersHandler"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/users")
 export class UserController {
@@ -20,14 +21,10 @@ export class UserController {
 
   @Get("/")
   @Authorize({ scopes: ["users:read"] })
-  async getAll(req: Request, res: Response) {
-    const query: SearchUsersQuery = {
-      offset: Number(req.query.offset) || 0,
-      limit: Number(req.query.limit) || 10,
-    }
-
+  async search(req: Request, res: Response) {
+    const query = parseQuery<User>(req.query, ["createdAt", "email", "givenName", "surname"], ["email", "givenName", "surname"])
     const result = await this.searchUsersHandler.execute(query)
-    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

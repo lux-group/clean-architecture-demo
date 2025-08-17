@@ -4,7 +4,8 @@ import { SigningKey } from "~/domain/entities"
 import { CreateNewSigningKeyHandler } from "../commands/CreateNewSigningKeyHandler"
 import { DeleteSigningKeyCommand, DeleteSigningKeyHandler } from "../commands/DeleteSigningKeyHandler"
 import { GetSigningKeyByIdHandler, GetSigningKeyByIdQuery } from "../queries/GetSigningKeyByIdHandler"
-import { SearchSigningKeysHandler, SearchSigningKeysQuery } from "../queries/SearchSigningKeysHandler"
+import { SearchSigningKeysHandler } from "../queries/SearchSigningKeysHandler"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/signing-keys")
 export class SigningKeyController {
@@ -18,14 +19,10 @@ export class SigningKeyController {
 
   @Get("/")
   @Authorize({ scopes: ["signing-keys:read"] })
-  async getAll(req: Request, res: Response) {
-    const query: SearchSigningKeysQuery = {
-      offset: Number(req.query.offset) || 0,
-      limit: Number(req.query.limit) || 10,
-    }
-
+  async search(req: Request, res: Response) {
+    const query = parseQuery<SigningKey>(req.query, ["createdAt"])
     const result = await this.searchSigningKeysHandler.execute(query)
-    res.json({ ...result, offset: query.offset, limit: query.limit, items: result.items.map(this.present) })
+    res.json({ ...result, items: result.items.map(this.present) })
   }
 
   @Get("/:id")

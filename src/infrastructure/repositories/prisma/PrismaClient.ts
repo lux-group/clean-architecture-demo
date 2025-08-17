@@ -3,7 +3,12 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { readReplicas } from "@prisma/extension-read-replicas"
 import { ConcurrencyError, ValidationError } from "~/domain/errors"
 
-export type PrismaClient = ReturnType<typeof createPrismaClient>
+export type PrismaClient = {
+  $primary<T extends object>(this: T): prisma.PrismaClient
+  $replica<T extends object>(this: T): prisma.PrismaClient
+  $connect(): Promise<void>
+  $disconnect(): Promise<void>
+}
 
 async function convertKnownErrors(action: () => prisma.PrismaPromise<any>): Promise<any> {
   try {
@@ -26,20 +31,20 @@ async function convertKnownErrors(action: () => prisma.PrismaPromise<any>): Prom
 
 export const createPrismaClient = (primaryUrl: string, secondaryUrls?: string[]) =>
   new prisma.PrismaClient({ datasourceUrl: primaryUrl })
-  .$extends({
-    name: "convertKnownErrorsExtension",
-    query: {
-      $allModels: {
-        async $allOperations({
-          args,
-          query,
-        }: {
-          args: any
-          query: (args: any) => prisma.PrismaPromise<any>
-        }): Promise<any> {
-          return await convertKnownErrors(() => query(args))
+    .$extends({
+      name: "convertKnownErrorsExtension",
+      query: {
+        $allModels: {
+          async $allOperations({
+            args,
+            query,
+          }: {
+            args: any
+            query: (args: any) => prisma.PrismaPromise<any>
+          }): Promise<any> {
+            return await convertKnownErrors(() => query(args))
+          },
         },
       },
-    },
-  })
-  .$extends(readReplicas({ url: secondaryUrls ?? [primaryUrl] }))
+    })
+  .$extends(readReplicas({ url: secondaryUrls ?? [primaryUrl] })) as unknown as PrismaClient

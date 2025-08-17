@@ -1,10 +1,11 @@
-import { IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
+import { Prisma, IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
 import { Query, QueryResult } from "~/lib/types"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 import { NotFoundError } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { PrismaClient } from "./PrismaClient"
+import { mapQuery } from "./helpers"
 
 export class PrismaIdentityProviderRepository implements IdentityProviderRepository {
   constructor(
@@ -13,16 +14,10 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   ) { }
 
   async query(options: Query<IdentityProvider>): Promise<QueryResult<IdentityProvider>> {
-    const [total, identityProviders] = await this.prismaClient.$transaction([
-      this.prismaClient.identityProvider.count({
-        where: options.where
-      }),
-      this.prismaClient.identityProvider.findMany({
-        where: options.where,
-        orderBy: options.orderBy ? { [options.orderBy]: options.orderDirection } : undefined,
-        skip: options.offset,
-        take: options.limit
-      }),
+    const query = mapQuery(options) as Prisma.IdentityProviderFindManyArgs
+    const [total, identityProviders] = await this.prismaClient.$replica().$transaction([
+      this.prismaClient.$replica().identityProvider.count({ where: query.where}),
+      this.prismaClient.$replica().identityProvider.findMany(query),
     ])
 
     return {
@@ -41,7 +36,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   }
 
   async tryGetById(id: string): Promise<IdentityProvider | undefined> {
-    const identityProvider = await this.prismaClient.identityProvider.findUnique({
+    const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
       where: { id }
     })
 
@@ -49,7 +44,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   }
 
   async tryGetByName(name: string): Promise<IdentityProvider | undefined> {
-    const identityProvider = await this.prismaClient.identityProvider.findUnique({
+    const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
       where: { name }
     })
 
@@ -57,7 +52,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   }
 
   async tryGetByIssuerUrlAndAudience(issuerUrl: string, audience: string): Promise<IdentityProvider | undefined> {
-    const identityProvider = await this.prismaClient.identityProvider.findUnique({
+    const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
       where: {
         unique_issuer_audience: {
           issuerUrl,
@@ -70,13 +65,13 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   }
 
   async insert(identityProvider: IdentityProvider): Promise<void> {
-    await this.prismaClient.identityProvider.create({
+    await this.prismaClient.$primary().identityProvider.create({
       data: this.mapToPrismaIdentityProvider(identityProvider)
     })
   }
 
   async update(identityProvider: IdentityProvider): Promise<void> {
-    await this.prismaClient.identityProvider.update({
+    await this.prismaClient.$primary().identityProvider.update({
       where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt },
       data: this.mapToPrismaIdentityProvider(identityProvider)
     })
@@ -85,7 +80,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   }
 
   async delete(identityProvider: IdentityProvider): Promise<void> {
-    await this.prismaClient.identityProvider.delete({
+    await this.prismaClient.$primary().identityProvider.delete({
       where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt }
     })
   }
