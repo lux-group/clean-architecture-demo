@@ -7,21 +7,24 @@ import { EventPublisher } from "~/domain/adapters"
 
 describe("[PUT] /admin/users/:id (UpdateUser)", () => {
   let context: TestContext
+  let accessToken: string
 
   beforeAll(async () => {
     context = await getTestContext()
+    accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
+  })
+
+  const getPayload = () => ({
+    is_enabled: false,
+    given_name: "Updated Name",
+    surname: "Updated Surname",
+    country: "CA",
+    city: "Updated City", 
+    postcode: "54321",
+    roles: ["admin", "user"]
   })
 
   describe("when the update was successful", () => {
-    const getPayload = () => ({
-      is_enabled: false,
-      given_name: "Updated Name",
-      surname: "Updated Surname",
-      country: "CA",
-      city: "Updated City", 
-      postcode: "54321",
-      roles: ["admin", "user"]
-    })
 
     it("should return 200 with updated user", async () => {
       const original = await context.data.createUser()
@@ -29,6 +32,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
 
       const response = await request(context.server)
         .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(response.status).toBe(200)
@@ -41,6 +45,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
 
       const response = await request(context.server)
         .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       const updated = await context.data.getUser(original.id)
@@ -56,6 +61,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
 
       await request(context.server)
         .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
@@ -72,9 +78,36 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
 
       const response = await request(context.server)
         .put(`/admin/users/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(response.status).toBe(404)
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const original = await context.data.createUser()
+      const payload = getPayload()
+
+      const response = await request(context.server)
+        .put(`/admin/users/${original.id}`)
+        .send(payload)
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'users:write'", async () => {
+      const original = await context.data.createUser()
+      const payload = getPayload()
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["users:read"]) 
+
+      const response = await request(context.server)
+        .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send(payload)
+
+      expect(response.status).toBe(403)
     })
   })
 })

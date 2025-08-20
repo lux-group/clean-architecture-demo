@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
 import { UUIDToShort } from "~/lib/ShortUUID"
-import { SigningKey, User } from "~/domain/entities"
+import { SigningKey } from "~/domain/entities"
 import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/domain/adapters"
 
 export class JsonWebTokenIssuer implements TokenIssuer {
@@ -10,14 +10,14 @@ export class JsonWebTokenIssuer implements TokenIssuer {
     private readonly tokenIssuerConfig: TokenIssuerConfig,
   ) {}
 
-  createAccessToken(user: User, signingKey: SigningKey, request: TokenRequest): TokenResponse {
+  createAccessToken(signingKey: SigningKey, request: TokenRequest): TokenResponse {
     const now = Math.round(Date.now() / 1000)
     const claims: Record<string, unknown> = {
       ver: "2.0",
       jti: UUIDToShort(randomUUID()),
       iss: this.baseUrl + this.tokenIssuerConfig.path,
       aud: request.audience ?? this.tokenIssuerConfig.audience,
-      sub: user.id,
+      sub: request.userId,
       sid: request.sessionId,
       iat: now,
       exp: now + this.tokenIssuerConfig.lifetimeSeconds,

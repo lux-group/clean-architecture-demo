@@ -20,7 +20,7 @@ export class IdentityProviderController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["identity-providers:read"] })
+  @Authorize({ scopes: ["identity-providers:write", "identity-providers:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<IdentityProvider>(req.query, ["createdAt", "name"], ["name"])
     const result = await this.searchIdentityProvidersHandler.execute(query)
@@ -28,7 +28,7 @@ export class IdentityProviderController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["identity-providers:read"] })
+  @Authorize({ scopes: ["identity-providers:write", "identity-providers:read"] })
   async getById(req: Request, res: Response) {
     const query: GetIdentityProviderByIdQuery = { id: req.params.id }
     const item = await this.getIdentityProviderByIdHandler.execute(query)

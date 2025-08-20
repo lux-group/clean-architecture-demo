@@ -39,7 +39,8 @@ export class AuthorizationService {
 
     this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(session, claims))
 
-    return this.tokenIssuer.createAccessToken(user, signingKey, {
+    return this.tokenIssuer.createAccessToken(signingKey, {
+      userId: user.id,
       sessionId: session?.id,
       audience,
       claims

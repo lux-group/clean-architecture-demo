@@ -20,7 +20,7 @@ export class UserController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["users:read"] })
+  @Authorize({ scopes: ["users:write", "users:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<User>(req.query, ["createdAt", "email", "givenName", "surname"], ["email", "givenName", "surname"])
     const result = await this.searchUsersHandler.execute(query)
@@ -28,7 +28,7 @@ export class UserController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["users:read"] })
+  @Authorize({ scopes: ["users:write", "users:read"] })
   async getById(req: Request, res: Response) {
     const query: GetUserByIdQuery = { id: req.params.id }
     const item = await this.getUserByIdHandler.execute(query)

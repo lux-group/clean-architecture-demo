@@ -15,7 +15,7 @@ export class SessionController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["sessions:read"] })
+  @Authorize({ scopes: ["sessions:write", "sessions:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<Session>(req.query, ["createdAt"], ["userId", "identityProviderId"])
     const result = await this.searchSessionsHandler.execute(query)
@@ -23,7 +23,7 @@ export class SessionController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["sessions:read"] })
+  @Authorize({ scopes: ["sessions:write", "sessions:read"] })
   async getById(req: Request, res: Response) {
     const query: GetSessionByIdQuery = { id: req.params.id }
     const item = await this.getSessionByIdHandler.execute(query)

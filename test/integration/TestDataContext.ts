@@ -2,8 +2,8 @@ import { AwilixContainer } from "awilix"
 import { DeepPartial } from "~/lib/types"
 
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
-import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session } from "~/domain/entities"
-import { PasswordVerifier } from "~/domain/adapters"
+import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session, SigningKey } from "~/domain/entities"
+import { PasswordVerifier, TokenIssuer, TokenRequest } from "~/domain/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import * as factories from "../factories"
 
@@ -77,6 +77,22 @@ export class TestDataContext {
   signingKeyExists = async (id: string) => {
     const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
     return !!await repository.tryGetById(id)
+  }
+
+  getActiveSigningKey = async () => {
+    const repository = this.container.resolve<SigningKeyRepository>("signingKeyRepository")
+    let signingKey = await repository.tryGetActiveSigningKey()
+    if (!signingKey) {
+      signingKey = await this.createSigningKey()
+    }
+    return signingKey
+  }
+
+  createAccessToken = async (userId: string, scopes: string[]) => {
+    const tokenIssuer = this.container.resolve<TokenIssuer>("tokenIssuer")
+    const request: TokenRequest = { userId, scopes, claims: {} }
+    const signingKey = await this.getActiveSigningKey()
+    return tokenIssuer.createAccessToken(signingKey, request).accessToken
   }
 
   createAuthStateCookie = (redirectUrl: string, identityProviderId: string) => {

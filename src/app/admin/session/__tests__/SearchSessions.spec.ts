@@ -7,18 +7,21 @@ import { Session } from "~/domain/entities"
 describe("[GET] /admin/sessions (SearchSessions)", () => {
   let context: TestContext
   let session: Session
+  let accessToken: string
 
   beforeAll(async () => {
     context = await getTestContext()
 
     const user = await context.data.createUser()
     session = await context.data.createSession({ userId: user.id }, 24)
+    accessToken = await context.data.createAccessToken(user.id, ["sessions:read"])    
   })
 
   describe("when sessions exist", () => {
     it("should return 200 with valid sessions", async () => {
       const response = await request(context.server)
         .get("/admin/sessions?offset=0&limit=10")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(200)
@@ -30,6 +33,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     it("should return filtered sessions", async () => {
       const response = await request(context.server)
         .get(`/admin/sessions?offset=0&limit=10&user_id=${session.userId}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(200)
@@ -41,6 +45,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     it("should return paginated sessions", async () => {
       const response = await request(context.server)
         .get(`/admin/sessions?offset=10000&limit=10`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(200)
@@ -51,6 +56,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     it("should return sessions with selected fields", async () => {
       const response = await request(context.server)
       .get(`/admin/sessions?offset=0&limit=10&select=id,user_id`)
+      .set("Authorization", `Bearer ${accessToken}`)
       .send()
 
       expect(response.status).toBe(200)
@@ -63,9 +69,31 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     it("should return sorted sessions", async () => {
       const response = await request(context.server)
         .get(`/admin/sessions?offset=0&limit=10&order_by=created_at&order_direction=asc`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(200)
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const response = await request(context.server)
+        .get("/admin/sessions?offset=0&limit=10")
+        .send()
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'sessions:read'", async () => {
+      const nonReadAccessToken = await context.data.createAccessToken(session.userId, ["foo:bar"]) 
+
+      const response = await request(context.server)
+        .get("/admin/sessions?offset=0&limit=10")
+        .set("Authorization", `Bearer ${nonReadAccessToken}`)
+        .send()
+
+      expect(response.status).toBe(403)
     })
   })
 })

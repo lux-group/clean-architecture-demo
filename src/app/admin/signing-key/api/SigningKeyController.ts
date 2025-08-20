@@ -18,7 +18,7 @@ export class SigningKeyController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["signing-keys:read"] })
+  @Authorize({ scopes: ["signing-keys:write", "signing-keys:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<SigningKey>(req.query, ["createdAt"])
     const result = await this.searchSigningKeysHandler.execute(query)
@@ -26,7 +26,7 @@ export class SigningKeyController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["signing-keys:read"] })
+  @Authorize({ scopes: ["signing-keys:write", "signing-keys:read"] })
   async getById(req: Request, res: Response) {
     const query: GetSigningKeyByIdQuery = { id: req.params.id }
     const item = await this.getSigningKeyByIdHandler.execute(query)

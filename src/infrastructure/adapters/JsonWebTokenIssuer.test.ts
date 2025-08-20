@@ -31,22 +31,8 @@ describe("JsonWebTokenIssuer", () => {
   beforeEach(() => {
     tokenIssuer = new JsonWebTokenIssuer(baseUrl, { path: "/oauth2", lifetimeSeconds, audience })
 
-    user = User.createNew({
-      isEnabled: true,
-      brand: "test-brand",
-      givenName: "John",
-      surname: "Doe",
-      email: "john.doe@example.com",
-      emailVerified: true,
-      phone: null,
-      country: null,
-      city: null,
-      postcode: null,
-      passwordHash: null,
-      roles: ["user"],
-    })
-
     baseTokenRequest = {
+      userId: "user123",
       sessionId: "session123",
       scopes: ["read", "write"],
       claims: { customClaim: "customValue" },
@@ -59,7 +45,7 @@ describe("JsonWebTokenIssuer", () => {
     }
 
     it("should create a valid access token with correct structure", () => {
-      const result = tokenIssuer.createAccessToken(user, signingKey, baseTokenRequest)
+      const result = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
 
       expect(result.expiresIn).toBe(lifetimeSeconds)
       expect(typeof result.accessToken).toBe("string")
@@ -69,7 +55,7 @@ describe("JsonWebTokenIssuer", () => {
       expect(decoded.jti).toBeDefined()
       expect(decoded.iss).toBe(`${baseUrl}/oauth2`)
       expect(decoded.aud).toBe(audience)
-      expect(decoded.sub).toBe(user.id)
+      expect(decoded.sub).toBe(baseTokenRequest.userId)
       expect(decoded.sid).toBe(baseTokenRequest.sessionId)
       expect(decoded.scope).toBe("read write")
       expect(decoded.customClaim).toBe("customValue")
@@ -82,7 +68,7 @@ describe("JsonWebTokenIssuer", () => {
       const customAudience = "custom-audience"
       const request = { ...baseTokenRequest, audience: customAudience }
 
-      const result = tokenIssuer.createAccessToken(user, signingKey, request)
+      const result = tokenIssuer.createAccessToken(signingKey, request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.aud).toBe(customAudience)
@@ -91,7 +77,7 @@ describe("JsonWebTokenIssuer", () => {
     it("should handle request without scopes", () => {
       const request = { ...baseTokenRequest, scopes: undefined }
 
-      const result = tokenIssuer.createAccessToken(user, signingKey, request)
+      const result = tokenIssuer.createAccessToken(signingKey, request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.scope).toBeUndefined()
@@ -100,7 +86,7 @@ describe("JsonWebTokenIssuer", () => {
     it("should handle empty scopes array", () => {
       const request = { ...baseTokenRequest, scopes: [] }
 
-      const result = tokenIssuer.createAccessToken(user, signingKey, request)
+      const result = tokenIssuer.createAccessToken(signingKey, request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.scope).toBe("")
@@ -109,7 +95,7 @@ describe("JsonWebTokenIssuer", () => {
     it("should handle request without sessionId", () => {
       const request = { ...baseTokenRequest, sessionId: undefined }
 
-      const result = tokenIssuer.createAccessToken(user, signingKey, request)
+      const result = tokenIssuer.createAccessToken(signingKey, request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.sid).toBeUndefined()
@@ -126,7 +112,7 @@ describe("JsonWebTokenIssuer", () => {
         }
       }
 
-      const result = tokenIssuer.createAccessToken(user, signingKey, request)
+      const result = tokenIssuer.createAccessToken(signingKey, request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.stringClaim).toBe("value1")
@@ -137,7 +123,7 @@ describe("JsonWebTokenIssuer", () => {
 
     it("should have expiration time greater than issued time", () => {
       const before = Math.floor(Date.now() / 1000)
-      const result = tokenIssuer.createAccessToken(user, signingKey, baseTokenRequest)
+      const result = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
       const after = Math.floor(Date.now() / 1000) + 1 // Add 1 second buffer for timing
       
       const decoded = decodeToken(result.accessToken)
@@ -148,8 +134,8 @@ describe("JsonWebTokenIssuer", () => {
     })
 
     it("should generate unique JTI for each token", () => {
-      const result1 = tokenIssuer.createAccessToken(user, signingKey, baseTokenRequest)
-      const result2 = tokenIssuer.createAccessToken(user, signingKey, baseTokenRequest)
+      const result1 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
+      const result2 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
       
       const decoded1 = decodeToken(result1.accessToken)
       const decoded2 = decodeToken(result2.accessToken)

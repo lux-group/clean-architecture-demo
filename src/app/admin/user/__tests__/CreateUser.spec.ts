@@ -7,31 +7,35 @@ import { EventPublisher } from "~/domain/adapters"
 
 describe("[POST] /admin/users (CreateUser)", () => {
   let context: TestContext
+  let accessToken: string
 
   beforeAll(async () => {
     context = await getTestContext()
+    accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
+  })
+
+  const getPayload = () => ({
+    is_enabled: true,
+    brand: "Test Brand",
+    given_name: randomUUID(),
+    surname: randomUUID(),
+    email: `${randomUUID()}@example.com`,
+    phone: "+1234567890",
+    country: "US",
+    city: "Test City",
+    postcode: "12345",
+    password: "TestPassword123!",
+    roles: ["user"]
   })
 
   describe("when the creation was successful", () => {
-    const getPayload = () => ({
-      is_enabled: true,
-      brand: "Test Brand",
-      given_name: randomUUID(),
-      surname: randomUUID(),
-      email: `${randomUUID()}@example.com`,
-      phone: "+1234567890",
-      country: "US",
-      city: "Test City",
-      postcode: "12345",
-      password: "TestPassword123!",
-      roles: ["user"]
-    })
 
     it("should return 201 with valid user", async () => {
       const payload = getPayload()
       
       const response = await request(context.server)
         .post("/admin/users")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(response.status).toBe(201)
@@ -57,6 +61,7 @@ describe("[POST] /admin/users (CreateUser)", () => {
       
       const response = await request(context.server)
         .post("/admin/users")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       const created = await context.data.getUser(response.body.id)
@@ -71,9 +76,34 @@ describe("[POST] /admin/users (CreateUser)", () => {
 
       await request(context.server)
         .post("/admin/users")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const payload = getPayload()
+
+      const response = await request(context.server)
+        .post("/admin/users")
+        .send(payload)
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'users:write'", async () => {
+      const payload = getPayload()
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["users:read"]) 
+
+      const response = await request(context.server)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send(payload)
+
+      expect(response.status).toBe(403)
     })
   })
 })

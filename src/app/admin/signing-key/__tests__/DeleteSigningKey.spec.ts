@@ -7,9 +7,11 @@ import { EventPublisher } from "~/domain/adapters"
 
 describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
   let context: TestContext
+  let accessToken: string
   
   beforeAll(async () => {
     context = await getTestContext()
+    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-keys:write"])    
   })
 
   describe("when the deletion was successful", () => {
@@ -18,6 +20,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
       const response = await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(204)
@@ -28,6 +31,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
       await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       const exists = await context.data.signingKeyExists(signingKey.id)
@@ -42,6 +46,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
       await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
@@ -54,6 +59,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
       const response = await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(400)
@@ -64,9 +70,34 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
         .delete(`/admin/signing-keys/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(404)
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const signingKey = await context.data.createSigningKey({ privateKey: null })
+
+      const response = await request(context.server)
+        .delete(`/admin/signing-keys/${signingKey.id}`)
+        .send()
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'signing-keys:write'", async () => {
+      const signingKey = await context.data.createSigningKey({ privateKey: null })
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["signing-keys:read"]) 
+
+      const response = await request(context.server)
+        .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send()
+
+      expect(response.status).toBe(403)
     })
   })
 })

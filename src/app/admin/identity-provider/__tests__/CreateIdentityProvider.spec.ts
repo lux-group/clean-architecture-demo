@@ -7,33 +7,36 @@ import { EventPublisher } from "~/domain/adapters"
 
 describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
   let context: TestContext
+  let accessToken: string
+
+  const getPayload = () => ({
+    name: randomUUID(),
+    issuer_url: "https://updated.test.com",
+    audience: randomUUID(),
+    identifier_claim_name: "updated",
+    auth_settings: {
+      type: "ENTRA",
+      brand: "Test Brand updated",
+      client_id: randomUUID(),
+      client_secret: randomUUID(),
+      redirect_urls: ["https://test.updated.com"],
+      auto_link_users: true,
+      auto_create_users: true,
+    }
+  })
 
   beforeAll(async () => {
     context = await getTestContext()
+    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:write"])
   })
 
   describe("when the creation was successful", () => {
-    const getPayload = () => ({
-      name: randomUUID(),
-      issuer_url: "https://updated.test.com",
-      audience: randomUUID(),
-      identifier_claim_name: "updated",
-      auth_settings: {
-        type: "ENTRA",
-        brand: "Test Brand updated",
-        client_id: randomUUID(),
-        client_secret: randomUUID(),
-        redirect_urls: ["https://test.updated.com"],
-        auto_link_users: true,
-        auto_create_users: true,
-      }
-    })
-
     it("should return 201 with valid identity provider", async () => {
       const payload = getPayload()
 
       const response = await request(context.server)
         .post("/admin/identity-providers")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(response.status).toBe(201)
@@ -46,6 +49,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
       
       const response = await request(context.server)
         .post("/admin/identity-providers")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       const created = await context.data.getIdentityProvider(response.body.id)
@@ -60,9 +64,34 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
 
       await request(context.server)
         .post("/admin/identity-providers")
+        .set("Authorization", `Bearer ${accessToken}`)
         .send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const payload = getPayload()
+
+      const response = await request(context.server)
+        .post("/admin/identity-providers")
+        .send(payload)
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
+      const payload = getPayload()
+      const nonAdminAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:read"]) 
+
+      const response = await request(context.server)
+        .post("/admin/identity-providers")
+        .set("Authorization", `Bearer ${nonAdminAccessToken}`)
+        .send(payload)
+
+      expect(response.status).toBe(403)
     })
   })
 })

@@ -14,39 +14,40 @@ export function authorize(logger: Logger) {
   return (options: AuthorizeOptions) => {
     return (req: Request, res: Response, next: NextFunction) => {
       const authMiddleware = async () => {
-        // const token = req.headers.authorization?.split(" ")[0]
-        // if (!token) {
-        //   res.status(401).send()
-        //   return
-        // }
+        console.log(req.headers.authorization) 
+        const token = req.headers.authorization?.split(" ")[1]
+        if (!token) {
+          res.status(401).send()
+          return
+        }
 
-        // let audience: string | undefined
-        // let scopes: string[] = []
-        // let roles: string[] = []
-        // try {
-        //   const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
-        //   audience = (decodedJwt.payload as JwtPayload).aud as string
-        //   scopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
-        //   roles = (decodedJwt.payload as JwtPayload).roles
-        // } catch {
-        //   res.status(401).send()
-        //   return
-        // }
+        let audience: string | undefined
+        let scopes: string[] = []
+        let roles: string[] = []
+        try {
+          const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
+          audience = (decodedJwt.payload as JwtPayload).aud as string
+          scopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
+          roles = (decodedJwt.payload as JwtPayload).roles
+        } catch {
+          res.status(401).send()
+          return
+        }
 
-        // if (options.audiences && !options.audiences.includes(audience)) {
-        //   res.status(403).send()
-        //   return
-        // }
+        if (options.audiences && !options.audiences.includes(audience)) {
+          res.status(403).send()
+          return
+        }
 
-        // if (options.roles && !options.roles.some(role => roles.includes(role))) {
-        //   res.status(403).send()
-        //   return
-        // }
+        if (options.roles && !options.roles.some(role => roles.includes(role))) {
+          res.status(403).send()
+          return
+        }
 
-        // if (options.scopes && !options.scopes.some(scope => scopes.includes(scope))) {
-        //   res.status(403).send()
-        //   return
-        // }
+        if (options.scopes && !options.scopes.some(scope => scopes.includes(scope))) {
+          res.status(403).send()
+          return
+        }
 
         next()
       }

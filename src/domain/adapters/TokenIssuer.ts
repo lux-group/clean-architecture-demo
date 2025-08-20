@@ -1,8 +1,9 @@
 import { SigningKey, User } from "~/domain/entities"
 
 export interface TokenRequest {
-  readonly audience?: string
+  readonly userId: string
   readonly sessionId?: string
+  readonly audience?: string
   readonly scopes?: string[]
   readonly claims: Record<string, unknown>
 }
@@ -19,5 +20,5 @@ export interface TokenIssuerConfig {
 }
 
 export interface TokenIssuer {
-  createAccessToken(user: User, signingKey: SigningKey, request: TokenRequest): TokenResponse
+  createAccessToken(signingKey: SigningKey, request: TokenRequest): TokenResponse
 }

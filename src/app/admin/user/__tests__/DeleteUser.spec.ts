@@ -7,9 +7,11 @@ import { EventPublisher } from "~/domain/adapters"
 
 describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
   let context: TestContext
+  let accessToken: string
 
   beforeAll(async () => {
     context = await getTestContext()
+    accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
   })
 
   describe("when the deletion was successful", () => {
@@ -18,6 +20,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
       const response = await request(context.server)
         .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(204)
@@ -28,6 +31,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
       await request(context.server)
         .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       const exists = await context.data.userExists(user.id)
@@ -42,6 +46,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
       await request(context.server)
         .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
@@ -52,9 +57,34 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
     it("should return 404", async () => {
       const response = await request(context.server)
         .delete(`/admin/users/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
         .send()
 
       expect(response.status).toBe(404)
+    })
+  })
+
+  describe("when authorization fails", () => {
+    it("should return 401 when no access token is provided", async () => {
+      const user = await context.data.createUser()
+
+      const response = await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .send()
+
+      expect(response.status).toBe(401)
+    })
+
+    it("should return 403 when the access token does not have scope 'users:write'", async () => {
+      const user = await context.data.createUser()
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["users:read"]) 
+
+      const response = await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send()
+
+      expect(response.status).toBe(403)
     })
   })
 })
