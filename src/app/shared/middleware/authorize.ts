@@ -1,50 +1,88 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { NextFunction, Request, Response } from "express"
+import { shortToUUID } from "~/lib/ShortUUID"
 import { Logger } from "~/infrastructure/logging"
+import { TokenIssuerConfig } from "~/domain/adapters"
+import { SigningKeyRepository } from "~/domain/repositories"
 
 export interface AuthorizeOptions {
   roles?: string[]
   scopes?: string[]
-  audiences?: string[]
 }
 
 // The first wrapper function is used for dependency injection.
-export function authorize(logger: Logger) {
+export function authorize(
+  baseUrl: string,
+  logger: Logger,
+  tokenIssuerConfig: TokenIssuerConfig,
+  signingKeyRepository: SigningKeyRepository
+) {
   // The second wrapper function is used by the decorator to inject arguments.
   return (options: AuthorizeOptions) => {
+
+    // This is the actual middleware function.
     return (req: Request, res: Response, next: NextFunction) => {
       const authMiddleware = async () => {
-        console.log(req.headers.authorization) 
+
+        // Extract the token from the request headers.
         const token = req.headers.authorization?.split(" ")[1]
         if (!token) {
           res.status(401).send()
           return
         }
 
-        let audience: string | undefined
-        let scopes: string[] = []
-        let roles: string[] = []
+        // Decode the JWT without verifying it.
+        let decodedJwt: jwt.Jwt
         try {
-          const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
-          audience = (decodedJwt.payload as JwtPayload).aud as string
-          scopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
-          roles = (decodedJwt.payload as JwtPayload).roles
+          decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
         } catch {
+          logger.warn("Received invalid access token")
           res.status(401).send()
           return
         }
 
-        if (options.audiences && !options.audiences.includes(audience)) {
+        // Get the required validation key from the repository.
+        const kid = decodedJwt.header.kid as string
+        if (!kid) {
+          logger.warn("Received access token without key-id")
+          res.status(401).send()
+          return
+        }
+
+        const signingKey = await signingKeyRepository.tryGetById(shortToUUID(kid))
+        if (!signingKey) {
+          logger.warn(`Received access token with unknown key-id ${kid}`)
+          res.status(401).send()
+          return
+        }
+
+        // Verify the token claims and signature.
+        try {
+          const options: jwt.VerifyOptions = {
+            algorithms: ["RS256"],
+            audience: tokenIssuerConfig.audience,
+            issuer: baseUrl + tokenIssuerConfig.path,
+          }
+
+          jwt.verify(token, signingKey.publicKey, options)
+        } catch(err) {
+          logger.info("Access token verification failed. ", { error: err })
+          res.status(401).send()
+          return
+        }
+
+        // Check if the subject has the required roles.
+        const authorizedRoles = (decodedJwt.payload as JwtPayload).roles ?? []
+        if (options.roles && !options.roles.some(role => authorizedRoles.includes(role))) {
+          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required roles: ${options.roles.join(", ")}`)
           res.status(403).send()
           return
         }
 
-        if (options.roles && !options.roles.some(role => roles.includes(role))) {
-          res.status(403).send()
-          return
-        }
-
-        if (options.scopes && !options.scopes.some(scope => scopes.includes(scope))) {
+        // Check if the subject has the required scopes.
+        const authorizedScopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
+        if (options.scopes && !options.scopes.some(scope => authorizedScopes.includes(scope))) {
+          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required scopes: ${options.scopes.join(", ")}`)
           res.status(403).send()
           return
         }

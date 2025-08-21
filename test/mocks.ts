@@ -1,6 +1,13 @@
 import { vi } from "vitest"
+import { Logger } from "~/infrastructure/logging"
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
 import { AuthClient, AuthClientFactory, EventPublisher, PasswordVerifier, TokenIssuer, TokenValidator } from "~/domain/adapters"
+
+export const mockLogger = vi.mocked({
+  error: vi.fn(),
+  warn: vi.fn(),
+  info: vi.fn(),
+} satisfies Logger)
 
 export const mockIdentityProviderRepository = vi.mocked({
   query: vi.fn(),

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextFunction, Request, Response } from "express"
-import { Logger } from "~/infrastructure/logging"
+import { mockLogger } from "@test/mocks"
 import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
 import { handleOAuthErrors } from "./handleOAuthErrors"
 
@@ -8,7 +8,6 @@ describe("Handle OAuth Errors Middleware", () => {
   const nextFunction: NextFunction = vi.fn()
   let mockRequest: Request
   let mockResponse: Response
-  let mockLogger: Logger
   let handler: (error: Error, req: Request, res: Response, next: NextFunction) => void
 
   beforeEach(() => {
@@ -18,13 +17,7 @@ describe("Handle OAuth Errors Middleware", () => {
     mockResponse = {} as Response
     mockResponse.status = vi.fn().mockReturnValue(mockResponse)
     mockResponse.json = vi.fn().mockReturnValue(mockResponse)
-    
-    mockLogger = vi.mocked({
-      error: vi.fn(),
-      warn: vi.fn(),
-      info: vi.fn()
-    } satisfies Logger)
-    
+
     handler = handleOAuthErrors(mockLogger)()
   })
 

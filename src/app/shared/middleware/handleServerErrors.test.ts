@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextFunction, Request, Response } from "express"
-import { Logger } from "~/infrastructure/logging"
+import { mockLogger } from "@test/mocks"
 import { handleServerErrors } from "./handleServerErrors"
 
 describe("Handle Server Errors Middleware", () => {
   const nextFunction: NextFunction = vi.fn()
   let mockRequest: Request
   let mockResponse: Response
-  let mockLogger: Logger
   let handler: (error: Error, req: Request, res: Response, next: NextFunction) => void
 
   const expectedResponse = { status: 500, message: "An internal server error occurred." }
@@ -18,12 +17,6 @@ describe("Handle Server Errors Middleware", () => {
     mockResponse = {} as Response
     mockResponse.status = vi.fn().mockReturnValue(mockResponse)
     mockResponse.json = vi.fn().mockReturnValue(mockResponse)
-    
-    mockLogger = vi.mocked({
-      error: vi.fn(),
-      warn: vi.fn(),
-      info: vi.fn()
-    } satisfies Logger)
     
     handler = handleServerErrors(mockLogger)
   })
