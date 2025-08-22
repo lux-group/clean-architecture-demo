@@ -21,7 +21,7 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
     const entity = Object.values(this.store).find(obj =>
       entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value)
     )
-    return Promise.resolve(entity)
+    return entity
   }
 
   async get(filters: Record<string, unknown>): Promise<T> {
@@ -35,25 +35,25 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
   }
 
   async tryGetById(id: string): Promise<T | undefined> {
-    return await this.tryGet({ id })
+    return this.tryGet({ id })
   }
 
   async getById(id: string): Promise<T> {
-    return await this.get({ id })
+    return this.get({ id })
   }
 
   async insert(entity: T): Promise<void> {
     this.store[entity.id] = entity
-    return Promise.resolve()
+    return
   }
 
   async update(entity: T): Promise<void> {
     this.store[entity.id] = entity
-    return Promise.resolve()
+    return
   }
 
   async delete(entity: T): Promise<void> {
     delete this.store[entity.id]
-    return Promise.resolve()
+    return
   }
 }

@@ -28,7 +28,6 @@ describe("BCryptPasswordVerifier", () => {
 
     it("should handle empty string", () => {
       const hash = provider.createPasswordHash("")
-      
       expect(hash).toBeDefined()
       expect(hash.length).toBeGreaterThan(0)
     })
@@ -38,38 +37,26 @@ describe("BCryptPasswordVerifier", () => {
     it("should return true for matching secret and hash", () => {
       const secret = "mySecret123"
       const hash = provider.createPasswordHash(secret)
-
-      const result = provider.verifyPassword(secret, hash)
-
-      expect(result).toBe(true)
+      expect(provider.verifyPassword(secret, hash)).toBe(true)
     })
 
     it("should return false for non-matching secret and hash", () => {
       const secret = "mySecret123"
       const wrongSecret = "wrongSecret"
       const hash = provider.createPasswordHash(secret)
-
-      const result = provider.verifyPassword(wrongSecret, hash)
-
-      expect(result).toBe(false)
+      expect(provider.verifyPassword(wrongSecret, hash)).toBe(false)
     })
 
     it("should return false for empty secret against valid hash", () => {
       const secret = "mySecret123"
       const hash = provider.createPasswordHash(secret)
-
-      const result = provider.verifyPassword("", hash)
-
-      expect(result).toBe(false)
+      expect(provider.verifyPassword("", hash)).toBe(false)
     })
 
     it("should handle empty secret hash correctly", () => {
       const emptySecret = ""
       const hash = provider.createPasswordHash(emptySecret)
-
-      const result = provider.verifyPassword(emptySecret, hash)
-
-      expect(result).toBe(true)
+      expect(provider.verifyPassword(emptySecret, hash)).toBe(true)
     })
   })
 })

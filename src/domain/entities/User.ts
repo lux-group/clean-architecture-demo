@@ -126,16 +126,16 @@ export class User extends Entity<UserProps> {
   }
 
   canSignInWithPassword() {
-    return this.isEnabled && this.identities.length == 0 && !this.isServiceAccount
+    return this.isEnabled && this.identities.length === 0 && !this.isServiceAccount
   }
 
   canSignInWithClientSecret() {
-    return this.isEnabled && this.identities.length == 0 && this.isServiceAccount
+    return this.isEnabled && this.identities.length === 0 && this.isServiceAccount
   }
 
   canImpersonateUser(userToImpersonate: User) {
     return this.roles.includes("employee") &&
-      userToImpersonate.roles.length == 0 &&
+      userToImpersonate.roles.length === 0 &&
       userToImpersonate.id !== this.id
   }
 

@@ -27,7 +27,7 @@ export function parseQuery<T>(
 
     parsedQuery.orderBy = {
       property: orderBy,
-      direction: query.order_direction == "desc" ? "desc" : "asc"
+      direction: query.order_direction === "desc" ? "desc" : "asc"
     }
   }
 
@@ -54,7 +54,7 @@ export function parseQuery<T>(
     })
 
   if (filters.length > 0) {
-    parsedQuery.where = filters.length == 1 ? filters[0] : { operator: "and", filters }
+    parsedQuery.where = filters.length === 1 ? filters[0] : { operator: "and", filters }
   }
 
   return parsedQuery

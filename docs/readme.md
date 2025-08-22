@@ -31,7 +31,7 @@
 ## Implementation Guides
 | Document | Purpose |
 | --- | --- |
-| [test-strategy.md](/docs/development-guide/test-strategy.md) | Explains the overall test staretgy of the codebase. |
+| [test-strategy.md](/docs/development-guide/test-strategy.md) | Explains the overall test strategy of the codebase. |
 | [dependency-injection.md](/docs/development-guide/dependency-injection.md) | Explains how DI works with Awilix and how to register dependencies. |
 | [domain-entity.md](/docs/development-guide/domain-entity.md) | Explains how to implement a new domain entity class. |
 | [domain-repository.md](/docs/development-guide/domain-repository.md) | Explains how to implement a new repository. |
@@ -40,16 +40,16 @@
 
 ### Path Aliases
 The `tsconfig.json` file defines two path aliases.
-- `~` is and alias for `src` and can be used for `~/app/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
+- `~` is an alias for `src` and can be used for `~/app/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
 - `@test` is a global alias for test helpers.
 
 ## Architecture Decision Records
 | ADR | Title | Status |
 |-----|-------|--------|
-| [ADR-001](/src/adr/001-clean-architecture-adoption.md) | Adopt Clean Architecture Pattern | Accepted |
-| [ADR-002](/src/adr/002-dependency-injection-with-awilix.md) | Use Awilix for Dependency Injection | Accepted |
-| [ADR-003](/src/adr/003-domain-driven-design-entities.md) | Implement Domain-Driven Design Entities | Accepted |
-| [ADR-004](/src/adr/004-repository-pattern-with-decorators.md) | Repository Pattern with Decorator for Caching | Accepted |
-| [ADR-005](/src/adr/005-zod-for-validation.md) | Use Zod for Schema Validation | Accepted |
-| [ADR-006](/src/adr/006-cqrs-pattern-for-application-services.md) | CQRS Pattern for Application Services | Accepted |
-| [ADR-007](/src/adr/007-decorator-based-routing.md) | Decorator-based Routing | Accepted |
+| [ADR-001](/docs/adr/001-clean-architecture-adoption.md) | Adopt Clean Architecture Pattern | Accepted |
+| [ADR-002](/docs/adr/002-dependency-injection-with-awilix.md) | Use Awilix for Dependency Injection | Accepted |
+| [ADR-003](/docs/adr/003-domain-driven-design-entities.md) | Implement Domain-Driven Design Entities | Accepted |
+| [ADR-004](/docs/adr/004-repository-pattern-with-decorators.md) | Repository Pattern with Decorator for Caching | Accepted |
+| [ADR-005](/docs/adr/005-zod-for-validation.md) | Use Zod for Schema Validation | Accepted |
+| [ADR-006](/docs/adr/006-cqrs-pattern-for-application-services.md) | CQRS Pattern for Application Services | Accepted |
+| [ADR-007](/docs/adr/007-decorator-based-routing.md) | Decorator-based Routing | Accepted |

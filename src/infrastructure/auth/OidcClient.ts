@@ -5,12 +5,12 @@ import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/domain/adapters"
 
-const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(async idp => {
-  return await client.discovery(
+const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(async idp =>
+  client.discovery(
     new URL(idp.issuerUrl),
     idp.authSettings!.clientId,
     idp.authSettings!.clientSecret)
-})
+)
 
 export class OidcClient implements AuthClient {
   constructor(

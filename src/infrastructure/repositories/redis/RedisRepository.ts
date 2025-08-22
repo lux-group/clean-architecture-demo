@@ -67,11 +67,11 @@ export abstract class RedisRepository<T extends Entity<EntityProps>, R extends R
 
   protected async addToCache(entity: T): Promise<void> {
     const idCacheKey = this.getCacheKey("id", entity.id)
-    this.redisClient.setEx(idCacheKey, this.cacheDurationSeconds, this.serializeEntity(entity))
+    await this.redisClient.setEx(idCacheKey, this.cacheDurationSeconds, this.serializeEntity(entity))
   }
 
   protected async removeFromCache(entity: T): Promise<void> {
     const idCacheKey = this.getCacheKey("id", entity.id)
-    this.redisClient.del(idCacheKey)
+    await this.redisClient.del(idCacheKey)
   }
 }

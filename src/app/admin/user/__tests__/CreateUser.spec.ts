@@ -14,18 +14,25 @@ describe("[POST] /admin/users (CreateUser)", () => {
     accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
   })
 
-  const getPayload = () => ({
+  const defaultPayload = {
     is_enabled: true,
     brand: "Test Brand",
-    given_name: randomUUID(),
-    surname: randomUUID(),
-    email: `${randomUUID()}@example.com`,
+    given_name: "Given",
+    surname: "Surname",
     phone: "+1234567890",
     country: "US",
     city: "Test City",
     postcode: "12345",
     password: "TestPassword123!",
     roles: ["user"]
+  }
+
+  const getPayload = (overrides: Partial<typeof defaultPayload & { email: string }> = {}) => ({
+    ...defaultPayload,
+    given_name: overrides.given_name ?? randomUUID(),
+    surname: overrides.surname ?? randomUUID(),
+    email: overrides.email ?? `${randomUUID()}@example.com`,
+    ...overrides,
   })
 
   describe("when the creation was successful", () => {

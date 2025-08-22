@@ -32,10 +32,17 @@ export function authorize(
         }
 
         // Decode the JWT without verifying it.
-        let decodedJwt: jwt.Jwt
+        let decodedJwt: jwt.Jwt | null
         try {
-          decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
+          decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt | null
         } catch {
+          logger.warn("Received invalid access token")
+          res.status(401).send()
+          return
+        }
+
+        // Ensure the decoded token is a structured JWT with headers/payload
+        if (!decodedJwt || typeof decodedJwt === "string" || !decodedJwt.header || !decodedJwt.payload) {
           logger.warn("Received invalid access token")
           res.status(401).send()
           return
@@ -44,14 +51,14 @@ export function authorize(
         // Get the required validation key from the repository.
         const kid = decodedJwt.header.kid as string
         if (!kid) {
-          logger.warn("Received access token without key-id")
+          logger.warn("Received access token without kid")
           res.status(401).send()
           return
         }
 
         const signingKey = await signingKeyRepository.tryGetById(shortToUUID(kid))
         if (!signingKey) {
-          logger.warn(`Received access token with unknown key-id ${kid}`)
+          logger.warn(`Received access token with unknown kid ${kid}`)
           res.status(401).send()
           return
         }
@@ -72,7 +79,8 @@ export function authorize(
         }
 
         // Check if the subject has the required roles.
-        const authorizedRoles = (decodedJwt.payload as JwtPayload).roles ?? []
+        const rolesClaim = (decodedJwt.payload as JwtPayload).roles
+        const authorizedRoles = Array.isArray(rolesClaim) ? rolesClaim : []
         if (options.roles && !options.roles.some(role => authorizedRoles.includes(role))) {
           logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required roles: ${options.roles.join(", ")}`)
           res.status(403).send()
@@ -80,7 +88,8 @@ export function authorize(
         }
 
         // Check if the subject has the required scopes.
-        const authorizedScopes = (decodedJwt.payload as JwtPayload).scope.split(" ")
+        const scopeClaim = (decodedJwt.payload as JwtPayload).scope
+        const authorizedScopes = typeof scopeClaim === "string" ? scopeClaim.split(" ") : []
         if (options.scopes && !options.scopes.some(scope => authorizedScopes.includes(scope))) {
           logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required scopes: ${options.scopes.join(", ")}`)
           res.status(403).send()

@@ -14,7 +14,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
     accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
   })
 
-  const getPayload = () => ({
+  const defaultPayload = {
     is_enabled: false,
     given_name: "Updated Name",
     surname: "Updated Surname",
@@ -22,6 +22,11 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
     city: "Updated City", 
     postcode: "54321",
     roles: ["admin", "user"]
+  }
+
+  const getPayload = (overrides: Partial<typeof defaultPayload> = {}) => ({
+    ...defaultPayload,
+    ...overrides,
   })
 
   describe("when the update was successful", () => {

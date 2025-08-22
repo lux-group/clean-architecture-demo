@@ -179,6 +179,9 @@ describe("PrismaUserRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createUser()
+      // Ensure the first update occurs in a different millisecond than the insert to avoid
+      // timestamp(3) precision collisions that can make updatedAt equal and cause flakiness.
+      await new Promise(resolve => setTimeout(resolve, 10))
       const user1 = new User({ ...original.props })
       const user2 = new User({ ...original.props })
 

@@ -156,6 +156,9 @@ describe("PrismaSessionRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createAndStoreSession()
+      // Ensure the first update occurs in a different millisecond than the insert to avoid
+      // timestamp(3) precision collisions that can make updatedAt equal and cause flakiness.
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       const session1 = await sessionRepository.getById(original.id)
       const session2 = await sessionRepository.getById(original.id)

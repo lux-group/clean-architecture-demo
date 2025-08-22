@@ -188,6 +188,9 @@ describe("PrismaIdentityProviderRepository", () => {
 
     it("should handle concurrent updates with optimistic locking", async () => {
       const original = await createAndStoreIdentityProvider()
+      // Ensure the first update occurs in a different millisecond than the insert to avoid
+      // timestamp(3) precision collisions that can make updatedAt equal and cause flakiness.
+      await new Promise(resolve => setTimeout(resolve, 10))
       const idp1 = new IdentityProvider({ ...original.props })
       const idp2 = new IdentityProvider({ ...original.props })
 

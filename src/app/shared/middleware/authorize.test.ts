@@ -54,14 +54,18 @@ describe("Authorize Middleware", () => {
     return { header, payload }
   }
 
+  const expectDenied = (status: number) => {
+    expect(mockResponse.status).toHaveBeenCalledWith(status)
+    expect(mockResponse.send).toHaveBeenCalled()
+    expect(nextFunction).not.toHaveBeenCalled()
+  }
+
   it("returns 401 when Authorization header is missing", async () => {
     const handler = createHandler()
 
     await handler(mockRequest, mockResponse, nextFunction)
 
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.send).toHaveBeenCalled()
-    expect(nextFunction).not.toHaveBeenCalled()
+    expectDenied(401)
   })
 
   it("returns 401 and logs warn when token is invalid (decode throws)", async () => {
@@ -72,9 +76,7 @@ describe("Authorize Middleware", () => {
     await handler(mockRequest, mockResponse, nextFunction)
 
     expect(mockLogger.warn).toHaveBeenCalledWith("Received invalid access token")
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.send).toHaveBeenCalled()
-    expect(nextFunction).not.toHaveBeenCalled()
+    expectDenied(401)
   })
 
   it("returns 401 and logs warn when kid is missing", async () => {
@@ -84,9 +86,8 @@ describe("Authorize Middleware", () => {
     const handler = createHandler()
     await handler(mockRequest, mockResponse, nextFunction)
 
-    expect(mockLogger.warn).toHaveBeenCalledWith("Received access token without key-id")
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expect(mockLogger.warn).toHaveBeenCalledWith("Received access token without kid")
+    expectDenied(401)
   })
 
   it("returns 401 and logs warn when signing key is unknown", async () => {
@@ -101,9 +102,8 @@ describe("Authorize Middleware", () => {
     await handler(mockRequest, mockResponse, nextFunction)
 
     expect(mockSigningKeyRepository.tryGetById).toHaveBeenCalledWith(uuid)
-    expect(mockLogger.warn).toHaveBeenCalledWith(`Received access token with unknown key-id ${short}`)
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expect(mockLogger.warn).toHaveBeenCalledWith(`Received access token with unknown kid ${short}`)
+    expectDenied(401)
   })
 
   it("returns 401 when verification fails", async () => {
@@ -119,8 +119,7 @@ describe("Authorize Middleware", () => {
     await handler(mockRequest, mockResponse, nextFunction)
 
     expect(mockLogger.info).toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(401)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expectDenied(401)
   })
 
   it("returns 403 when required roles are not present", async () => {
@@ -136,8 +135,7 @@ describe("Authorize Middleware", () => {
     await handler(mockRequest, mockResponse, nextFunction)
 
     expect(mockLogger.info).toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(403)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expectDenied(403)
   })
 
   it("returns 403 when required scopes are not present", async () => {
@@ -153,8 +151,7 @@ describe("Authorize Middleware", () => {
     await handler(mockRequest, mockResponse, nextFunction)
 
     expect(mockLogger.info).toHaveBeenCalled()
-    expect(mockResponse.status).toHaveBeenCalledWith(403)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expectDenied(403)
   })
 
   it("calls next when token is valid and required role is present", async () => {
