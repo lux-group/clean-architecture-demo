@@ -82,7 +82,7 @@ export function authorize(
         const rolesClaim = (decodedJwt.payload as JwtPayload).roles
         const authorizedRoles = Array.isArray(rolesClaim) ? rolesClaim : []
         if (options.roles && !options.roles.some(role => authorizedRoles.includes(role))) {
-          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required roles: ${options.roles.join(", ")}`)
+          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the roles: ${options.roles.join(", ")}`)
           res.status(403).send()
           return
         }
@@ -91,7 +91,7 @@ export function authorize(
         const scopeClaim = (decodedJwt.payload as JwtPayload).scope
         const authorizedScopes = typeof scopeClaim === "string" ? scopeClaim.split(" ") : []
         if (options.scopes && !options.scopes.some(scope => authorizedScopes.includes(scope))) {
-          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the required scopes: ${options.scopes.join(", ")}`)
+          logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the scopes: ${options.scopes.join(", ")}`)
           res.status(403).send()
           return
         }

@@ -14,10 +14,9 @@ The application needs robust input validation and type safety across domain boun
 Validation libraries considered:
 - **Strummer**: Limited features, e.g. no support for Date objects.
 - **Class-validator**: Decorator-based and verbose; unresolved support questions
-- **Zod**: TypeScript-first with excellent type 
+- **Zod**: TypeScript-first with excellent type inference
 - **Joi**: Mature but JavaScript-first, no TypeScript generation
 - **Yup**: Good but limited TypeScript integration
-inference
 - **AJV**: Fast but JSON Schema syntax is verbose
 
 ## Decision

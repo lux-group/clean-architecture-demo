@@ -1,9 +1,12 @@
-# Development Guide: API Controller
-
+# How to: Write an API Controller
+## Introduction
 Controllers translate HTTP requests to DTOs and call a handler. They are lightweight and use custom decorators for routing and middleware.
 
+Related ADRs:
+- [ADR-007](/docs/adr/007-decorator-based-routing.md) - Decorator-based Routing
+
 ## Structure
-- Location: `src/app/<feature>/api/XxxController.ts`
+- Location: `src/app/<feature>/api/<Name>Controller.ts`
 - Decorators: `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, `@Authorize`
 - DI: Register with a key ending in `Controller` (router discovery depends on it)
 

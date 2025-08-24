@@ -1,22 +1,14 @@
-# Development Guide: Use Case (Command/Query Handler)
-
+# How to: Write a Use Case (Command/Query Handler)
+## Introduction
 Use cases orchestrate domain behavior. They are thin: build DTOs, call domain services/repositories, and publish events. We do not unit-test handlers in isolation; API integration tests cover them.
 
+Related ADRs:
+- [ADR-006](/docs/adr/006-cqrs-pattern-for-application-services.md) - CQRS Pattern for Application Services
+
 ## Structure
-- Location: `src/app/<feature>/{commands,queries}/XxxHandler.ts`
-- Naming: `CreateUserHandler`, `GetUserByIdHandler`
+- Location: `src/app/<feature>/{commands,queries}/<Name>Handler.ts`
+- Naming: `Create<Name>Handler`, `Get<Name>ByIdHandler`
 - Public API: `constructor(dependencies)` and `execute(dto): Promise<Result>`
-
-```ts
-export type CreateXxxCommand = { /* input */ }
-
-export class CreateXxxHandler {
-  constructor(/* repositories, services, adapters */) {}
-  async execute(command: CreateXxxCommand) { /* orchestrate */ }
-}
-```
-
-Example (`CreateUserHandler`):
 
 ```ts
 export class CreateUserHandler {
@@ -49,4 +41,4 @@ container.register({
 
 ## Testing
 
-Handlers are covered by [API integration tests](./api-controller.md).
+Handlers are covered by [API integration tests](./writing-api-controllers.md).

@@ -1,6 +1,10 @@
-# Development Guide: Domain Entity
-
+# How to: Write a Domain Entity
+## Introduction
 Domain entities encapsulate business rules, validate inputs with Zod, and expose intention-revealing methods. Keep setters private and use factory methods to construct valid instances.
+
+Related ADRs:
+- [ADR-003](/docs/adr/003-domain-driven-design-entities.md) - Implement Domain-Driven Design Entities
+- [ADR-005](/docs/adr/005-zod-for-validation.md) - Use Zod for Schema Validation
 
 ## Structure
 - File: `src/domain/entities/MyEntity.ts`

@@ -1,5 +1,5 @@
-# Development Guide
-## Code Structure
+# Code Structure
+## Source Code Folder Hierarchy
 | Folder | Responsibility |
 | --- | --- |
 | 📁 [app](/src/app) | Application use case implementations and triggers (API, scheduled tasks, event subscribers) |
@@ -28,28 +28,16 @@
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Cache layer decorating Prisma repositories |
 | 📁 [lib](/src/lib) | Common utility libraries (no domain logic) |
 
-## Implementation Guides
-| Document | Purpose |
-| --- | --- |
-| [test-strategy.md](/docs/development-guide/test-strategy.md) | Explains the overall test strategy of the codebase. |
-| [dependency-injection.md](/docs/development-guide/dependency-injection.md) | Explains how DI works with Awilix and how to register dependencies. |
-| [domain-entity.md](/docs/development-guide/domain-entity.md) | Explains how to implement a new domain entity class. |
-| [domain-repository.md](/docs/development-guide/domain-repository.md) | Explains how to implement a new repository. |
-| [use-case.md](/docs/development-guide/use-case.md) | Explains how to implement a new command or query handler. |
-| [api-controller.md](/docs/development-guide/api-controller.md) | Explains how to implement a new API controller with integration tests. |
+## Modules
+The code is organised into logical modules. Every module has an individual `module.ts` file in its folder that registers all provided services in the Awilix DI container.
 
-### Path Aliases
+## Allowed and disallowed imports
+
+- The `/src/domain` layer must not import modules from the `/src/app` or `/src/infrastructure` layer directly. Instead, it must declare interfaces for all its dependencies which are implemented in `/src/infrastrcuture` and injected into domain services.
+- The `/src/app` layer may depend on all other layers.
+- The `/src/lib` folder must only contain generic utilities. Never place domain or infrastructure logic into this folder.
+
+## Path aliases
 The `tsconfig.json` file defines two path aliases.
-- `~` is an alias for `src` and can be used for `~/app/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
-- `@test` is a global alias for test helpers.
-
-## Architecture Decision Records
-| ADR | Title | Status |
-|-----|-------|--------|
-| [ADR-001](/docs/adr/001-clean-architecture-adoption.md) | Adopt Clean Architecture Pattern | Accepted |
-| [ADR-002](/docs/adr/002-dependency-injection-with-awilix.md) | Use Awilix for Dependency Injection | Accepted |
-| [ADR-003](/docs/adr/003-domain-driven-design-entities.md) | Implement Domain-Driven Design Entities | Accepted |
-| [ADR-004](/docs/adr/004-repository-pattern-with-decorators.md) | Repository Pattern with Decorator for Caching | Accepted |
-| [ADR-005](/docs/adr/005-zod-for-validation.md) | Use Zod for Schema Validation | Accepted |
-| [ADR-006](/docs/adr/006-cqrs-pattern-for-application-services.md) | CQRS Pattern for Application Services | Accepted |
-| [ADR-007](/docs/adr/007-decorator-based-routing.md) | Decorator-based Routing | Accepted |
+- `~` is a generic alias for folder `/src` and can be used for `~/app/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
+- `@test` is a global alias for test helpers in folder `/test`.

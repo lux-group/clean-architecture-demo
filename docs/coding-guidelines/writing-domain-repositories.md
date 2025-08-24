@@ -1,6 +1,9 @@
-# Development Guide: Domain Repository
-
+# How to: Write a Domain Repository
+## Introduction
 Repositories abstract persistence for domain entities. Define the interface in the domain and provide implementations in infrastructure (Prisma for Postgres; Redis decorator for caching). Register both in DI.
+
+Related ADRs:
+- [ADR-004](/docs/adr/004-repository-pattern-with-decorators.md) - Repository Pattern with Decorator for Caching
 
 ## Interface (domain)
 
