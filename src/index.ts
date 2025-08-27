@@ -17,12 +17,13 @@ async function shutdown(server: Server, container: AwilixContainer): Promise<voi
   if (isShuttingDown) return
   isShuttingDown = true
 
-  // Stop the Express server.
-  await new Promise<void>(resolve => server.close(() => resolve()))
-
   try {
+    // Stop the Express server.
+    await new Promise<void>(resolve => server.close(() => resolve()))
+
     // Dispose the container. This will close all connections to the databases.
     await container.dispose()
+
     process.exit(0)
   } catch (error) {
     console.error("Error during shutdown:", error)
@@ -46,6 +47,7 @@ async function start(): Promise<void> {
 
   const app = createServer(container)
   const server = app.listen(port, () => console.log(`Listening on port ${port}`))
+  server.keepAliveTimeout = 6 * 60 * 1000
 
   process.on("SIGINT", () => shutdown(server, container))
   process.on("SIGTERM", () => shutdown(server, container))

@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto"
 import z from "zod"
-import { AuthenticationError, commonErrors, InvalidOperationError } from "../errors"
+import { commonErrors, InvalidOperationError } from "../errors"
 import { Entity, validateProps } from "./Entity"
-import { Session } from "./Session"
 
 const userIdentitySchema = z.object({
   id: z.uuid(),
