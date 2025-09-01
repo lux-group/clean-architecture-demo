@@ -35,10 +35,7 @@ const convertKnownErrors = (logger: Logger) =>
             }
 
             // TODO: Anonymise args
-            logger.error(`Prisma operation failed with error code ${error.code}`, {
-              args,
-              error,
-            })
+            logger.error("Prisma operation failed.", { error, args })
 
             throw error
           }
