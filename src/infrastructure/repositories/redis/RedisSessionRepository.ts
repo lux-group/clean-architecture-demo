@@ -1,5 +1,6 @@
 import { RedisClientType } from "redis"
-import { Session, SessionProps } from "~/domain/entities"
+import { ObjectTransformer, toDateObject, toISODateString } from "~/lib/ObjectTransformer"
+import { Session } from "~/domain/entities"
 import { SessionRepository } from "~/domain/repositories"
 import { RedisRepository } from "./RedisRepository"
 
@@ -17,26 +18,12 @@ export class RedisSessionRepository extends RedisRepository<Session, SessionRepo
 
   protected override serializeEntity(session: Session): string {
     // TODO: Encrypt sensitive data (refresh token) before storing in Redis
-    const props = session.props as SessionProps
-    return JSON.stringify({
-      ...props,
-      createdAt: props.createdAt.toISOString(),
-      updatedAt: props.updatedAt.toISOString(),
-      expiresAt: props.expiresAt.toISOString(),
-      lastRefreshAt: props.lastRefreshAt.toISOString(),
-      terminatedAt: props.terminatedAt ? props.terminatedAt.toISOString() : null,
-    })
+    const props = ObjectTransformer.transform(session.props, [], [toISODateString])
+    return JSON.stringify(props)
   }
 
   protected override deserializeEntity(data: string): Session {
-    const props = JSON.parse(data)
-    return new Session({
-      ...props,
-      createdAt: new Date(props.createdAt),
-      updatedAt: new Date(props.updatedAt),
-      expiresAt: new Date(props.expiresAt),
-      lastRefreshAt: new Date(props.lastRefreshAt),
-      terminatedAt: props.terminatedAt ? new Date(props.terminatedAt) : null,
-    })
+    const props = ObjectTransformer.transform(JSON.parse(data), [], [toDateObject])
+    return new Session(props)
   }
 }

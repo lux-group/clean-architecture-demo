@@ -18,7 +18,7 @@ export class SigningKeyController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["signing-keys:write", "signing-keys:read"] })
+  @Authorize({ scopes: ["signing-key:write", "signing-key:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<SigningKey>(req.query, ["createdAt"])
     const result = await this.searchSigningKeysHandler.execute(query)
@@ -26,7 +26,7 @@ export class SigningKeyController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["signing-keys:write", "signing-keys:read"] })
+  @Authorize({ scopes: ["signing-key:write", "signing-key:read"] })
   async getById(req: Request, res: Response) {
     const query: GetSigningKeyByIdQuery = { id: req.params.id }
     const item = await this.getSigningKeyByIdHandler.execute(query)
@@ -34,7 +34,7 @@ export class SigningKeyController {
   }
 
   @Post("/")
-  @Authorize({ scopes: ["signing-keys:write"] })
+  @Authorize({ scopes: ["signing-key:write"] })
   async create(req: Request, res: Response) {
     const item = await this.createNewSigningKeyHandler.execute()
     res.status(201)
@@ -43,7 +43,7 @@ export class SigningKeyController {
   }
 
   @Delete("/:id")
-  @Authorize({ scopes: ["signing-keys:write"] })
+  @Authorize({ scopes: ["signing-key:write"] })
   async delete(req: Request, res: Response) {
     const command: DeleteSigningKeyCommand = { id: req.params.id }
     await this.deleteSigningKeyHandler.execute(command)

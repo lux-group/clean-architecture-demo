@@ -14,7 +14,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
 
     const user = await context.data.createUser()
     session = await context.data.createSession({ userId: user.id }, 24)
-    accessToken = await context.data.createAccessToken(user.id, ["sessions:read"])    
+    accessToken = await context.data.createAccessToken(user.id, ["session:read"])    
   })
 
   describe("when sessions exist", () => {

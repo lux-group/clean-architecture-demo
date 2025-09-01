@@ -11,7 +11,7 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:write"]) 
+    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:write"]) 
   })
 
   describe("when the deletion was successful", () => {
@@ -77,7 +77,7 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
 
     it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
       const identityProvider = await context.data.createIdentityProvider()
-      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:read"]) 
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:read"]) 
 
       const response = await request(context.server)
         .delete(`/admin/identity-providers/${identityProvider.id}`)

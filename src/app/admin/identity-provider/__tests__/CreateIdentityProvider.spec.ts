@@ -27,7 +27,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:write"])
+    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:write"])
   })
 
   describe("when the creation was successful", () => {
@@ -84,7 +84,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
 
     it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
       const payload = getPayload()
-      const nonAdminAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:read"]) 
+      const nonAdminAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:read"]) 
 
       const response = await request(context.server)
         .post("/admin/identity-providers")

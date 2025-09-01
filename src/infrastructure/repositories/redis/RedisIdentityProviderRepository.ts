@@ -1,5 +1,6 @@
 import { RedisClientType } from "redis"
-import { IdentityProvider, IdentityProviderProps } from "~/domain/entities"
+import { ObjectTransformer, toDateObject, toISODateString } from "~/lib/ObjectTransformer"
+import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { RedisRepository } from "./RedisRepository"
 
@@ -43,21 +44,13 @@ export class RedisIdentityProviderRepository extends RedisRepository<IdentityPro
   }
 
   protected override serializeEntity(identityProvider: IdentityProvider): string {
-    const props = identityProvider.props as IdentityProviderProps
-    return JSON.stringify({
-      ...props,
-      createdAt: props.createdAt.toISOString(),
-      updatedAt: props.updatedAt.toISOString(),
-    })
+    const props = ObjectTransformer.transform(identityProvider.props, [], [toISODateString])
+    return JSON.stringify(props)
   }
 
   protected override deserializeEntity(data: string): IdentityProvider {
-    const props = JSON.parse(data)
-    return new IdentityProvider({
-      ...props,
-      createdAt: new Date(props.createdAt),
-      updatedAt: new Date(props.updatedAt),
-    })
+    const props = ObjectTransformer.transform(JSON.parse(data), [], [toDateObject])
+    return new IdentityProvider(props)
   }
 
   protected override async addToCache(idp: IdentityProvider): Promise<void> {

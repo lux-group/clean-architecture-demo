@@ -20,7 +20,7 @@ export class UserController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["users:write", "users:read"] })
+  @Authorize({ scopes: ["user:write", "user:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<User>(req.query, ["createdAt", "email", "givenName", "surname"], ["email", "givenName", "surname"])
     const result = await this.searchUsersHandler.execute(query)
@@ -28,7 +28,7 @@ export class UserController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["users:write", "users:read"] })
+  @Authorize({ scopes: ["user:write", "user:read"] })
   async getById(req: Request, res: Response) {
     const query: GetUserByIdQuery = { id: req.params.id }
     const item = await this.getUserByIdHandler.execute(query)
@@ -36,7 +36,7 @@ export class UserController {
   }
 
   @Post("/")
-  @Authorize({ scopes: ["users:write"] })
+  @Authorize({ scopes: ["user:write"] })
   async create(req: Request, res: Response) {
     const command: CreateUserCommand = this.parseCreateBody(req.body)
     const item = await this.createUserHandler.execute(command)
@@ -46,7 +46,7 @@ export class UserController {
   }
 
   @Put("/:id")
-  @Authorize({ scopes: ["users:write"] })
+  @Authorize({ scopes: ["user:write"] })
   async update(req: Request, res: Response) {
     const command: UpdateUserCommand = { id: req.params.id, ...this.parseUpdateBody(req.body) }
     const item = await this.updateUserHandler.execute(command)
@@ -54,7 +54,7 @@ export class UserController {
   }
 
   @Delete("/:id")
-  @Authorize({ scopes: ["users:write"] })
+  @Authorize({ scopes: ["user:write"] })
   async delete(req: Request, res: Response) {
     const command: DeleteUserCommand = { id: req.params.id }
     await this.deleteUserHandler.execute(command)

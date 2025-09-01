@@ -10,7 +10,7 @@ describe("[GET] /admin/sessions/:id (GetSessionById)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["sessions:read"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["session:read"])    
   })
 
   describe("when the session exists", () => {

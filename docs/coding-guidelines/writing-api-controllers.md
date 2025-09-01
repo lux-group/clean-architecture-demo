@@ -16,7 +16,7 @@ export class UserController {
   constructor(private readonly baseUrl: string, private readonly createUserHandler: CreateUserHandler) {}
 
   @Post("/")
-  @Authorize({ scopes: ["users:write"] })
+  @Authorize({ scopes: ["user:write"] })
   async create(req: Request, res: Response) {
     const command: CreateUserCommand = { /* parse */ }
     const item = await this.createUserHandler.execute(command)

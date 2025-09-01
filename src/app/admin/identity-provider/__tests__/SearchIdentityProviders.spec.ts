@@ -12,7 +12,7 @@ describe("[GET] /admin/identity-providers (SearchIdentityProviders)", () => {
   beforeAll(async () => {
     context = await getTestContext()
     identityProvider = await context.data.createIdentityProvider()
-    accessToken = await context.data.createAccessToken(identityProvider.id, ["identity-providers:read"]) // subject not relevant
+    accessToken = await context.data.createAccessToken(identityProvider.id, ["identity-provider:read"]) // subject not relevant
   })
 
   describe("when identity providers exist", () => {

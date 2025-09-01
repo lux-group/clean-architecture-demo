@@ -27,7 +27,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:write"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:write"])    
   })
 
   describe("when the update was successful", () => {
@@ -102,7 +102,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
     it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
       const original = await context.data.createIdentityProvider()
       const payload = getPayload()
-      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-providers:read"]) 
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["identity-provider:read"]) 
 
       const response = await request(context.server)
         .put(`/admin/identity-providers/${original.id}`)

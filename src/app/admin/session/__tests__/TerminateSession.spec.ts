@@ -11,7 +11,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["sessions:write"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["session:write"])    
   })
 
   describe("when the termination was successful", () => {
@@ -82,7 +82,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
     it("should return 403 when the access token does not have scope 'sessions:write'", async () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
-      const nonWriteAccessToken = await context.data.createAccessToken(user.id, ["sessions:read"]) 
+      const nonWriteAccessToken = await context.data.createAccessToken(user.id, ["session:read"]) 
 
       const response = await request(context.server)
         .post(`/admin/sessions/${session.id}/terminate`)

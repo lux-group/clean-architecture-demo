@@ -15,7 +15,7 @@ export class SessionController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["sessions:write", "sessions:read"] })
+  @Authorize({ scopes: ["session:write", "session:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<Session>(req.query, ["createdAt"], ["userId", "identityProviderId"])
     const result = await this.searchSessionsHandler.execute(query)
@@ -23,7 +23,7 @@ export class SessionController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["sessions:write", "sessions:read"] })
+  @Authorize({ scopes: ["session:write", "session:read"] })
   async getById(req: Request, res: Response) {
     const query: GetSessionByIdQuery = { id: req.params.id }
     const item = await this.getSessionByIdHandler.execute(query)
@@ -31,7 +31,7 @@ export class SessionController {
   }
   
   @Post("/:id/terminate")
-  @Authorize({ scopes: ["sessions:write"] })
+  @Authorize({ scopes: ["session:write"] })
   async terminate(req: Request, res: Response) {
     const command: TerminateSessionCommand = { sessionId: req.params.id }
     await this.terminateSessionHandler.execute(command)

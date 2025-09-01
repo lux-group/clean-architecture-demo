@@ -10,7 +10,7 @@ describe("[GET] /admin/signing-keys/:id (GetSigningKeyById)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-keys:read"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-key:read"])    
   })
 
   describe("when the signing key exists", () => {

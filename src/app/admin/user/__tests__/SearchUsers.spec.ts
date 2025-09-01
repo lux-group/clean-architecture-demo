@@ -12,7 +12,7 @@ describe("[GET] /admin/users (SearchUsers)", () => {
   beforeAll(async () => {
     context = await getTestContext()
     user = await context.data.createUser()
-    accessToken = await context.data.createAccessToken(user.id, ["users:read"])    
+    accessToken = await context.data.createAccessToken(user.id, ["user:read"])    
   })
 
   describe("when users exist", () => {

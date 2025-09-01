@@ -32,7 +32,7 @@ We will use decorator-based routing with metadata reflection for API controllers
 @Controller("/admin/users")
 export class UserController {
   @Get("/:id")
-  @Authorize({ scopes: ["users:read"] })
+  @Authorize({ scopes: ["user:read"] })
   async getUserById(req: Request, res: Response) {
     // Handler implementation
   }
@@ -96,12 +96,12 @@ async getHealth() { /* ... */ }
 
 // Route with authorization
 @Post("/")
-@Authorize({ scopes: ["users:write"] })
+@Authorize({ scopes: ["user:write"] })
 async createUser() { /* ... */ }
 
 // Multiple middleware
 @Put("/:id")
-@Authorize({ scopes: ["users:write"] })
+@Authorize({ scopes: ["user:write"] })
 @HandleOAuthErrors()
 async updateUser() { /* ... */ }
 ```

@@ -20,7 +20,7 @@ export class IdentityProviderController {
   ) {}
 
   @Get("/")
-  @Authorize({ scopes: ["identity-providers:write", "identity-providers:read"] })
+  @Authorize({ scopes: ["identity-provider:write", "identity-provider:read"] })
   async search(req: Request, res: Response) {
     const query = parseQuery<IdentityProvider>(req.query, ["createdAt", "name"], ["name"])
     const result = await this.searchIdentityProvidersHandler.execute(query)
@@ -28,7 +28,7 @@ export class IdentityProviderController {
   }
 
   @Get("/:id")
-  @Authorize({ scopes: ["identity-providers:write", "identity-providers:read"] })
+  @Authorize({ scopes: ["identity-provider:write", "identity-provider:read"] })
   async getById(req: Request, res: Response) {
     const query: GetIdentityProviderByIdQuery = { id: req.params.id }
     const item = await this.getIdentityProviderByIdHandler.execute(query)
@@ -36,7 +36,7 @@ export class IdentityProviderController {
   }
 
   @Post("/")
-  @Authorize({ scopes: ["identity-providers:write"] })
+  @Authorize({ scopes: ["identity-provider:write"] })
   async create(req: Request, res: Response) {
     const command: CreateIdentityProviderCommand = this.parseBody(req.body)
     const item = await this.createIdentityProviderHandler.execute(command)
@@ -46,7 +46,7 @@ export class IdentityProviderController {
   }
 
   @Put("/:id")
-  @Authorize({ scopes: ["identity-providers:write"] })
+  @Authorize({ scopes: ["identity-provider:write"] })
   async update(req: Request, res: Response) {
     const command: UpdateIdentityProviderCommand = { id: req.params.id, ...this.parseBody(req.body) }
     const item = await this.updateIdentityProviderHandler.execute(command)
@@ -54,7 +54,7 @@ export class IdentityProviderController {
   }
 
   @Delete("/:id")
-  @Authorize({ scopes: ["identity-providers:write"] })
+  @Authorize({ scopes: ["identity-provider:write"] })
   async delete(req: Request, res: Response) {
     const command: DeleteIdentityProviderCommand = { id: req.params.id }
     await this.deleteIdentityProviderHandler.execute(command)

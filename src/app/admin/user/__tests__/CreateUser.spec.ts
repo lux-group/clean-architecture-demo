@@ -11,7 +11,7 @@ describe("[POST] /admin/users (CreateUser)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["users:write"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["user:write"])    
   })
 
   const defaultPayload = {
@@ -103,7 +103,7 @@ describe("[POST] /admin/users (CreateUser)", () => {
 
     it("should return 403 when the access token does not have scope 'users:write'", async () => {
       const payload = getPayload()
-      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["users:read"]) 
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["user:read"]) 
 
       const response = await request(context.server)
         .post("/admin/users")

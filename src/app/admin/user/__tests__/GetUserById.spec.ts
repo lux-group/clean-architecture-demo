@@ -10,7 +10,7 @@ describe("[GET] /admin/users/:id (GetUserById)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["users:read"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["user:read"])    
   })
 
   describe("when the user exists", () => {

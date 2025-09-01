@@ -11,7 +11,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
   
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-keys:write"])    
+    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-key:write"])    
   })
 
   describe("when the deletion was successful", () => {
@@ -90,7 +90,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
     it("should return 403 when the access token does not have scope 'signing-keys:write'", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
-      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["signing-keys:read"]) 
+      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["signing-key:read"]) 
 
       const response = await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)
