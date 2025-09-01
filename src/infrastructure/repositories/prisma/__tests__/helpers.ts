@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process"
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql"
+import { mockLogger } from "@test/mocks"
 import { createPrismaClient, PrismaClient } from "~/infrastructure/repositories/prisma/PrismaClient"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 
@@ -20,7 +21,7 @@ export async function createPrismaTestContext(): Promise<PrismaTestContext> {
   const env = { ...process.env, DATABASE_URL: postgres.getConnectionUri() }
   execSync("npx prisma migrate deploy", { env, stdio: "inherit" })
 
-  const prismaClient = createPrismaClient(postgres.getConnectionUri())
+  const prismaClient = createPrismaClient(mockLogger, postgres.getConnectionUri())
 
   const encryptionProvider = new MockEncryptionProvider()
 

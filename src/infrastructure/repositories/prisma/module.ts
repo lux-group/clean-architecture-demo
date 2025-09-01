@@ -7,8 +7,8 @@ import { PrismaSessionRepository } from "./PrismaSessionRepository"
 import { PrismaSigningKeyRepository } from "./PrismaSigningKeyRepository"
 
 export default async function registerPrismaRepositories(container: AwilixContainer) {
-  const { postgresReadOnlyUrl, postgresReadWriteUrl } = container.resolve("config")
-  const prismaClient = createPrismaClient(postgresReadOnlyUrl, postgresReadWriteUrl)
+  const { logger, postgresReadOnlyUrl, postgresReadWriteUrl } = container.resolve("config")
+  const prismaClient = createPrismaClient(logger, postgresReadOnlyUrl, postgresReadWriteUrl)
   await prismaClient.$connect()
 
   container.register({

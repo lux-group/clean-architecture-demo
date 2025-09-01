@@ -7,15 +7,6 @@ export interface SignInWithPasswordCommand {
   password: string
 }
 
-/**
- * Application service that orchestrates the sign-in process.
- * Contains no business logic - only orchestration of domain services.
- * 
- * This demonstrates proper Clean Architecture where:
- * - Application layer orchestrates domain services
- * - Business logic remains in domain layer
- * - Infrastructure concerns are abstracted through interfaces
- */
 export class SignInWithPasswordHandler {
   constructor(
     private readonly authenticationService: AuthenticationService,
