@@ -4,7 +4,7 @@ import { RedisSigningKeyRepository } from "./RedisSigningKeyRepository"
 import { RedisIdentityProviderRepository } from "./RedisIdentityProviderRepository"
 import { createClient } from "redis"
 
-function decorate(container: AwilixContainer, name: string, resolver: Resolver<any>) {
+function decorate<T>(container: AwilixContainer, name: string, resolver: Resolver<T>) {
   container.register({
     ["redisDecorated_" + name]: container.registrations[name],
     [name]: resolver
