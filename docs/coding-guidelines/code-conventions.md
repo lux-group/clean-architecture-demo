@@ -1,4 +1,7 @@
 # Code Conventions
+## Tooling
+The project uses [Biome](https://biomejs.dev/) for lintig and formatting. Check the `biome.json` configuration file for rules.
+
 ## Language & Syntax
 - **Quotes**: Use double quotes for strings.
 - **Semicolons**: Do not use semicolons; rely on ASI (Auto Semi-colon Insertion).
