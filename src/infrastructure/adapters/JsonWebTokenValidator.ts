@@ -1,10 +1,10 @@
 import jwt, { JwtHeader, JwtPayload } from "jsonwebtoken"
 import { JwksClient, SigningKey } from "jwks-rsa"
-import { ClientCache } from "~/lib/ClientCache"
-import { commonErrors, AuthenticationError } from "~/domain/errors"
-import { IdentityProvider } from "~/domain/entities"
-import { IdentityProviderRepository } from "~/domain/repositories"
 import { TokenValidationResult, TokenValidator } from "~/domain/adapters"
+import { IdentityProvider } from "~/domain/entities"
+import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { IdentityProviderRepository } from "~/domain/repositories"
+import { ClientCache } from "~/lib/ClientCache"
 
 // Cache instance for JWKS clients.
 const jwksClientCache = new ClientCache<IdentityProvider, JwksClient>(async idp => {

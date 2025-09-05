@@ -1,9 +1,9 @@
-import jwt, { JwtPayload } from "jsonwebtoken"
 import { NextFunction, Request, Response } from "express"
-import { shortToUUID } from "~/lib/ShortUUID"
-import { Logger } from "~/infrastructure/logging"
+import jwt, { JwtPayload } from "jsonwebtoken"
 import { TokenIssuerConfig } from "~/domain/adapters"
 import { SigningKeyRepository } from "~/domain/repositories"
+import { Logger } from "~/infrastructure/logging"
+import { shortToUUID } from "~/lib/ShortUUID"
 
 export interface AuthorizeOptions {
   roles?: string[]

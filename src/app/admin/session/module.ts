@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { SessionController } from "./api/SessionController"
 import { TerminateSessionHandler } from "./commands/TerminateSessionHandler"
 import { GetSessionByIdHandler } from "./queries/GetSessionByIdHandler"

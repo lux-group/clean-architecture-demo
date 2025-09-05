@@ -1,5 +1,5 @@
-import { Query, QueryResult } from "~/lib/types"
 import { Entity, EntityProps } from "~/domain/entities"
+import { Query, QueryResult } from "~/lib/types"
 
 export interface Repository<T extends Entity<EntityProps>> {
   query(options: Query<T>): Promise<QueryResult<T>>

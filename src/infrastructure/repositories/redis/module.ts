@@ -1,8 +1,8 @@
-import { asClass, asFunction, AwilixContainer, Resolver } from "awilix"
+import { AwilixContainer, asClass, asFunction, Resolver } from "awilix"
+import { createClient } from "redis"
+import { RedisIdentityProviderRepository } from "./RedisIdentityProviderRepository"
 import { RedisSessionRepository } from "./RedisSessionRepository"
 import { RedisSigningKeyRepository } from "./RedisSigningKeyRepository"
-import { RedisIdentityProviderRepository } from "./RedisIdentityProviderRepository"
-import { createClient } from "redis"
 
 function decorate<T>(container: AwilixContainer, name: string, resolver: Resolver<T>) {
   container.register({

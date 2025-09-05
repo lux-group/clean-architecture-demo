@@ -1,8 +1,8 @@
 import { generateKeyPairSync } from "node:crypto"
-import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import jwt from "jsonwebtoken"
+import { beforeAll, beforeEach, describe, expect, it } from "vitest"
+import { TokenIssuer, TokenRequest } from "~/domain/adapters"
 import { SigningKey } from "~/domain/entities"
-import { TokenRequest, TokenIssuer } from "~/domain/adapters"
 import { JsonWebTokenIssuer } from "./JsonWebTokenIssuer"
 
 describe("JsonWebTokenIssuer", () => {

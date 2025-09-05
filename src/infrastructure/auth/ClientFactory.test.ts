@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockAuthClient } from "@test/mocks"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { IdentityProviderType } from "~/domain/entities"
 import { InvalidOperationError } from "~/domain/errors"
-import { ClientFactory } from "./ClientFactory"
-import { OidcClient } from "./OidcClient"
-import { FacebookClient } from "./FacebookClient"
 import { AppleClient } from "./AppleClient"
+import { ClientFactory } from "./ClientFactory"
+import { FacebookClient } from "./FacebookClient"
+import { OidcClient } from "./OidcClient"
 
 vi.mock("./OidcClient")
 vi.mock("./FacebookClient")

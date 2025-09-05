@@ -1,9 +1,9 @@
-import { InvalidOperationError } from "~/domain/errors"
-import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthClient, AuthClientFactory } from "~/domain/adapters"
-import { OidcClient } from "./OidcClient"
-import { FacebookClient } from "./FacebookClient"
+import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
+import { InvalidOperationError } from "~/domain/errors"
 import { AppleClient } from "./AppleClient"
+import { FacebookClient } from "./FacebookClient"
+import { OidcClient } from "./OidcClient"
 
 export class ClientFactory implements AuthClientFactory {
   constructor(private readonly baseUrl: string) {}

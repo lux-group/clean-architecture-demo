@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
 import { Authorize, Controller, Delete, Get, Post } from "~/app/decorators"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { SigningKey } from "~/domain/entities"
 import { CreateNewSigningKeyHandler } from "../commands/CreateNewSigningKeyHandler"
 import { DeleteSigningKeyCommand, DeleteSigningKeyHandler } from "../commands/DeleteSigningKeyHandler"
 import { GetSigningKeyByIdHandler, GetSigningKeyByIdQuery } from "../queries/GetSigningKeyByIdHandler"
 import { SearchSigningKeysHandler } from "../queries/SearchSigningKeysHandler"
-import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/signing-keys")
 export class SigningKeyController {

@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { LocalAuthenticationController } from "./api/LocalAuthenticationController"
 import { SignInWithPasswordHandler } from "./commands/SignInWithPasswordHandler"
 import { SignOutHandler } from "./commands/SignOutHandler"

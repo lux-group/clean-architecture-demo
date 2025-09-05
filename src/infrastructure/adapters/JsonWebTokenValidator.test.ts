@@ -1,8 +1,8 @@
 import { generateKeyPairSync } from "node:crypto"
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import jwt from "jsonwebtoken"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { IdentityProvider, IdentityProviderProps } from "~/domain/entities"
+import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { JsonWebTokenValidator } from "./JsonWebTokenValidator"
 
 // Mock global fetch for OIDC metadata and JWKS endpoints

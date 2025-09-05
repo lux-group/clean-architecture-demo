@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { ExternalAuthenticationController } from "./api/ExternalAuthenticationController"
 import { CreateSignInRequestHandler } from "./commands/CreateSignInRequestHandler"
 import { CreateSignOutRequestHandler } from "./commands/CreateSignOutRequestHandler"

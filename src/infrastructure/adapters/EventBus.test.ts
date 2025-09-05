@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Event } from "~/domain/adapters"
-import { EventBus } from "./EventBus"
 import { AuthenticationEventDetails } from "~/domain/events/AuthenticationEvent"
 import { SessionEventDetails } from "~/domain/events/SessionEvent"
+import { EventBus } from "./EventBus"
 
 describe("EventBus", () => {
   let eventBus: EventBus

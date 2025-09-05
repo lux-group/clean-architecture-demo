@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import { Authorize, Controller, Get, Post } from "~/app/decorators"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { Session } from "~/domain/entities"
 import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
 import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessionByIdHandler"
 import { SearchSessionsHandler } from "../queries/SearchSessionsHandler"
-import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/sessions")
 export class SessionController {

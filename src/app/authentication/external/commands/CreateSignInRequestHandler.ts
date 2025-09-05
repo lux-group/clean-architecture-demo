@@ -1,6 +1,6 @@
-import { IdentityProviderRepository } from "~/domain/repositories"
 import { AuthClientFactory, SignInState } from "~/domain/adapters"
 import { InvalidOperationError } from "~/domain/errors"
+import { IdentityProviderRepository } from "~/domain/repositories"
 
 export interface CreateSignInRequestCommand {
   identityProviderName: string

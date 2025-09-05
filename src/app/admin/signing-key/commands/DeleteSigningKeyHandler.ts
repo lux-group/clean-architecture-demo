@@ -1,6 +1,6 @@
-import { SigningKeyRepository } from "~/domain/repositories"
 import { EventPublisher } from "~/domain/adapters"
 import { EntityChangeEvent } from "~/domain/events"
+import { SigningKeyRepository } from "~/domain/repositories"
 
 export interface DeleteSigningKeyCommand {
   id: string

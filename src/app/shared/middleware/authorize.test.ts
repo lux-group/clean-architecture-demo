@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { mockLogger, mockSigningKeyRepository } from "@test/mocks"
 import { NextFunction, Request, Response } from "express"
 import jwt, { JwtPayload } from "jsonwebtoken"
-import { mockLogger, mockSigningKeyRepository } from "@test/mocks"
-import { authorize } from "./authorize"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TokenIssuerConfig } from "~/domain/adapters"
 import { UUIDToShort } from "~/lib/ShortUUID"
+import { authorize } from "./authorize"
 
 describe("Authorize Middleware", () => {
   const nextFunction: NextFunction = vi.fn()

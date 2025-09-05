@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { TokenController } from "./api/TokenController"
 import { IssueTokenWithActiveSessionHandler } from "./commands/IssueTokenWithActiveSessionHandler"
 import { IssueTokenWithClientCredentialsHandler } from "./commands/IssueTokenWithClientCredentialsHandler"

@@ -1,11 +1,11 @@
 import { Prisma, Session as PrismaSession } from "@prisma/client"
-import { Query, QueryResult } from "~/lib/types"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { NotFoundError } from "~/domain/errors"
 import { Session, SessionStatus } from "~/domain/entities"
+import { NotFoundError } from "~/domain/errors"
 import { SessionRepository } from "~/domain/repositories"
-import { PrismaClient } from "./PrismaClient"
+import { EncryptionProvider } from "~/infrastructure/crypto"
+import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaSessionRepository implements SessionRepository {
   constructor(

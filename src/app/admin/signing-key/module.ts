@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { SigningKeyController } from "./api/SigningKeyController"
 import { CreateNewSigningKeyHandler } from "./commands/CreateNewSigningKeyHandler"
 import { DeleteSigningKeyHandler } from "./commands/DeleteSigningKeyHandler"

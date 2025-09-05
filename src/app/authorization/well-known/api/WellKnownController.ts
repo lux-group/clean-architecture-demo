@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { Controller, Get } from "~/app/decorators"
-import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
 import { GetJsonWebKeysHandler } from "../queries/GetJsonWebKeysHandler"
+import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
 
 @Controller("/oauth2/.well-known")
 export class WellKnownController {

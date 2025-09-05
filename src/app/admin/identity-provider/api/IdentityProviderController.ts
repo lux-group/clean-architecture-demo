@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
 import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { IdentityProvider, IdentityProviderAuthSettings } from "~/domain/entities"
 import { CreateIdentityProviderCommand, CreateIdentityProviderHandler } from "../commands/CreateIdentityProviderHandler"
 import { DeleteIdentityProviderCommand, DeleteIdentityProviderHandler } from "../commands/DeleteIdentityProviderHandler"
 import { UpdateIdentityProviderCommand, UpdateIdentityProviderHandler } from "../commands/UpdateIdentityProviderHandler"
 import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "../queries/GetIdentityProviderByIdHandler"
 import { SearchIdentityProvidersHandler } from "../queries/SearchIdentityProvidersHandler"
-import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/identity-providers")
 export class IdentityProviderController {

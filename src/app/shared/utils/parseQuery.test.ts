@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { parseQuery } from "./parseQuery"
 import { InvalidOperationError } from "~/domain/errors"
+import { parseQuery } from "./parseQuery"
 
 interface TestEntity {
   id: string

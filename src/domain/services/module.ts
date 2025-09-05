@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { AuthenticationService, AuthorizationService, SessionService } from "."
 
 export default async function registerDomainServices(container: AwilixContainer) {

@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto"
 import { CookieOptions, Request, Response } from "express"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { commonErrors, AuthenticationError } from "~/domain/errors"
 import { Session } from "~/domain/entities"
+import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { EncryptionProvider } from "~/infrastructure/crypto"
 
 interface SessionCookie {
   readonly id: string

@@ -1,7 +1,7 @@
-import { User, UpdateUserProps } from "~/domain/entities"
-import { UserRepository } from "~/domain/repositories"
 import { EventPublisher } from "~/domain/adapters"
+import { UpdateUserProps, User } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
+import { UserRepository } from "~/domain/repositories"
 
 export type UpdateUserCommand = UpdateUserProps & {
   id: string

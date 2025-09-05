@@ -1,6 +1,6 @@
 import { User } from "~/domain/entities"
-import { UserRepository } from "~/domain/repositories"
 import { InvalidOperationError } from "~/domain/errors"
+import { UserRepository } from "~/domain/repositories"
 import { AuthenticationService, AuthorizationService, SessionService } from "~/domain/services"
 
 export interface IssueTokenWithActiveSessionInput {

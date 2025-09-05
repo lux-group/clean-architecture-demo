@@ -1,11 +1,11 @@
 import { Prisma, IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
-import { Query, QueryResult } from "~/lib/types"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { NotFoundError } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
+import { NotFoundError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"
-import { PrismaClient } from "./PrismaClient"
+import { EncryptionProvider } from "~/infrastructure/crypto"
+import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaIdentityProviderRepository implements IdentityProviderRepository {
   constructor(

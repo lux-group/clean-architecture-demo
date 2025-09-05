@@ -1,5 +1,5 @@
 import { Session } from "~/domain/entities"
-import { SessionService, AuthenticationService } from "~/domain/services"
+import { AuthenticationService, SessionService } from "~/domain/services"
 
 export interface SignInWithPasswordCommand {
   brand: string

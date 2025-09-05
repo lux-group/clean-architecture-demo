@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { EntraExtensionController } from "./api/EntraExtensionController"
 
 export default async function registerEntraIntegrationModule(container: AwilixContainer) {

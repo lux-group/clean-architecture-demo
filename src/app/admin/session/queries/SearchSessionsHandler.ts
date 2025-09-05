@@ -1,6 +1,6 @@
-import { Query, QueryResult } from "~/lib/types"
 import { Session } from "~/domain/entities"
 import { SessionRepository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export type SearchSessionsQuery = Query<Session>
 

@@ -1,7 +1,7 @@
-import { Query, QueryResult } from "~/lib/types"
-import { NotFoundError } from "~/domain/errors"
 import { Entity, EntityProps } from "~/domain/entities"
+import { NotFoundError } from "~/domain/errors"
 import { Repository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export abstract class MemoryRepository<T extends Entity<EntityProps>> implements Repository<T> {
   protected readonly store: Record<string, T> = {}

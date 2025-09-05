@@ -1,7 +1,7 @@
-import { User, CreateUserProps } from "~/domain/entities"
-import { UserRepository } from "~/domain/repositories"
-import { PasswordVerifier, EventPublisher } from "~/domain/adapters"
+import { EventPublisher, PasswordVerifier } from "~/domain/adapters"
+import { CreateUserProps, User } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
+import { UserRepository } from "~/domain/repositories"
 
 export type CreateUserCommand = Omit<CreateUserProps, "emailVerified" | "passwordHash"> & {
   password: string

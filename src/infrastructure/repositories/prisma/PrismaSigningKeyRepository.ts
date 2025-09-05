@@ -1,11 +1,11 @@
 import { Prisma, SigningKey as PrismaSigningKey } from "@prisma/client"
-import { Query, QueryResult } from "~/lib/types"
-import { EncryptionProvider } from "~/infrastructure/crypto"
-import { NotFoundError } from "~/domain/errors"
 import { SigningKey } from "~/domain/entities"
+import { NotFoundError } from "~/domain/errors"
 import { SigningKeyRepository } from "~/domain/repositories"
-import { PrismaClient } from "./PrismaClient"
+import { EncryptionProvider } from "~/infrastructure/crypto"
+import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
+import { PrismaClient } from "./PrismaClient"
 
 export class PrismaSigningKeyRepository implements SigningKeyRepository {
   constructor(

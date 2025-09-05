@@ -1,9 +1,9 @@
-import * as client from "openid-client"
 import jwt from "jsonwebtoken"
-import { ClientCache } from "~/lib/ClientCache"
+import * as client from "openid-client"
+import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
-import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/domain/adapters"
+import { ClientCache } from "~/lib/ClientCache"
 
 const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(async idp =>
   client.discovery(new URL(idp.issuerUrl), idp.authSettings!.clientId, idp.authSettings!.clientSecret),

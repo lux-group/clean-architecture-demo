@@ -1,10 +1,10 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { IdentityProviderController } from "./api/IdentityProviderController"
 import { CreateIdentityProviderHandler } from "./commands/CreateIdentityProviderHandler"
 import { DeleteIdentityProviderHandler } from "./commands/DeleteIdentityProviderHandler"
 import { UpdateIdentityProviderHandler } from "./commands/UpdateIdentityProviderHandler"
-import { SearchIdentityProvidersHandler } from "./queries/SearchIdentityProvidersHandler"
 import { GetIdentityProviderByIdHandler } from "./queries/GetIdentityProviderByIdHandler"
+import { SearchIdentityProvidersHandler } from "./queries/SearchIdentityProvidersHandler"
 
 export default async function registerIdentityProviderAdminModule(container: AwilixContainer) {
   container.register({

@@ -1,13 +1,13 @@
 import { Request, Response } from "express"
 import { Controller, Get } from "~/app/decorators"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import { Logger } from "~/infrastructure/logging"
-import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
 import { SignInState, SignOutState } from "~/domain/adapters"
+import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
+import { Logger } from "~/infrastructure/logging"
 import { CreateSignInRequestCommand, CreateSignInRequestHandler } from "../commands/CreateSignInRequestHandler"
 import { CreateSignOutRequestCommand, CreateSignOutRequestHandler } from "../commands/CreateSignOutRequestHandler"
-import { ProcessSignInResponseCommand, ProcessSignInResponseHandler } from "../commands/ProcessSignInResponseHandler"
 import { FrontChannelSignOutCommand, FrontChannelSignOutHandler } from "../commands/FrontChannelSignOutHandler"
+import { ProcessSignInResponseCommand, ProcessSignInResponseHandler } from "../commands/ProcessSignInResponseHandler"
 
 @Controller("/auth/external")
 export class ExternalAuthenticationController {

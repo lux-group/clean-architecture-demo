@@ -1,8 +1,8 @@
-import { Logger } from "~/infrastructure/logging"
-import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
 import { Event } from "~/domain/adapters"
-import { EventBus } from "./EventBus"
+import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
 import { EntityChangeEvent } from "~/domain/events/EntityChangeEvent"
+import { Logger } from "~/infrastructure/logging"
+import { EventBus } from "./EventBus"
 
 export class EventLoggerAdapter {
   constructor(

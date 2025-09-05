@@ -1,8 +1,8 @@
 import "@test/matchers/supertest"
 import { randomUUID } from "node:crypto"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { EventPublisher } from "~/domain/adapters"
 
 describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {

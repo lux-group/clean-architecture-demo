@@ -1,9 +1,9 @@
-import { asClass, asFunction, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass, asFunction } from "awilix"
 import { createPrismaClient } from "./PrismaClient"
 import { PrismaIdentityProviderRepository } from "./PrismaIdentityProviderRepository"
-import { PrismaUserRepository } from "./PrismaUserRepository"
 import { PrismaSessionRepository } from "./PrismaSessionRepository"
 import { PrismaSigningKeyRepository } from "./PrismaSigningKeyRepository"
+import { PrismaUserRepository } from "./PrismaUserRepository"
 
 export default async function registerPrismaRepositories(container: AwilixContainer) {
   const { logger, postgresReadOnlyUrl, postgresReadWriteUrl } = container.resolve("config")

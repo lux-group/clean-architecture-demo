@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { AuthenticationError, InvalidOperationError, commonErrors } from "~/domain/errors"
-import { Session, CreateSessionProps } from "./Session"
+import { describe, expect, it } from "vitest"
+import { AuthenticationError, commonErrors, InvalidOperationError } from "~/domain/errors"
+import { CreateSessionProps, Session } from "./Session"
 
 describe("Session", () => {
   const mockCreateProps: CreateSessionProps = {

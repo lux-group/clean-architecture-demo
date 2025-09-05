@@ -1,7 +1,7 @@
 import { ParsedQs } from "qs"
-import { Query, Where } from "~/lib/types"
-import { toCamelCase, toSnakeCase } from "~/lib/transformObject"
 import { InvalidOperationError } from "~/domain/errors"
+import { toCamelCase, toSnakeCase } from "~/lib/transformObject"
+import { Query, Where } from "~/lib/types"
 
 function mapFieldName<T>(name: string): keyof T {
   return toCamelCase(name) as keyof T

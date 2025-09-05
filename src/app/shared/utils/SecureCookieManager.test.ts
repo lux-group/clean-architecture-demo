@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Request, Response } from "express"
-import { NodeEncryptionProvider } from "~/infrastructure/crypto/NodeEncryptionProvider"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Session } from "~/domain/entities"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { NodeEncryptionProvider } from "~/infrastructure/crypto/NodeEncryptionProvider"
 import { SecureCookieManager } from "./SecureCookieManager"
 
 type TestState = {

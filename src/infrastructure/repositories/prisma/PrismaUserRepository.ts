@@ -1,10 +1,10 @@
 import { Prisma, User as PrismaUser, UserIdentity as PrismaUserIdentity } from "@prisma/client"
-import { Query, QueryResult } from "~/lib/types"
-import { NotFoundError } from "~/domain/errors"
 import { User, UserIdentity } from "~/domain/entities"
+import { NotFoundError } from "~/domain/errors"
 import { UserRepository } from "~/domain/repositories"
-import { PrismaClient } from "./PrismaClient"
+import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
+import { PrismaClient } from "./PrismaClient"
 
 type PrismaUserWithIdentities = PrismaUser & {
   identities: PrismaUserIdentity[]

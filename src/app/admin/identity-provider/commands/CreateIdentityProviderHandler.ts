@@ -1,7 +1,7 @@
-import { CreateIdentityProviderProps, IdentityProvider } from "~/domain/entities"
-import { IdentityProviderRepository } from "~/domain/repositories"
 import { EventPublisher } from "~/domain/adapters"
+import { CreateIdentityProviderProps, IdentityProvider } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
+import { IdentityProviderRepository } from "~/domain/repositories"
 
 export type CreateIdentityProviderCommand = CreateIdentityProviderProps
 

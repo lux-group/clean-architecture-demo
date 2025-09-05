@@ -1,6 +1,6 @@
-import { UserRepository } from "~/domain/repositories"
 import { EventPublisher } from "~/domain/adapters"
 import { EntityChangeEvent } from "~/domain/events"
+import { UserRepository } from "~/domain/repositories"
 
 export interface DeleteUserCommand {
   id: string

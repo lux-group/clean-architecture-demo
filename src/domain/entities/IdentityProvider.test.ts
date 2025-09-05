@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { InvalidOperationError, commonErrors } from "~/domain/errors"
-import { IdentityProvider, IdentityProviderType, CreateIdentityProviderProps, UpdateIdentityProviderProps } from "./IdentityProvider"
+import { describe, expect, it } from "vitest"
+import { commonErrors, InvalidOperationError } from "~/domain/errors"
+import { CreateIdentityProviderProps, IdentityProvider, IdentityProviderType, UpdateIdentityProviderProps } from "./IdentityProvider"
 
 describe("IdentityProvider", () => {
   const mockCreateProps: CreateIdentityProviderProps = {

@@ -1,8 +1,8 @@
 import { randomBytes } from "node:crypto"
 import jwt from "jsonwebtoken"
+import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
-import { AuthClient, CheckSessionResponse, SignInState, SignOutRequest, Profile } from "~/domain/adapters"
 
 export class AppleClient implements AuthClient {
   constructor(

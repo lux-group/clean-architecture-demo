@@ -1,8 +1,8 @@
+import { EventPublisher, PasswordVerifier, Profile, TokenValidator } from "~/domain/adapters"
+import { IdentityProvider, Session, User, UserIdentity } from "~/domain/entities"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { AuthenticationEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"
-import { IdentityProvider, Session, User, UserIdentity } from "~/domain/entities"
-import { EventPublisher, PasswordVerifier, Profile, TokenValidator } from "~/domain/adapters"
 
 export class AuthenticationService {
   constructor(

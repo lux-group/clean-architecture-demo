@@ -1,6 +1,6 @@
+import { AuthClientFactory, SignOutState } from "~/domain/adapters"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { SessionService } from "~/domain/services"
-import { AuthClientFactory, SignOutState } from "~/domain/adapters"
 
 export interface CreateSignOutRequestCommand {
   sessionId: string

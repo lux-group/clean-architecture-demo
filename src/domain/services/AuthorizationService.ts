@@ -1,8 +1,8 @@
-import { User, Session } from "~/domain/entities"
+import { EventPublisher, TokenIssuer, TokenResponse } from "~/domain/adapters"
+import { Session, User } from "~/domain/entities"
 import { AuthorizationError, commonErrors } from "~/domain/errors"
 import { AuthorizationEvent } from "~/domain/events"
 import { SigningKeyRepository } from "~/domain/repositories"
-import { EventPublisher, TokenIssuer, TokenResponse } from "~/domain/adapters"
 
 export class AuthorizationService {
   constructor(

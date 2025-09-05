@@ -1,7 +1,7 @@
 import { RedisClientType } from "redis"
-import { transformObject, toDateObject, toISODateString } from "~/lib/transformObject"
 import { Session } from "~/domain/entities"
 import { SessionRepository } from "~/domain/repositories"
+import { toDateObject, toISODateString, transformObject } from "~/lib/transformObject"
 import { RedisRepository } from "./RedisRepository"
 
 export class RedisSessionRepository extends RedisRepository<Session, SessionRepository> implements SessionRepository {

@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
+import { mockAuthClient } from "@test/mocks"
 import request from "supertest"
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
-import { mockAuthClient } from "@test/mocks"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () => {

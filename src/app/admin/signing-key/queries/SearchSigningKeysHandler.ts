@@ -1,6 +1,6 @@
-import { Query, QueryResult } from "~/lib/types"
 import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export type SearchSigningKeysQuery = Query<SigningKey>
 

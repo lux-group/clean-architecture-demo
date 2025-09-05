@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { InvalidOperationError, commonErrors } from "~/domain/errors"
+import { describe, expect, it } from "vitest"
+import { commonErrors, InvalidOperationError } from "~/domain/errors"
 import { CreateUserProps, UpdateUserProps, User } from "./User"
 
 describe("User", () => {

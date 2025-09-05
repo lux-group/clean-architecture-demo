@@ -1,8 +1,8 @@
+import { AuthClientFactory, EventPublisher, SignInResponse } from "~/domain/adapters"
 import { CreateSessionProps, Session } from "~/domain/entities"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
-import { AuthClientFactory, EventPublisher, SignInResponse } from "~/domain/adapters"
-import { IdentityProviderRepository, SessionRepository } from "~/domain/repositories"
 import { SessionEvent } from "~/domain/events"
+import { IdentityProviderRepository, SessionRepository } from "~/domain/repositories"
 
 interface SessionConfig {
   readonly localSessionLifetimeHours: number

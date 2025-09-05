@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
 import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
+import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { User } from "~/domain/entities"
 import { CreateUserCommand, CreateUserHandler } from "../commands/CreateUserHandler"
 import { DeleteUserCommand, DeleteUserHandler } from "../commands/DeleteUserHandler"
 import { UpdateUserCommand, UpdateUserHandler } from "../commands/UpdateUserHandler"
 import { GetUserByIdHandler, GetUserByIdQuery } from "../queries/GetUserByIdHandler"
 import { SearchUsersHandler } from "../queries/SearchUsersHandler"
-import { parseQuery } from "~/app/shared/utils/parseQuery"
 
 @Controller("/admin/users")
 export class UserController {

@@ -1,6 +1,6 @@
-import { Query, QueryResult } from "~/lib/types"
 import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export type SearchIdentityProvidersQuery = Query<IdentityProvider>
 

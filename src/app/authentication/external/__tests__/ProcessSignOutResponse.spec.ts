@@ -1,6 +1,6 @@
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () => {

@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
+import { describe, expect, it } from "vitest"
 import { InvalidOperationError } from "~/domain/errors"
-import { SigningKey, CreateSigningKeyProps } from "./SigningKey"
+import { CreateSigningKeyProps, SigningKey } from "./SigningKey"
 
 describe("SigningKey", () => {
   const mockCreateProps: CreateSigningKeyProps = {

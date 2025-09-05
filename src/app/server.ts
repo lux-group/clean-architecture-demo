@@ -1,6 +1,6 @@
 import { AwilixContainer } from "awilix"
-import express from "express"
 import cookieParser from "cookie-parser"
+import express from "express"
 import helmet, { HelmetOptions } from "helmet"
 import { createRouterFromDecorators } from "./decorators"
 

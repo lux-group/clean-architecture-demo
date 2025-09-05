@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { SignInState } from "~/domain/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
-import { SignInState } from "~/domain/adapters"
 import { FacebookClient } from "./FacebookClient"
 
 // Mock global fetch

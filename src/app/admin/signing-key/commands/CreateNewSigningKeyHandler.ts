@@ -1,8 +1,8 @@
+import { EventPublisher } from "~/domain/adapters"
 import { SigningKey } from "~/domain/entities"
+import { EntityChangeEvent } from "~/domain/events"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { KeyPairGenerator } from "~/infrastructure/crypto"
-import { EventPublisher } from "~/domain/adapters"
-import { EntityChangeEvent } from "~/domain/events"
 
 export class CreateNewSigningKeyHandler {
   constructor(

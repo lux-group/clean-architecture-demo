@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { MemoryIdentityProviderRepository } from "./MemoryIdentityProviderRepository"
 import { MemorySessionRepository } from "./MemorySessionRepository"
 import { MemorySigningKeyRepository } from "./MemorySigningKeyRepository"

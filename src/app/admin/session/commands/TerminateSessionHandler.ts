@@ -1,7 +1,7 @@
-import { Session } from "~/domain/entities"
-import { SessionRepository } from "~/domain/repositories"
 import { EventPublisher } from "~/domain/adapters"
+import { Session } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
+import { SessionRepository } from "~/domain/repositories"
 
 export interface TerminateSessionCommand {
   sessionId: string

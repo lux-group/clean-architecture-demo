@@ -1,7 +1,7 @@
 import { RedisClientType } from "redis"
-import { transformObject, toDateObject, toISODateString } from "~/lib/transformObject"
 import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
+import { toDateObject, toISODateString, transformObject } from "~/lib/transformObject"
 import { RedisRepository } from "./RedisRepository"
 
 export class RedisIdentityProviderRepository

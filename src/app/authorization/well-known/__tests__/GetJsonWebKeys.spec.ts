@@ -1,6 +1,6 @@
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 
 describe("[GET] /oauth2/.well-known/jwks (GetJsonWebKeys)", () => {
   let context: TestContext

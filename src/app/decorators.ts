@@ -1,6 +1,6 @@
 import "reflect-metadata"
-import express, { Handler, ErrorRequestHandler, Router } from "express"
 import { AwilixContainer } from "awilix"
+import express, { ErrorRequestHandler, Handler, Router } from "express"
 import { AuthorizeOptions } from "./shared/middleware/authorize"
 
 enum MetadataKeys {

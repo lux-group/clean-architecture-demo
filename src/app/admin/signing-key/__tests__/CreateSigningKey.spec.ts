@@ -1,7 +1,7 @@
 import "@test/matchers/supertest"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 
 describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
   let context: TestContext

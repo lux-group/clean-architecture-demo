@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { UUIDToShort } from "~/lib/ShortUUID"
-import { SigningKey } from "~/domain/entities"
 import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/domain/adapters"
+import { SigningKey } from "~/domain/entities"
+import { UUIDToShort } from "~/lib/ShortUUID"
 
 export class JsonWebTokenIssuer implements TokenIssuer {
   constructor(

@@ -1,8 +1,8 @@
 import "@test/matchers/supertest"
 import { randomUUID } from "node:crypto"
+import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
-import { getTestContext, TestContext } from "@test/integration/TestContext"
 
 describe("[GET] /admin/users/:id (GetUserById)", () => {
   let context: TestContext

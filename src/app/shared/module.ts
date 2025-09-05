@@ -1,9 +1,9 @@
-import { asClass, asFunction, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass, asFunction } from "awilix"
+import { authorize } from "./middleware/authorize"
 import { handleClientErrors } from "./middleware/handleClientErrors"
 import { handleOAuthErrors } from "./middleware/handleOAuthErrors"
 import { handleServerErrors } from "./middleware/handleServerErrors"
 import { SecureCookieManager } from "./utils/SecureCookieManager"
-import { authorize } from "./middleware/authorize"
 
 export default async function registerSharedModule(container: AwilixContainer) {
   container.register({

@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { NextFunction, Request, Response } from "express"
 import { mockLogger } from "@test/mocks"
+import { NextFunction, Request, Response } from "express"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { handleServerErrors } from "./handleServerErrors"
 
 describe("Handle Server Errors Middleware", () => {

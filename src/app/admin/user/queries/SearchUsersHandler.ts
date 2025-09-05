@@ -1,6 +1,6 @@
-import { Query, QueryResult } from "~/lib/types"
 import { User } from "~/domain/entities"
 import { UserRepository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export type SearchUsersQuery = Query<User>
 

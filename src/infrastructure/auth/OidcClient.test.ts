@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import * as client from "openid-client"
-import jwt from "jsonwebtoken"
 import * as factories from "@test/factories"
+import jwt from "jsonwebtoken"
+import * as client from "openid-client"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { SignInState } from "~/domain/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
-import { SignInState } from "~/domain/adapters"
 import { OidcClient } from "./OidcClient"
 
 // Mock the openid-client module using manual mock

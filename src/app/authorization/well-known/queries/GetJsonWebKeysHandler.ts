@@ -1,8 +1,8 @@
-import { importSPKI, exportJWK } from "jose"
-import { Query } from "~/lib/types"
-import { UUIDToShort } from "~/lib/ShortUUID"
+import { exportJWK, importSPKI } from "jose"
 import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
+import { UUIDToShort } from "~/lib/ShortUUID"
+import { Query } from "~/lib/types"
 
 export class GetJsonWebKeysHandler {
   constructor(private readonly signingKeyRepository: SigningKeyRepository) {}

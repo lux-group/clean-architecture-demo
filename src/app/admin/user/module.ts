@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { UserController } from "./api/UserController"
 import { CreateUserHandler } from "./commands/CreateUserHandler"
 import { DeleteUserHandler } from "./commands/DeleteUserHandler"

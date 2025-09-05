@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto"
+import { AuthClient, CheckSessionResponse, Profile, SignInRequest, SignInState, SignOutRequest } from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
-import { AuthClient, CheckSessionResponse, SignInRequest, SignInState, SignOutRequest, Profile } from "~/domain/adapters"
 
 export class FacebookClient implements AuthClient {
   constructor(

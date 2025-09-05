@@ -1,14 +1,14 @@
 import { Server } from "node:http"
-import { createContainer, InjectionMode, AwilixContainer } from "awilix"
-import createServer from "~/app/server"
+import { AwilixContainer, createContainer, InjectionMode } from "awilix"
 import registerApp from "~/app/module"
+import createServer from "~/app/server"
+import createTestData from "~/data"
 import registerDomainServices from "~/domain/services/module"
+import registerConfig from "~/infrastructure/config/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerMemoryRepositories from "~/infrastructure/repositories/memory/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
-import registerConfig from "~/infrastructure/config/module"
-import createTestData from "~/data"
 
 const environment = process.env.NODE_ENV || "dev"
 const port = process.env.PORT || 3000

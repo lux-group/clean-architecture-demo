@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass } from "awilix"
 import { WellKnownController } from "./api/WellKnownController"
 import { GetJsonWebKeysHandler } from "./queries/GetJsonWebKeysHandler"
 import { GetOpenidConfigurationHandler } from "./queries/GetOpenidConfigurationHandler"

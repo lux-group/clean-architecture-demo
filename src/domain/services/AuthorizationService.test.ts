@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockEventPublisher, mockSigningKeyRepository, mockTokenIssuer } from "@test/mocks"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { AuthorizationError, commonErrors } from "~/domain/errors"
 import { AuthorizationService } from "./AuthorizationService"
 

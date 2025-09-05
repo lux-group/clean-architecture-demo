@@ -1,7 +1,7 @@
 import { RedisClientType } from "redis"
-import { Query, QueryResult } from "~/lib/types"
 import { Entity, EntityProps } from "~/domain/entities"
 import { Repository } from "~/domain/repositories"
+import { Query, QueryResult } from "~/lib/types"
 
 export abstract class RedisRepository<T extends Entity<EntityProps>, R extends Repository<T>> implements Repository<T> {
   constructor(
