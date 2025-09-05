@@ -8,11 +8,13 @@ import registerPrismaRepositories from "~/infrastructure/repositories/prisma/mod
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
 import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
+import { TokenIssuer, TokenRequest } from "~/domain/adapters/TokenIssuer"
 
 export interface TestContext {
   container: AwilixContainer
   server: Application
   data: TestDataContext
+  createAccessToken: (userId: string, scopes: string[]) => Promise<string>
 }
 
 const createTestContainer = async () => {
@@ -34,5 +36,13 @@ export const getTestContext = async (): Promise<TestContext> => {
   const container = await createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
-  return { container, server, data }
+
+  const createAccessToken = async (userId: string, scopes: string[]) => {
+    const tokenIssuer = container.resolve<TokenIssuer>("tokenIssuer")
+    const signingKey = await data.getActiveSigningKey()
+    const request: TokenRequest = { userId, scopes, claims: {} }
+    return tokenIssuer.createAccessToken(signingKey, request).accessToken
+  }
+
+  return { container, server, data, createAccessToken }
 }

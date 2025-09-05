@@ -11,7 +11,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["user:write"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["user:write"])    
   })
 
   describe("when the deletion was successful", () => {
@@ -77,7 +77,7 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
     it("should return 403 when the access token does not have scope 'users:write'", async () => {
       const user = await context.data.createUser()
-      const nonWriteAccessToken = await context.data.createAccessToken(randomUUID(), ["user:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["user:read"]) 
 
       const response = await request(context.server)
         .delete(`/admin/users/${user.id}`)

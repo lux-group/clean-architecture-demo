@@ -5,6 +5,8 @@ import registerApp from "~/app/module"
 import registerDomainServices from "~/domain/services/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerMemoryRepositories from "~/infrastructure/repositories/memory/module"
+import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
+import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
 import registerConfig from "~/infrastructure/config/module"
 import createTestData from "~/data"
 
@@ -41,9 +43,14 @@ async function start(): Promise<void> {
   await registerApp(container)
   await registerDomainServices(container)
   await registerInfrastructureServices(container)
-  await registerMemoryRepositories(container)
   
-  await createTestData(container)
+  if (environment === "dev") {
+    await registerMemoryRepositories(container)
+    await createTestData(container)
+  } else {
+    await registerPrismaRepositories(container)
+    await registerRedisDecoratorRepositories(container)
+  }
 
   const app = createServer(container)
   const server = app.listen(port, () => console.log(`Listening on port ${port}`))

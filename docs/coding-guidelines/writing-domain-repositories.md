@@ -71,10 +71,6 @@ Register as a decorator in `src/infrastructure/repositories/redis/module.ts` usi
 decorate(container, "myEntityRepository", asClass(RedisMyEntityRepository).singleton())
 ```
 
-## Unit of Work (optional)
-
-When a transactional boundary is required across multiple repositories, use the `UnitOfWork` abstraction (`src/domain/repositories/UnitOfWork.ts`) and the Prisma implementation to execute atomic operations.
-
 ## Tests with Testcontainers
 
 - Prisma tests: use `createPrismaTestContext()` from `src/infrastructure/repositories/prisma/__tests__/helpers.ts`.

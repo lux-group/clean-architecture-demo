@@ -10,7 +10,7 @@ describe("[GET] /admin/signing-keys/:id (GetSigningKeyById)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken(randomUUID(), ["signing-key:read"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["signing-key:read"])    
   })
 
   describe("when the signing key exists", () => {
@@ -51,7 +51,7 @@ describe("[GET] /admin/signing-keys/:id (GetSigningKeyById)", () => {
 
     it("should return 403 when the access token does not have scope 'signing-keys:read'", async () => {
       const signingKey = await context.data.createSigningKey()
-      const nonReadAccessToken = await context.data.createAccessToken(randomUUID(), ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(randomUUID(), ["foo:bar"]) 
 
       const response = await request(context.server)
         .get(`/admin/signing-keys/${signingKey.id}`)

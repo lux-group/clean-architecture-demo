@@ -5,13 +5,15 @@ export default defineConfig({
   test: {
     environment: "node",
     testTimeout: 30000,
-    slowTestThreshold: 15000,
+    slowTestThreshold: 30000,
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
       exclude: [
+        "src/**/__tests__/**",
         "src/**/*.d.ts",
-        "src/index.ts",
+        "src/**/types.ts",
+        "src/**/index.ts",
         "src/data.ts",
         "src/domain/adapters",
         "src/domain/events",
@@ -28,6 +30,7 @@ export default defineConfig({
         test: {
           name: "unit",
           include: ["src/**/*.test.ts"],
+          testTimeout: 30000,
         }
       },
       {
@@ -36,6 +39,7 @@ export default defineConfig({
           name: "integration",
           include: ["src/app/**/*.spec.ts"],
           globalSetup: "./test/integration/vitest-setup.ts",
+          testTimeout: 30000,
         }
       },
     ]

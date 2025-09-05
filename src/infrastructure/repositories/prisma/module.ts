@@ -1,6 +1,5 @@
 import { asClass, asFunction, AwilixContainer } from "awilix"
 import { createPrismaClient } from "./PrismaClient"
-import { PrismaUnitOfWork } from "./PrismaUnitOfWork"
 import { PrismaIdentityProviderRepository } from "./PrismaIdentityProviderRepository"
 import { PrismaUserRepository } from "./PrismaUserRepository"
 import { PrismaSessionRepository } from "./PrismaSessionRepository"
@@ -13,8 +12,7 @@ export default async function registerPrismaRepositories(container: AwilixContai
 
   container.register({
     prismaClient: asFunction(() => prismaClient).singleton().disposer(c => c.$disconnect()),
-    unitOfWork: asClass(PrismaUnitOfWork).transient(),
-    
+
     identityProviderRepository: asClass(PrismaIdentityProviderRepository).singleton(),
     sessionRepository: asClass(PrismaSessionRepository).singleton(),
     signingKeyRepository: asClass(PrismaSigningKeyRepository).singleton(),

@@ -9,7 +9,7 @@ describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.data.createAccessToken("admin-user", ["signing-key:write"])    
+    accessToken = await context.createAccessToken("admin-user", ["signing-key:write"])    
   })
 
   describe("when the creation was successful", () => {
@@ -38,7 +38,7 @@ describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
     })
 
     it("should return 403 when the access token does not have scope 'signing-keys:write'", async () => {
-      const nonWriteAccessToken = await context.data.createAccessToken("admin-user", ["signing-key:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken("admin-user", ["signing-key:read"]) 
 
       const response = await request(context.server)
         .post("/admin/signing-keys")

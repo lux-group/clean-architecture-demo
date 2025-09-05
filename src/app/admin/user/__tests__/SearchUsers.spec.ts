@@ -12,7 +12,7 @@ describe("[GET] /admin/users (SearchUsers)", () => {
   beforeAll(async () => {
     context = await getTestContext()
     user = await context.data.createUser()
-    accessToken = await context.data.createAccessToken(user.id, ["user:read"])    
+    accessToken = await context.createAccessToken(user.id, ["user:read"])    
   })
 
   describe("when users exist", () => {
@@ -84,7 +84,7 @@ describe("[GET] /admin/users (SearchUsers)", () => {
     })
 
     it("should return 403 when the access token does not have scope 'users:read'", async () => {
-      const nonReadAccessToken = await context.data.createAccessToken(user.id, ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(user.id, ["foo:bar"]) 
 
       const response = await request(context.server)
         .get("/admin/users?offset=0&limit=10")

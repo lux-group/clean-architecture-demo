@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client"
 import { beforeAll, describe, expect, it, vi } from "vitest"
 import { convertKnownErrors } from "../convertKnownErrors"
-import { ValidationError } from "~/domain/errors"
+import { ConcurrencyError, ValidationError } from "~/domain/errors"
 
 describe("clients/prisma/extensions.ts", () => {
   const extension = convertKnownErrors()
@@ -49,7 +49,7 @@ describe("clients/prisma/extensions.ts", () => {
     })
   })
 
-  describe("when convert P2002 unique constraint error to InvalidPayloadError", () => {
+  describe("when handling P2002 error with model namer", () => {
     beforeAll(async () => {
       const prismaError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
         code: "P2002",
@@ -83,7 +83,7 @@ describe("clients/prisma/extensions.ts", () => {
     })
   })
 
-  describe("when handle P2002 error without modelName", () => {
+  describe("when handling P2002 error without model name", () => {
     beforeAll(async () => {
       const prismaError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
         code: "P2002",
@@ -112,6 +112,39 @@ describe("clients/prisma/extensions.ts", () => {
     it("throws expected error", () => {
       expect(error).toStrictEqual(
         new ValidationError("Resource with same foo already exists."),
+      )
+    })
+  })
+
+  describe("when handling P2025 error", () => {
+    beforeAll(async () => {
+      const prismaError = new Prisma.PrismaClientKnownRequestError("Not found", {
+        code: "P2025",
+        clientVersion: "5.0.0",
+        meta: {
+          target: ["foo"],
+        },
+      })
+
+      mockQuery.mockRejectedValue(prismaError)
+
+      try {
+        result = await extension.query.$allModels.$allOperations({
+          args: {},
+          query: mockQuery,
+        })
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          error = e
+        } else {
+          error = new Error("Unknown error")
+        }
+      }
+    })
+
+    it("throws expected error", () => {
+      expect(error).toStrictEqual(
+        new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user."),
       )
     })
   })

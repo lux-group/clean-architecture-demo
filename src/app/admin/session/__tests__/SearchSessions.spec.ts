@@ -14,7 +14,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
 
     const user = await context.data.createUser()
     session = await context.data.createSession({ userId: user.id }, 24)
-    accessToken = await context.data.createAccessToken(user.id, ["session:read"])    
+    accessToken = await context.createAccessToken(user.id, ["session:read"])    
   })
 
   describe("when sessions exist", () => {
@@ -86,7 +86,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     })
 
     it("should return 403 when the access token does not have scope 'sessions:read'", async () => {
-      const nonReadAccessToken = await context.data.createAccessToken(session.userId, ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(session.userId, ["foo:bar"]) 
 
       const response = await request(context.server)
         .get("/admin/sessions?offset=0&limit=10")

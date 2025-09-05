@@ -12,7 +12,7 @@ describe("[GET] /admin/identity-providers (SearchIdentityProviders)", () => {
   beforeAll(async () => {
     context = await getTestContext()
     identityProvider = await context.data.createIdentityProvider()
-    accessToken = await context.data.createAccessToken(identityProvider.id, ["identity-provider:read"]) // subject not relevant
+    accessToken = await context.createAccessToken(identityProvider.id, ["identity-provider:read"]) // subject not relevant
   })
 
   describe("when identity providers exist", () => {
@@ -85,7 +85,7 @@ describe("[GET] /admin/identity-providers (SearchIdentityProviders)", () => {
     })
 
     it("should return 403 when the access token does not have scope 'identity-providers:read'", async () => {
-      const nonReadAccessToken = await context.data.createAccessToken(identityProvider.id, ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(identityProvider.id, ["foo:bar"]) 
 
       const response = await request(context.server)
         .get("/admin/identity-providers?offset=0&limit=10")
