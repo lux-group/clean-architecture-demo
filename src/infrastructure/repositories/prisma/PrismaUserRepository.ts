@@ -17,7 +17,10 @@ export class PrismaUserRepository implements UserRepository {
     const query = mapQuery(options, ["identities"]) as Prisma.UserFindManyArgs
     const [total, users] = await this.prismaClient
       .$replica()
-      .$transaction([this.prismaClient.$replica().user.count({ where: query.where }), this.prismaClient.$replica().user.findMany(query)])
+      .$transaction([
+        this.prismaClient.$replica().user.count({ where: query.where }),
+        this.prismaClient.$replica().user.findMany(query),
+      ])
 
     return {
       items: users.map((u: any) => this.mapToUser(u)),

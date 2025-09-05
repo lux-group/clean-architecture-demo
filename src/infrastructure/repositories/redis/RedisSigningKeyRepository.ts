@@ -4,7 +4,10 @@ import { SigningKeyRepository } from "~/domain/repositories"
 import { toDateObject, toISODateString, transformObject } from "~/lib/transformObject"
 import { RedisRepository } from "./RedisRepository"
 
-export class RedisSigningKeyRepository extends RedisRepository<SigningKey, SigningKeyRepository> implements SigningKeyRepository {
+export class RedisSigningKeyRepository
+  extends RedisRepository<SigningKey, SigningKeyRepository>
+  implements SigningKeyRepository
+{
   constructor(redisClient: RedisClientType, redisDecorated_signingKeyRepository: SigningKeyRepository) {
     super("signing_key", 3600, redisClient, redisDecorated_signingKeyRepository)
   }

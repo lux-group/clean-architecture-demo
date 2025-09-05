@@ -1,5 +1,12 @@
 import { NextFunction, Request, Response } from "express"
-import { AuthenticationError, AuthorizationError, ConcurrencyError, InvalidOperationError, NotFoundError, ValidationError } from "~/domain/errors"
+import {
+  AuthenticationError,
+  AuthorizationError,
+  ConcurrencyError,
+  InvalidOperationError,
+  NotFoundError,
+  ValidationError,
+} from "~/domain/errors"
 import { Logger } from "~/infrastructure/logging"
 
 export function handleClientErrors(logger: Logger) {

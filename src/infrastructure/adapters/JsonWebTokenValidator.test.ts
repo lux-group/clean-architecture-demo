@@ -136,28 +136,36 @@ describe("JsonWebTokenValidator", () => {
     it("should throw AuthenticationError when JWT is malformed", async () => {
       const malformedToken = "not.a.valid.jwt.token"
 
-      await expect(validator.decodeAndValidateToken(malformedToken)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(malformedToken)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should throw AuthenticationError when iss claim is missing", async () => {
       const payload = { ...createValidPayload(), iss: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should throw AuthenticationError when aud claim is missing", async () => {
       const payload = { ...createValidPayload(), aud: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should throw AuthenticationError when sub claim is missing", async () => {
       const payload = { ...createValidPayload(), sub: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should throw AuthenticationError when identity provider is not found", async () => {
@@ -185,7 +193,9 @@ describe("JsonWebTokenValidator", () => {
       const payload = createValidPayload()
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError("Unable to fetch JWKS document."))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError("Unable to fetch JWKS document."),
+      )
     })
 
     it("should handle JWKS document fetch failure", async () => {
@@ -201,7 +211,9 @@ describe("JsonWebTokenValidator", () => {
       const payload = createValidPayload()
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError("Unable to fetch JWKS document."))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError("Unable to fetch JWKS document."),
+      )
     })
 
     it("should throw AuthenticationError when JWT signature is invalid", async () => {
@@ -223,7 +235,9 @@ describe("JsonWebTokenValidator", () => {
         },
       })
 
-      await expect(validator.decodeAndValidateToken(tokenWithWrongSignature)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(tokenWithWrongSignature)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should correctly extract profile information", async () => {
@@ -304,7 +318,9 @@ describe("JsonWebTokenValidator", () => {
       }
       const token = createToken(expiredPayload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
+        new AuthenticationError(commonErrors.invalidJwt),
+      )
     })
 
     it("should validate token with different key IDs", async () => {

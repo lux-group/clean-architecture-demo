@@ -7,7 +7,8 @@ export const commonErrors = {
   authenticationFailed: "Authentication failed. Sign-in credentials are invalid.",
   accountDisabled: "The user accounts is disabled.",
   passwordChangeNotAllowed: "Changing password is not allowed because the account has a work or social identity.",
-  passwordAuthenticationNotAllowed: "Sign-in with password is not allowed. Please use your work or social sign-in instead.",
+  passwordAuthenticationNotAllowed:
+    "Sign-in with password is not allowed. Please use your work or social sign-in instead.",
   duplicateIdentity: "The user already has an identity from this identity Provider.",
   mustBeService: "The operation can only be performed by service accounts.",
   mustNotBeService: "The operation can not be performed by service accounts.",

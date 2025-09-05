@@ -18,7 +18,9 @@ export abstract class MemoryRepository<T extends Entity<EntityProps>> implements
 
   async tryGet(filters: Record<string, unknown>): Promise<T | undefined> {
     const entities = Object.entries(filters)
-    const entity = Object.values(this.store).find(obj => entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value))
+    const entity = Object.values(this.store).find(obj =>
+      entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value),
+    )
     return entity
   }
 

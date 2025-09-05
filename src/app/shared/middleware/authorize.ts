@@ -11,7 +11,12 @@ export interface AuthorizeOptions {
 }
 
 // The first wrapper function is used for dependency injection.
-export function authorize(baseUrl: string, logger: Logger, tokenIssuerConfig: TokenIssuerConfig, signingKeyRepository: SigningKeyRepository) {
+export function authorize(
+  baseUrl: string,
+  logger: Logger,
+  tokenIssuerConfig: TokenIssuerConfig,
+  signingKeyRepository: SigningKeyRepository,
+) {
   // The second wrapper function is used by the decorator to inject arguments.
   return (options: AuthorizeOptions) => {
     // This is the actual middleware function.

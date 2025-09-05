@@ -39,7 +39,10 @@ describe("[POST] /admin/users (CreateUser)", () => {
     it("should return 201 with valid user", async () => {
       const payload = getPayload()
 
-      const response = await request(context.server).post("/admin/users").set("Authorization", `Bearer ${accessToken}`).send(payload)
+      const response = await request(context.server)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       expect(response.status).toBe(201)
       expect(response.body).toEqual(
@@ -64,7 +67,10 @@ describe("[POST] /admin/users (CreateUser)", () => {
     it("should create the user in the database", async () => {
       const payload = getPayload()
 
-      const response = await request(context.server).post("/admin/users").set("Authorization", `Bearer ${accessToken}`).send(payload)
+      const response = await request(context.server)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       const created = await context.data.getUser(response.body.id)
       expect(response).bodyToMatchEntity(created)
@@ -95,7 +101,10 @@ describe("[POST] /admin/users (CreateUser)", () => {
       const payload = getPayload()
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["user:read"])
 
-      const response = await request(context.server).post("/admin/users").set("Authorization", `Bearer ${nonWriteAccessToken}`).send(payload)
+      const response = await request(context.server)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send(payload)
 
       expect(response.status).toBe(403)
     })

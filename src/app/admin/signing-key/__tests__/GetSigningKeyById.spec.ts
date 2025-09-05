@@ -17,7 +17,10 @@ describe("[GET] /admin/signing-keys/:id (GetSigningKeyById)", () => {
     it("should return 200 with the correct signing key data", async () => {
       const signingKey = await context.data.createSigningKey()
 
-      const response = await request(context.server).get(`/admin/signing-keys/${signingKey.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(200)
       expect(response).bodyToMatchEntity(signingKey)
@@ -26,7 +29,10 @@ describe("[GET] /admin/signing-keys/:id (GetSigningKeyById)", () => {
 
   describe("when the signing key does not exist", () => {
     it("should return 404", async () => {
-      const response = await request(context.server).get(`/admin/signing-keys/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/signing-keys/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(404)
     })

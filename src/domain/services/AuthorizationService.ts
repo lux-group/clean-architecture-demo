@@ -11,7 +11,13 @@ export class AuthorizationService {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async issueAccessToken(user: User, impersonatedByUser?: User, session?: Session, audience?: string, scope?: string): Promise<TokenResponse> {
+  async issueAccessToken(
+    user: User,
+    impersonatedByUser?: User,
+    session?: Session,
+    audience?: string,
+    scope?: string,
+  ): Promise<TokenResponse> {
     const signingKey = await this.signingKeyRepository.tryGetActiveSigningKey()
     if (!signingKey || !signingKey.privateKey) {
       throw new Error("No active signing key found.")

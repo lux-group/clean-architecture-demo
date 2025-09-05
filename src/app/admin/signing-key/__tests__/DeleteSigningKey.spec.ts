@@ -29,7 +29,10 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
     it("should remove the signing key from the database", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
 
-      await request(context.server).delete(`/admin/signing-keys/${signingKey.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       const exists = await context.data.signingKeyExists(signingKey.id)
       expect(exists).toBe(false)
@@ -41,7 +44,10 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server).delete(`/admin/signing-keys/${signingKey.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/signing-keys/${signingKey.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })

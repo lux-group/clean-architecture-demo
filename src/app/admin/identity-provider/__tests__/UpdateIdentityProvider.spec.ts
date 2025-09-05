@@ -64,7 +64,10 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server).put(`/admin/identity-providers/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
+      await request(context.server)
+        .put(`/admin/identity-providers/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })

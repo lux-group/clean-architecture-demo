@@ -1,6 +1,12 @@
 import { randomUUID } from "node:crypto"
 import * as factories from "@test/factories"
-import { mockAuthClient, mockAuthClientFactory, mockEventPublisher, mockIdentityProviderRepository, mockSessionRepository } from "@test/mocks"
+import {
+  mockAuthClient,
+  mockAuthClientFactory,
+  mockEventPublisher,
+  mockIdentityProviderRepository,
+  mockSessionRepository,
+} from "@test/mocks"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Session, SessionStatus } from "~/domain/entities"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
@@ -15,7 +21,13 @@ describe("SessionService", () => {
       externalSessionLifetimeHours: 48,
       minSessionRefreshDelayMinutes: 1,
     }
-    service = new SessionService(mockAuthClientFactory, mockIdentityProviderRepository, mockSessionRepository, sessionConfig, mockEventPublisher)
+    service = new SessionService(
+      mockAuthClientFactory,
+      mockIdentityProviderRepository,
+      mockSessionRepository,
+      sessionConfig,
+      mockEventPublisher,
+    )
     vi.clearAllMocks()
   })
 
@@ -33,7 +45,9 @@ describe("SessionService", () => {
       const session = factories.createLocalSession()
       mockSessionRepository.tryGetById.mockResolvedValue(session)
 
-      await expect(service.getActiveSessionById(session.id, "nonce-123")).rejects.toThrow(new AuthenticationError(commonErrors.sessionInvalid))
+      await expect(service.getActiveSessionById(session.id, "nonce-123")).rejects.toThrow(
+        new AuthenticationError(commonErrors.sessionInvalid),
+      )
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
@@ -43,13 +57,17 @@ describe("SessionService", () => {
       session.terminateSessionByAdmin()
       mockSessionRepository.tryGetById.mockResolvedValue(session)
 
-      await expect(service.getActiveSessionById(session.id, session.nonce)).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.getActiveSessionById(session.id, session.nonce)).rejects.toThrow(
+        new AuthenticationError(commonErrors.sessionExpired),
+      )
     })
 
     it("should throw error when session not found", async () => {
       mockSessionRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.getActiveSessionById("session-123", "nonce-123")).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.getActiveSessionById("session-123", "nonce-123")).rejects.toThrow(
+        new AuthenticationError(commonErrors.sessionExpired),
+      )
     })
   })
 

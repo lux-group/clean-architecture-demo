@@ -102,7 +102,10 @@ export class AuthenticationService {
     return user
   }
 
-  async authenticateWithExternalIdentity(idp: IdentityProvider, profile: Profile): Promise<{ user: User; newIdentity?: UserIdentity }> {
+  async authenticateWithExternalIdentity(
+    idp: IdentityProvider,
+    profile: Profile,
+  ): Promise<{ user: User; newIdentity?: UserIdentity }> {
     const identityProviderId = idp.id
     const identifierClaimValue = profile.identifierClaimValue
 
@@ -150,7 +153,9 @@ export class AuthenticationService {
     }
 
     if (!user.canSignInWithIdentityProvider()) {
-      this.publishEvent(AuthenticationEvent.identityProviderMethodNotAllowed(user, identityProviderId, identifierClaimValue))
+      this.publishEvent(
+        AuthenticationEvent.identityProviderMethodNotAllowed(user, identityProviderId, identifierClaimValue),
+      )
       throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
     }
 

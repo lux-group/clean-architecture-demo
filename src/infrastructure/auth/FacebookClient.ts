@@ -1,5 +1,12 @@
 import { randomBytes } from "node:crypto"
-import { AuthClient, CheckSessionResponse, Profile, SignInRequest, SignInState, SignOutRequest } from "~/domain/adapters"
+import {
+  AuthClient,
+  CheckSessionResponse,
+  Profile,
+  SignInRequest,
+  SignInState,
+  SignOutRequest,
+} from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 

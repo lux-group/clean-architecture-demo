@@ -20,7 +20,10 @@ export class ProcessSignInResponseHandler {
     const idp = await this.identityProviderRepository.getById(command.state.identityProviderId)
     const client = this.authClientFactory.createClient(idp)
     const response = await client.processSignInResponse(command.state, command.url)
-    const { user, newIdentity } = await this.authenticationService.authenticateWithExternalIdentity(idp, response.profile)
+    const { user, newIdentity } = await this.authenticationService.authenticateWithExternalIdentity(
+      idp,
+      response.profile,
+    )
 
     // If the user has signed in for the first time, we need to delete all unnecessary
     // user attributes from the Entra ID profile to reduce the amount of PII we store

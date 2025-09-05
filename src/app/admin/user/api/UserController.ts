@@ -22,7 +22,11 @@ export class UserController {
   @Get("/")
   @Authorize({ scopes: ["user:write", "user:read"] })
   async search(req: Request, res: Response) {
-    const query = parseQuery<User>(req.query, ["createdAt", "email", "givenName", "surname"], ["email", "givenName", "surname"])
+    const query = parseQuery<User>(
+      req.query,
+      ["createdAt", "email", "givenName", "surname"],
+      ["email", "givenName", "surname"],
+    )
     const result = await this.searchUsersHandler.execute(query)
     res.json({ ...result, items: result.items.map(this.present) })
   }

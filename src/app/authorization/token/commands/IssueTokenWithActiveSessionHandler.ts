@@ -44,7 +44,13 @@ export class IssueTokenWithActiveSessionHandler {
       user = userToImpersonate
     }
 
-    const accessToken = await this.authorizationService.issueAccessToken(user, impersonatedByUser, session, command.audience, command.scope)
+    const accessToken = await this.authorizationService.issueAccessToken(
+      user,
+      impersonatedByUser,
+      session,
+      command.audience,
+      command.scope,
+    )
 
     return accessToken
   }

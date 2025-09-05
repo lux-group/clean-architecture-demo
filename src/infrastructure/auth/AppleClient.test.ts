@@ -187,7 +187,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Authorization code not received from Apple")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Authorization code not received from Apple",
+      )
     })
 
     it("should throw error for invalid state", async () => {
@@ -209,7 +211,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Token exchange failed: 400 Bad Request")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Token exchange failed: 400 Bad Request",
+      )
     })
 
     it("should throw error for invalid nonce in ID token", async () => {
@@ -251,7 +255,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid issuer in ID token")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Invalid issuer in ID token",
+      )
     })
 
     it("should throw error for invalid audience", async () => {
@@ -272,7 +278,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid audience in ID token")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Invalid audience in ID token",
+      )
     })
 
     it("should throw error when required profile information is missing", async () => {
@@ -293,7 +301,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Required profile information not available")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Required profile information not available",
+      )
     })
 
     it("should handle malformed user data gracefully", async () => {
@@ -323,7 +333,9 @@ describe("AppleClient", () => {
 
   describe("createSignOutRequest", () => {
     it("should throw error as Apple doesn't support sign-out", async () => {
-      await expect(appleClient.createSignOutRequest(redirectUrl)).rejects.toThrow("The identity provider does not support single-sign-out.")
+      await expect(appleClient.createSignOutRequest(redirectUrl)).rejects.toThrow(
+        "The identity provider does not support single-sign-out.",
+      )
     })
   })
 
@@ -337,7 +349,9 @@ describe("AppleClient", () => {
 
   describe("editProfile", () => {
     it("should throw error as Apple doesn't support profile editing", async () => {
-      await expect(appleClient.editProfile("access-token", "John", "Doe")).rejects.toThrow("The identity provider does not support editing profiles.")
+      await expect(appleClient.editProfile("access-token", "John", "Doe")).rejects.toThrow(
+        "The identity provider does not support editing profiles.",
+      )
     })
   })
 
@@ -382,7 +396,9 @@ describe("AppleClient", () => {
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Failed to process ID token")
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Failed to process ID token",
+      )
     })
   })
 })

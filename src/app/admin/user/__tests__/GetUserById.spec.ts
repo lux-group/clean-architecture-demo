@@ -17,7 +17,10 @@ describe("[GET] /admin/users/:id (GetUserById)", () => {
     it("should return 200 with the correct user data", async () => {
       const user = await context.data.createUser()
 
-      const response = await request(context.server).get(`/admin/users/${user.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(200)
       expect(response).bodyToMatchEntity(user)
@@ -26,7 +29,10 @@ describe("[GET] /admin/users/:id (GetUserById)", () => {
 
   describe("when the user does not exist", () => {
     it("should return 404", async () => {
-      const response = await request(context.server).get(`/admin/users/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/users/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(404)
     })
@@ -45,7 +51,10 @@ describe("[GET] /admin/users/:id (GetUserById)", () => {
       const user = await context.data.createUser()
       const nonReadAccessToken = await context.createAccessToken(randomUUID(), ["foo:bar"])
 
-      const response = await request(context.server).get(`/admin/users/${user.id}`).set("Authorization", `Bearer ${nonReadAccessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${nonReadAccessToken}`)
+        .send()
 
       expect(response.status).toBe(403)
     })

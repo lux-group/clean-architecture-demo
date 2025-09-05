@@ -34,7 +34,10 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const original = await context.data.createUser()
       const payload = getPayload()
 
-      const response = await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
+      const response = await request(context.server)
+        .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual(expect.objectContaining(payload))
@@ -44,7 +47,10 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const original = await context.data.createUser()
       const payload = getPayload()
 
-      const response = await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
+      const response = await request(context.server)
+        .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       const updated = await context.data.getUser(original.id)
       expect(response).bodyToMatchEntity(updated)
@@ -57,7 +63,10 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
+      await request(context.server)
+        .put(`/admin/users/${original.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -71,7 +80,10 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
         surname: "Updated Surname",
       }
 
-      const response = await request(context.server).put(`/admin/users/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
+      const response = await request(context.server)
+        .put(`/admin/users/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
 
       expect(response.status).toBe(404)
     })

@@ -18,7 +18,10 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
     it("should return 204", async () => {
       const user = await context.data.createUser()
 
-      const response = await request(context.server).delete(`/admin/users/${user.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(204)
     })
@@ -26,7 +29,10 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
     it("should remove the user from the database", async () => {
       const user = await context.data.createUser()
 
-      await request(context.server).delete(`/admin/users/${user.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       const exists = await context.data.userExists(user.id)
       expect(exists).toBe(false)
@@ -38,7 +44,10 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server).delete(`/admin/users/${user.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -46,7 +55,10 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
 
   describe("when the user does not exist", () => {
     it("should return 404", async () => {
-      const response = await request(context.server).delete(`/admin/users/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .delete(`/admin/users/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(404)
     })
@@ -65,7 +77,10 @@ describe("[DELETE] /admin/users/:id (DeleteUser)", () => {
       const user = await context.data.createUser()
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["user:read"])
 
-      const response = await request(context.server).delete(`/admin/users/${user.id}`).set("Authorization", `Bearer ${nonWriteAccessToken}`).send()
+      const response = await request(context.server)
+        .delete(`/admin/users/${user.id}`)
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send()
 
       expect(response.status).toBe(403)
     })

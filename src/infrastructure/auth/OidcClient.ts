@@ -80,7 +80,9 @@ export class OidcClient implements AuthClient {
 
     const audienceList = Array.isArray(claims.aud) ? claims.aud : [claims.aud]
     if (!audienceList.includes(this.identityProvider.audience)) {
-      throw new AuthenticationError(`Expected audience ${this.identityProvider.audience} but received ${audienceList.join(", ")}.`)
+      throw new AuthenticationError(
+        `Expected audience ${this.identityProvider.audience} but received ${audienceList.join(", ")}.`,
+      )
     }
 
     const sessionId = url.searchParams.get("session_state") as string
@@ -90,7 +92,9 @@ export class OidcClient implements AuthClient {
     const identifierClaimValue = claims[this.identityProvider.identifierClaimName] as string
 
     if (!email || !identifierClaimValue) {
-      throw new Error("Expected ID token claims not received. Check request scopes or token configuration in app registration.")
+      throw new Error(
+        "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
+      )
     }
 
     const response: SignInResponse = {

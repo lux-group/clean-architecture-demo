@@ -210,7 +210,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Facebook OAuth error: access_denied")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Facebook OAuth error: access_denied",
+      )
     })
 
     it("should throw error when authorization code is missing", async () => {
@@ -218,7 +220,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Authorization code not received from Facebook")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Authorization code not received from Facebook",
+      )
     })
 
     it("should throw error for invalid state", async () => {
@@ -226,7 +230,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid state parameter")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Invalid state parameter",
+      )
     })
 
     it("should throw error when token exchange fails", async () => {
@@ -245,7 +251,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Token exchange failed: 400 Bad Request")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Token exchange failed: 400 Bad Request",
+      )
     })
 
     it("should throw error when profile fetch fails", async () => {
@@ -270,7 +278,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Failed to fetch user profile: 403 Forbidden")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Failed to fetch user profile: 403 Forbidden",
+      )
     })
 
     it("should throw error when Facebook API returns error in profile response", async () => {
@@ -299,7 +309,9 @@ describe("FacebookClient", () => {
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Facebook API error: Invalid access token")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Facebook API error: Invalid access token",
+      )
     })
 
     it("should throw error when required profile information is missing", async () => {
@@ -375,7 +387,9 @@ describe("FacebookClient", () => {
       expect(tokenCall).toBeDefined()
       expect(tokenCall![0]).toContain("client_id=facebook-client-id")
       expect(tokenCall![0]).toContain("client_secret=facebook-client-secret")
-      expect(tokenCall![0]).toContain("redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback")
+      expect(tokenCall![0]).toContain(
+        "redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback",
+      )
       expect(tokenCall![0]).toContain("code=auth-code")
     })
 
@@ -393,7 +407,9 @@ describe("FacebookClient", () => {
 
   describe("createSignOutRequest", () => {
     it("should throw error as Facebook doesn't support sign-out", async () => {
-      await expect(facebookClient.createSignOutRequest(redirectUrl)).rejects.toThrow("The identity provider does not support single-sign-out.")
+      await expect(facebookClient.createSignOutRequest(redirectUrl)).rejects.toThrow(
+        "The identity provider does not support single-sign-out.",
+      )
     })
   })
 

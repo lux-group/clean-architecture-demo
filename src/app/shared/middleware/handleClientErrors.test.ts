@@ -1,7 +1,14 @@
 import { mockLogger } from "@test/mocks"
 import { NextFunction, Request, Response } from "express"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { AuthenticationError, AuthorizationError, ConcurrencyError, InvalidOperationError, NotFoundError, ValidationError } from "~/domain/errors"
+import {
+  AuthenticationError,
+  AuthorizationError,
+  ConcurrencyError,
+  InvalidOperationError,
+  NotFoundError,
+  ValidationError,
+} from "~/domain/errors"
 import { handleClientErrors } from "./handleClientErrors"
 
 describe("Handle Client Errors Middleware", () => {

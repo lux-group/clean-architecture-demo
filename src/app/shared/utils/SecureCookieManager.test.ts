@@ -62,7 +62,10 @@ describe("SecureCookieManager", () => {
         }),
       )
 
-      const retrievedState = cookieManager.getStateCookie<typeof state>(mockRequest as Request, mockResponse as Response)
+      const retrievedState = cookieManager.getStateCookie<typeof state>(
+        mockRequest as Request,
+        mockResponse as Response,
+      )
 
       expect(retrievedState.redirectUrl).toBe(state.redirectUrl)
       expect(retrievedState.nonce).toBe(state.nonce)
@@ -107,7 +110,10 @@ describe("SecureCookieManager", () => {
 
       cookieManager.setStateCookie(mockRequest as Request, mockResponse as Response, state)
 
-      const retrievedState = cookieManager.getAndRemoveStateCookie<typeof state>(mockRequest as Request, mockResponse as Response)
+      const retrievedState = cookieManager.getAndRemoveStateCookie<typeof state>(
+        mockRequest as Request,
+        mockResponse as Response,
+      )
 
       expect(retrievedState.redirectUrl).toBe(state.redirectUrl)
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-state")
@@ -196,7 +202,10 @@ describe("SecureCookieManager", () => {
 
       cookieManager.setSessionCookie(mockRequest as Request, mockResponse as Response, session)
 
-      const retrievedSessionCookie = cookieManager.getAndRemoveSessionCookie(mockRequest as Request, mockResponse as Response)
+      const retrievedSessionCookie = cookieManager.getAndRemoveSessionCookie(
+        mockRequest as Request,
+        mockResponse as Response,
+      )
 
       expect(retrievedSessionCookie.id).toBe(session.id)
       expect(retrievedSessionCookie.nonce).toBe(session.nonce)
@@ -302,7 +311,10 @@ describe("SecureCookieManager", () => {
       const state: TestState = { test: "data" }
 
       cookieManager.setStateCookie(requestWithoutHeaders as Request, responseForMissingHeaders as Response, state)
-      const retrieved = cookieManager.getStateCookie<TestState>(requestWithoutHeaders as Request, responseForMissingHeaders as Response)
+      const retrieved = cookieManager.getStateCookie<TestState>(
+        requestWithoutHeaders as Request,
+        responseForMissingHeaders as Response,
+      )
 
       expect(retrieved.test).toBe("data")
     })
@@ -327,13 +339,19 @@ describe("SecureCookieManager", () => {
 
   describe("encryption integration", () => {
     it("should work with multiple encryption keys", () => {
-      const multiKeyProvider = new NodeEncryptionProvider(["fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210", validKey])
+      const multiKeyProvider = new NodeEncryptionProvider([
+        "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+        validKey,
+      ])
       const multiKeyCookieManager = new SecureCookieManager(multiKeyProvider)
 
       const state: TestState = { test: "data" }
 
       multiKeyCookieManager.setStateCookie(mockRequest as Request, mockResponse as Response, state)
-      const retrieved = multiKeyCookieManager.getStateCookie<TestState>(mockRequest as Request, mockResponse as Response)
+      const retrieved = multiKeyCookieManager.getStateCookie<TestState>(
+        mockRequest as Request,
+        mockResponse as Response,
+      )
 
       expect(retrieved.test).toBe("data")
     })

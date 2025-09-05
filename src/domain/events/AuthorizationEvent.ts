@@ -17,7 +17,13 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
   readonly reason?: string
   readonly details: AuthorizationEventDetails
 
-  private constructor(id: string, timestamp: Date, result: "Success" | "Failed" | "Warning", details: AuthorizationEventDetails, reason?: string) {
+  private constructor(
+    id: string,
+    timestamp: Date,
+    result: "Success" | "Failed" | "Warning",
+    details: AuthorizationEventDetails,
+    reason?: string,
+  ) {
     this.id = id
     this.timestamp = timestamp
     this.result = result

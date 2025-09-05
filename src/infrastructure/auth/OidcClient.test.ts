@@ -236,35 +236,37 @@ describe("OidcClient", () => {
     it("should throw AuthenticationError for wrong issuer", async () => {
       mockClaims.iss = "https://wrong-issuer.com"
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        AuthenticationError,
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(AuthenticationError)
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        `Expected issuer ${identityProvider.issuerUrl} but received https://wrong-issuer.com.`,
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(`Expected issuer ${identityProvider.issuerUrl} but received https://wrong-issuer.com.`)
     })
 
     it("should throw AuthenticationError for wrong audience", async () => {
       mockClaims.aud = "wrong-audience"
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        AuthenticationError,
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(AuthenticationError)
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        `Expected audience ${identityProvider.audience} but received wrong-audience.`,
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(`Expected audience ${identityProvider.audience} but received wrong-audience.`)
     })
 
     it("should handle audience as array", async () => {
       mockClaims.aud = ["wrong-audience", "another-wrong-audience"]
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        AuthenticationError,
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(AuthenticationError)
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(
         `Expected audience ${identityProvider.audience} but received wrong-audience, another-wrong-audience.`,
       )
     })
@@ -272,13 +274,17 @@ describe("OidcClient", () => {
     it("should accept correct audience in array", async () => {
       mockClaims.aud = [identityProvider.audience, "another-audience"]
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).resolves.toBeDefined()
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).resolves.toBeDefined()
     })
 
     it("should throw error for missing email claim", async () => {
       delete mockClaims.email
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(
         "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
       )
     })
@@ -286,7 +292,9 @@ describe("OidcClient", () => {
     it("should throw error for missing identifier claim", async () => {
       delete mockClaims.sub
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow(
         "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
       )
     })
@@ -301,7 +309,10 @@ describe("OidcClient", () => {
       mockClaims.aud = entraIdentityProvider.audience
       delete mockClaims.sub
 
-      const result = await entraClient.processSignInResponse(entraSignInState, "/auth/external/sign-in-callback?code=auth-code")
+      const result = await entraClient.processSignInResponse(
+        entraSignInState,
+        "/auth/external/sign-in-callback?code=auth-code",
+      )
 
       expect(result.profile.identifierClaimValue).toBe("entra-user-123")
     })
@@ -320,11 +331,15 @@ describe("OidcClient", () => {
     })
 
     it("should throw error for providers that don't support sign-out", async () => {
-      await expect(oidcClient.createSignOutRequest(redirectUrl, idToken)).rejects.toThrow("The identity provider does not support single-sign-out.")
+      await expect(oidcClient.createSignOutRequest(redirectUrl, idToken)).rejects.toThrow(
+        "The identity provider does not support single-sign-out.",
+      )
     })
 
     it("should throw error when ID token is missing", async () => {
-      await expect(entraClient.createSignOutRequest(redirectUrl)).rejects.toThrow("ID Token is required for OIDC sign-out.")
+      await expect(entraClient.createSignOutRequest(redirectUrl)).rejects.toThrow(
+        "ID Token is required for OIDC sign-out.",
+      )
     })
 
     it("should create sign-out request for Entra with logout_hint", async () => {
@@ -413,7 +428,9 @@ describe("OidcClient", () => {
     const accessToken = "mock-access-token"
 
     it("should throw error for providers that don't support profile editing", async () => {
-      await expect(oidcClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow("The identity provider does not support editing profiles.")
+      await expect(oidcClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow(
+        "The identity provider does not support editing profiles.",
+      )
     })
 
     it("should successfully update profile for Entra", async () => {
@@ -442,7 +459,9 @@ describe("OidcClient", () => {
         status: 403,
       } as Response)
 
-      await expect(entraClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow("Failed to update user profile. HTTP error 403")
+      await expect(entraClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow(
+        "Failed to update user profile. HTTP error 403",
+      )
     })
   })
 
@@ -478,16 +497,17 @@ describe("OidcClient", () => {
       const grantError = new Error("Token exchange failed")
       mockClient.authorizationCodeGrant.mockRejectedValue(grantError)
 
-      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
-        "Token exchange failed",
-      )
+      await expect(
+        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+      ).rejects.toThrow("Token exchange failed")
     })
   })
 
   describe("private methods", () => {
     describe("getClaim", () => {
       it("should extract claim from JWT token", () => {
-        const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbl9oaW50IjoidGVzdEBleGFtcGxlLmNvbSIsImN1c3RvbSI6InZhbHVlIn0.signature"
+        const token =
+          "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbl9oaW50IjoidGVzdEBleGFtcGxlLmNvbSIsImN1c3RvbSI6InZhbHVlIn0.signature"
 
         vi.spyOn(jwt, "decode").mockReturnValue({
           header: { alg: "RS256", typ: "JWT" },

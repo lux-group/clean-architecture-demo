@@ -66,7 +66,9 @@ describe("parseQuery", () => {
     })
 
     it("should throw error for unsupported order by field", () => {
-      expect(() => parseQuery<TestEntity>({ order_by: "email_address" }, supportedOrderBy)).toThrow(InvalidOperationError)
+      expect(() => parseQuery<TestEntity>({ order_by: "email_address" }, supportedOrderBy)).toThrow(
+        InvalidOperationError,
+      )
     })
   })
 
@@ -96,7 +98,11 @@ describe("parseQuery", () => {
     })
 
     it("should create multiple filters with AND operator", () => {
-      const result = parseQuery<TestEntity>({ first_name: "John", email_address: "john@example.com" }, supportedOrderBy, supportedWhere)
+      const result = parseQuery<TestEntity>(
+        { first_name: "John", email_address: "john@example.com" },
+        supportedOrderBy,
+        supportedWhere,
+      )
 
       expect(result.where).toEqual({
         operator: "and",

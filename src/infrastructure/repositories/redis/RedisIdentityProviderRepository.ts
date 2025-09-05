@@ -70,6 +70,10 @@ export class RedisIdentityProviderRepository
     const nameCacheKey = this.getCacheKey("name", idp.props.name)
     const issuerAudienceCacheKey = this.getCacheKey("issuer_audience", idp.props.issuerUrl, idp.props.audience)
 
-    await Promise.all([this.redisClient.del(idCacheKey), this.redisClient.del(nameCacheKey), this.redisClient.del(issuerAudienceCacheKey)])
+    await Promise.all([
+      this.redisClient.del(idCacheKey),
+      this.redisClient.del(nameCacheKey),
+      this.redisClient.del(issuerAudienceCacheKey),
+    ])
   }
 }

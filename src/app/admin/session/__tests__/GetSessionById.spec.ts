@@ -18,7 +18,10 @@ describe("[GET] /admin/sessions/:id (GetSessionById)", () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
 
-      const response = await request(context.server).get(`/admin/sessions/${session.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/sessions/${session.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(200)
       expect(response).bodyToMatchEntity(session)
@@ -27,7 +30,10 @@ describe("[GET] /admin/sessions/:id (GetSessionById)", () => {
 
   describe("when the session does not exist", () => {
     it("should return 404", async () => {
-      const response = await request(context.server).get(`/admin/sessions/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/sessions/${randomUUID()}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(404)
     })
@@ -48,7 +54,10 @@ describe("[GET] /admin/sessions/:id (GetSessionById)", () => {
       const session = await context.data.createSession({ userId: user.id }, 24)
       const nonReadAccessToken = await context.createAccessToken(user.id, ["foo:bar"])
 
-      const response = await request(context.server).get(`/admin/sessions/${session.id}`).set("Authorization", `Bearer ${nonReadAccessToken}`).send()
+      const response = await request(context.server)
+        .get(`/admin/sessions/${session.id}`)
+        .set("Authorization", `Bearer ${nonReadAccessToken}`)
+        .send()
 
       expect(response.status).toBe(403)
     })

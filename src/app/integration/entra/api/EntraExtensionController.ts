@@ -42,7 +42,8 @@ export class EntraExtensionController {
       const givenName = this.getUserAttribute(req.body.data, "givenName")
       const surname = this.getUserAttribute(req.body.data, "surname")
 
-      displayName = givenName && surname ? User.formatFullName(givenName, surname) : this.getIssuerAssignedId(req.body.data)
+      displayName =
+        givenName && surname ? User.formatFullName(givenName, surname) : this.getIssuerAssignedId(req.body.data)
     }
 
     const response = {

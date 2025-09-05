@@ -20,7 +20,13 @@ export class IssueTokenWithTokenExchangeHandler {
   async execute(command: IssueTokenWithTokenExchangeInput): Promise<IssueTokenWithTokenExchangeResult> {
     const user = await this.authenticationService.authenticateWithExternalIdentityToken(command.token)
 
-    const accessToken = await this.authorizationService.issueAccessToken(user, undefined, undefined, command.audience, command.scope)
+    const accessToken = await this.authorizationService.issueAccessToken(
+      user,
+      undefined,
+      undefined,
+      command.audience,
+      command.scope,
+    )
 
     return accessToken
   }

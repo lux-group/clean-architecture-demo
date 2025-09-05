@@ -139,7 +139,9 @@ describe("clients/prisma/extensions.ts", () => {
     })
 
     it("throws expected error", () => {
-      expect(error).toStrictEqual(new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user."))
+      expect(error).toStrictEqual(
+        new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user."),
+      )
     })
   })
 })

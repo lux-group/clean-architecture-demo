@@ -4,7 +4,13 @@ import { ConcurrencyError, ValidationError } from "~/domain/errors"
 export const convertKnownErrors = () => ({
   query: {
     $allModels: {
-      async $allOperations({ args, query }: { args: any; query: (args: any) => Prisma.PrismaPromise<any> }): Promise<any> {
+      async $allOperations({
+        args,
+        query,
+      }: {
+        args: any
+        query: (args: any) => Prisma.PrismaPromise<any>
+      }): Promise<any> {
         try {
           return await query(args)
         } catch (error: unknown) {
@@ -17,7 +23,9 @@ export const convertKnownErrors = () => ({
             }
 
             if (error.code === "P2025") {
-              throw new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user.")
+              throw new ConcurrencyError(
+                "The resource you are trying to access has been modified or deleted by another user.",
+              )
             }
           }
 

@@ -17,7 +17,10 @@ export class PrismaSessionRepository implements SessionRepository {
     const query = mapQuery(options) as Prisma.SessionFindManyArgs
     const [total, sessions] = await this.prismaClient
       .$replica()
-      .$transaction([this.prismaClient.$replica().session.count({ where: query.where }), this.prismaClient.$replica().session.findMany(query)])
+      .$transaction([
+        this.prismaClient.$replica().session.count({ where: query.where }),
+        this.prismaClient.$replica().session.findMany(query),
+      ])
 
     return {
       items: sessions.map(s => this.mapToSession(s)),

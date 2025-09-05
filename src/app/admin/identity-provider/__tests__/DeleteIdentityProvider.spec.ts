@@ -29,7 +29,10 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
     it("should remove the identity provider from the database", async () => {
       const identityProvider = await context.data.createIdentityProvider()
 
-      await request(context.server).delete(`/admin/identity-providers/${identityProvider.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/identity-providers/${identityProvider.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       const exists = await context.data.identityProviderExists(identityProvider.id)
       expect(exists).toBe(false)
@@ -41,7 +44,10 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server).delete(`/admin/identity-providers/${identityProvider.id}`).set("Authorization", `Bearer ${accessToken}`).send()
+      await request(context.server)
+        .delete(`/admin/identity-providers/${identityProvider.id}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })

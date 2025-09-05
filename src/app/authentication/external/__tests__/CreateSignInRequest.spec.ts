@@ -35,18 +35,24 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
       )
 
       const response = await request(context.server)
-        .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=${identityProvider.name}`)
+        .get(
+          `/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=${identityProvider.name}`,
+        )
         .send()
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe("https://custom.provider.com/auth")
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)]),
+      )
     })
   })
 
   describe("when redirect_uri is missing", () => {
     it("should return 400", async () => {
-      const response = await request(context.server).get(`/auth/external/sign-in?provider=${identityProvider.name}`).send()
+      const response = await request(context.server)
+        .get(`/auth/external/sign-in?provider=${identityProvider.name}`)
+        .send()
 
       expect(response.status).toBe(400)
     })

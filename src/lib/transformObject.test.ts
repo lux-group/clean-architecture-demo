@@ -80,10 +80,15 @@ describe("transformObject", () => {
     })
 
     it("should apply multiple value transformers in sequence", () => {
-      const upperCaseTransformer: ValueTransformer = (value: any) => (typeof value === "string" ? value.toUpperCase() : value)
+      const upperCaseTransformer: ValueTransformer = (value: any) =>
+        typeof value === "string" ? value.toUpperCase() : value
 
       const input = { name: "john" }
-      const result = transformObject(input, [], [upperCaseTransformer, (value: any) => (typeof value === "string" ? `${value}!` : value)])
+      const result = transformObject(
+        input,
+        [],
+        [upperCaseTransformer, (value: any) => (typeof value === "string" ? `${value}!` : value)],
+      )
 
       expect(result).toEqual({ name: "JOHN!" })
     })

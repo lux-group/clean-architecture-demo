@@ -122,7 +122,9 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
       authSettingsType: idp.authSettings?.type,
       authSettingsBrand: idp.authSettings?.brand,
       authSettingsClientId: idp.authSettings?.clientId,
-      authSettingsClientSecret: idp.authSettings?.clientSecret ? this.encryptionProvider.encrypt(idp.authSettings?.clientSecret) : null,
+      authSettingsClientSecret: idp.authSettings?.clientSecret
+        ? this.encryptionProvider.encrypt(idp.authSettings?.clientSecret)
+        : null,
       authSettingsRedirectUrls: idp.authSettings?.redirectUrls as string[] | undefined,
       authSettingsAutoLinkUsers: idp.authSettings?.autoLinkUsers,
       authSettingsAutoCreateUsers: idp.authSettings?.autoCreateUsers,

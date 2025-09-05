@@ -15,7 +15,12 @@ describe("AuthenticationService", () => {
   let service: AuthenticationService
 
   beforeEach(() => {
-    service = new AuthenticationService(mockUserRepository, mockEventPublisher, mockPasswordVerifier, mockTokenValidator)
+    service = new AuthenticationService(
+      mockUserRepository,
+      mockEventPublisher,
+      mockPasswordVerifier,
+      mockTokenValidator,
+    )
     vi.clearAllMocks()
   })
 
@@ -40,7 +45,9 @@ describe("AuthenticationService", () => {
       const session = factories.createLocalSession()
       session.terminateSessionByAdmin()
 
-      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(
+        new AuthenticationError(commonErrors.sessionExpired),
+      )
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -55,7 +62,9 @@ describe("AuthenticationService", () => {
       const session = factories.createLocalSession()
       mockUserRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
     })
 
     it("should throw error when user cannot sign in with active session", async () => {
@@ -90,9 +99,9 @@ describe("AuthenticationService", () => {
     it("should throw error when user not found", async () => {
       mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password")).rejects.toThrow(
-        new AuthenticationError(commonErrors.authenticationFailed),
-      )
+      await expect(
+        service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password"),
+      ).rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
     })
 
     it("should throw error when password verification fails", async () => {

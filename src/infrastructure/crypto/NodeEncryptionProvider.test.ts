@@ -17,7 +17,9 @@ describe("NodeEncryptionProvider", () => {
     it("should throw error for invalid key length", () => {
       const shortKey = "0123456789abcdef" // 16 hex chars = 8 bytes (too short)
 
-      expect(() => new NodeEncryptionProvider([shortKey])).toThrow("Each cookie encryption key entry must be 32 bytes (64 hex chars)")
+      expect(() => new NodeEncryptionProvider([shortKey])).toThrow(
+        "Each cookie encryption key entry must be 32 bytes (64 hex chars)",
+      )
     })
 
     it("should throw error for non-hex characters", () => {

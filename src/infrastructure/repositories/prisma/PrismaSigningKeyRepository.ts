@@ -17,7 +17,10 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     const query = mapQuery(options) as Prisma.SigningKeyFindManyArgs
     const [total, signingKeys] = await this.prismaClient
       .$replica()
-      .$transaction([this.prismaClient.$replica().signingKey.count({ where: query.where }), this.prismaClient.$replica().signingKey.findMany(query)])
+      .$transaction([
+        this.prismaClient.$replica().signingKey.count({ where: query.where }),
+        this.prismaClient.$replica().signingKey.findMany(query),
+      ])
 
     return {
       items: signingKeys.map(sk => this.mapToSigningKey(sk)),

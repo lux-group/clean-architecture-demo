@@ -14,7 +14,10 @@ describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () 
 
   describe("when the request is valid", () => {
     it("should handle custom sign-in URL", async () => {
-      const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
+      const cookie = context.data.createAuthStateCookie(
+        identityProvider.authSettings!.redirectUrls[0],
+        identityProvider.id,
+      )
 
       const response = await request(context.server)
         .get("/auth/external/sign-out-callback")

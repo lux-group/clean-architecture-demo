@@ -14,7 +14,10 @@ describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
 
   describe("when the creation was successful", () => {
     it("should return 201 with new signing key", async () => {
-      const response = await request(context.server).post("/admin/signing-keys").set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .post("/admin/signing-keys")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty("id")
@@ -35,7 +38,10 @@ describe("[POST] /admin/signing-keys (CreateSigningKey)", () => {
     it("should return 403 when the access token does not have scope 'signing-keys:write'", async () => {
       const nonWriteAccessToken = await context.createAccessToken("admin-user", ["signing-key:read"])
 
-      const response = await request(context.server).post("/admin/signing-keys").set("Authorization", `Bearer ${nonWriteAccessToken}`).send()
+      const response = await request(context.server)
+        .post("/admin/signing-keys")
+        .set("Authorization", `Bearer ${nonWriteAccessToken}`)
+        .send()
 
       expect(response.status).toBe(403)
     })

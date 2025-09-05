@@ -1,7 +1,11 @@
 export type KeyTransformer = (key: string) => string
 export type ValueTransformer = (value: any) => any
 
-export function transformObject(obj: any, keyTransformers: KeyTransformer[], valueTransformers: ValueTransformer[]): any {
+export function transformObject(
+  obj: any,
+  keyTransformers: KeyTransformer[],
+  valueTransformers: ValueTransformer[],
+): any {
   if (Array.isArray(obj)) {
     return obj.map(item => transformObject(item, keyTransformers, valueTransformers))
   }

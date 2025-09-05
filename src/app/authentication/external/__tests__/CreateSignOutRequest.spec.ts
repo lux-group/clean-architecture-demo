@@ -42,7 +42,9 @@ describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe("https://custom.provider.com/auth")
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)]),
+      )
 
       session = await context.data.getSession(session.id)
       expect(session.status).toBe(SessionStatus.TerminatedByUser)

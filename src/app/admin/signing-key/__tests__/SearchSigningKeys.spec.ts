@@ -17,7 +17,10 @@ describe("[GET] /admin/signing-keys (SearchSigningKeys)", () => {
 
   describe("when signing keys exist", () => {
     it("should return 200 with valid signing keys", async () => {
-      const response = await request(context.server).get("/admin/signing-keys?offset=0&limit=10").set("Authorization", `Bearer ${accessToken}`).send()
+      const response = await request(context.server)
+        .get("/admin/signing-keys?offset=0&limit=10")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(200)
       expect(response.body.total).toBeGreaterThanOrEqual(1)

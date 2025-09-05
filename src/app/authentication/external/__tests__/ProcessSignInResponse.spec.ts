@@ -22,7 +22,10 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
   describe("when the external sign-in response is valid", () => {
     it("should auto-create new user after successful sign-in", async () => {
-      const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
+      const cookie = context.data.createAuthStateCookie(
+        identityProvider.authSettings!.redirectUrls[0],
+        identityProvider.id,
+      )
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -53,7 +56,10 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
     it("should auto-link existing user after successful sign-in", async () => {
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com` })
-      const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
+      const cookie = context.data.createAuthStateCookie(
+        identityProvider.authSettings!.redirectUrls[0],
+        identityProvider.id,
+      )
       const identifierClaimValue = randomUUID()
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
@@ -92,7 +98,10 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
   describe("when the user is disabled", () => {
     it("should return error when user is disabled", async () => {
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com`, isEnabled: false })
-      const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
+      const cookie = context.data.createAuthStateCookie(
+        identityProvider.authSettings!.redirectUrls[0],
+        identityProvider.id,
+      )
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -131,7 +140,10 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
       const userRepository = context.container.resolve("userRepository")
       await userRepository.update(userToUpdate)
 
-      const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
+      const cookie = context.data.createAuthStateCookie(
+        identityProvider.authSettings!.redirectUrls[0],
+        identityProvider.id,
+      )
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -163,7 +175,10 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
   describe("when state is invalid", () => {
     it("should return 401 error", async () => {
-      const response = await request(context.server).get("/auth/external/sign-in-callback").set("Cookie", [`auth-state=invalid-state`]).send()
+      const response = await request(context.server)
+        .get("/auth/external/sign-in-callback")
+        .set("Cookie", [`auth-state=invalid-state`])
+        .send()
 
       expect(response.status).toBe(401)
     })

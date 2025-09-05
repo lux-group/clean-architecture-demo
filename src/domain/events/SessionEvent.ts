@@ -17,7 +17,13 @@ export class SessionEvent implements Event<SessionEventDetails> {
   readonly reason?: string
   readonly details: SessionEventDetails
 
-  private constructor(id: string, timestamp: Date, result: "Success" | "Failed" | "Warning", details: SessionEventDetails, reason?: string) {
+  private constructor(
+    id: string,
+    timestamp: Date,
+    result: "Success" | "Failed" | "Warning",
+    details: SessionEventDetails,
+    reason?: string,
+  ) {
     this.id = id
     this.timestamp = timestamp
     this.result = result

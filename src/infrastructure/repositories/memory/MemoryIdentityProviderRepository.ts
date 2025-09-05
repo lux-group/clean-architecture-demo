@@ -2,7 +2,10 @@ import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { MemoryRepository } from "./MemoryRepository"
 
-export class MemoryIdentityProviderRepository extends MemoryRepository<IdentityProvider> implements IdentityProviderRepository {
+export class MemoryIdentityProviderRepository
+  extends MemoryRepository<IdentityProvider>
+  implements IdentityProviderRepository
+{
   constructor() {
     super("Identity provider")
   }
