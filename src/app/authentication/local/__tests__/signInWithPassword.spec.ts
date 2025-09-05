@@ -22,9 +22,9 @@ describe("[POST] /auth/local/sign-in (SignInWithPassword)", () => {
         .send({ brand: enabledUser.brand, email: enabledUser.email, password })
 
       expect(response.status).toBe(204)
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
+      )
     })
   })
 
@@ -61,4 +61,3 @@ describe("[POST] /auth/local/sign-in (SignInWithPassword)", () => {
     })
   })
 })
-

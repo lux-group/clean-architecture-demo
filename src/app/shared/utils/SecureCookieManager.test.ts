@@ -19,20 +19,20 @@ describe("SecureCookieManager", () => {
   beforeEach(() => {
     encryptionProvider = new NodeEncryptionProvider([validKey])
     cookieManager = new SecureCookieManager(encryptionProvider)
-    
+
     // Mock request with basic headers for fingerprinting
     mockRequest = {
       headers: {
         "accept-language": "en-US,en;q=0.9",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
-      cookies: {}
+      cookies: {},
     }
 
     // Mock response with cookie methods
     const cookies: Record<string, any> = {}
     mockResponse = {
-      cookie: vi.fn().mockImplementation((name: string, value: any, options: any) => {
+      cookie: vi.fn().mockImplementation((name: string, value: any, _options: any) => {
         cookies[name] = value
         mockRequest.cookies![name] = value
         return mockResponse as Response
@@ -41,7 +41,7 @@ describe("SecureCookieManager", () => {
         delete cookies[name]
         delete mockRequest.cookies![name]
         return mockResponse as Response
-      })
+      }),
     }
   })
 
@@ -58,14 +58,11 @@ describe("SecureCookieManager", () => {
           secure: true,
           httpOnly: true,
           sameSite: "lax",
-          expires: undefined
-        })
+          expires: undefined,
+        }),
       )
 
-      const retrievedState = cookieManager.getStateCookie<typeof state>(
-        mockRequest as Request,
-        mockResponse as Response
-      )
+      const retrievedState = cookieManager.getStateCookie<typeof state>(mockRequest as Request, mockResponse as Response)
 
       expect(retrievedState.redirectUrl).toBe(state.redirectUrl)
       expect(retrievedState.nonce).toBe(state.nonce)
@@ -89,10 +86,10 @@ describe("SecureCookieManager", () => {
 
     it("should throw AuthenticationError when device fingerprint doesn't match", () => {
       const state = { redirectUrl: "/dashboard" }
-      
+
       // Set cookie with one user agent
       cookieManager.setStateCookie(mockRequest as Request, mockResponse as Response, state)
-      
+
       // Change user agent to simulate different device
       mockRequest.headers!["user-agent"] = "Different Browser"
 
@@ -109,11 +106,8 @@ describe("SecureCookieManager", () => {
       const state = { redirectUrl: "/dashboard" }
 
       cookieManager.setStateCookie(mockRequest as Request, mockResponse as Response, state)
-      
-      const retrievedState = cookieManager.getAndRemoveStateCookie<typeof state>(
-        mockRequest as Request,
-        mockResponse as Response
-      )
+
+      const retrievedState = cookieManager.getAndRemoveStateCookie<typeof state>(mockRequest as Request, mockResponse as Response)
 
       expect(retrievedState.redirectUrl).toBe(state.redirectUrl)
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-state")
@@ -124,13 +118,16 @@ describe("SecureCookieManager", () => {
     let session: Session
 
     beforeEach(() => {
-      session = Session.createNew({
-        userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
-        identityProviderId: null,
-        identityProviderSessionId: null,
-        idToken: null,
-        refreshToken: null
-      }, 24) // 24 hours
+      session = Session.createNew(
+        {
+          userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
+          identityProviderId: null,
+          identityProviderSessionId: null,
+          idToken: null,
+          refreshToken: null,
+        },
+        24,
+      ) // 24 hours
     })
 
     it("should set and retrieve session cookie successfully", () => {
@@ -143,14 +140,11 @@ describe("SecureCookieManager", () => {
           secure: true,
           httpOnly: true,
           sameSite: "strict",
-          expires: session.expiresAt
-        })
+          expires: session.expiresAt,
+        }),
       )
 
-      const retrievedSessionCookie = cookieManager.getSessionCookie(
-        mockRequest as Request,
-        mockResponse as Response
-      )
+      const retrievedSessionCookie = cookieManager.getSessionCookie(mockRequest as Request, mockResponse as Response)
 
       expect(retrievedSessionCookie.id).toBe(session.id)
       expect(retrievedSessionCookie.nonce).toBe(session.nonce)
@@ -175,7 +169,7 @@ describe("SecureCookieManager", () => {
     it("should throw AuthenticationError when device fingerprint doesn't match for session cookie", () => {
       // Set cookie with one user agent
       cookieManager.setSessionCookie(mockRequest as Request, mockResponse as Response, session)
-      
+
       // Change user agent to simulate different device
       mockRequest.headers!["user-agent"] = "Different Browser"
 
@@ -189,20 +183,20 @@ describe("SecureCookieManager", () => {
 
   describe("getAndRemoveSessionCookie", () => {
     it("should retrieve and remove session cookie", () => {
-      const session = Session.createNew({
-        userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
-        identityProviderId: null,
-        identityProviderSessionId: null,
-        idToken: null,
-        refreshToken: null
-      }, 24)
+      const session = Session.createNew(
+        {
+          userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
+          identityProviderId: null,
+          identityProviderSessionId: null,
+          idToken: null,
+          refreshToken: null,
+        },
+        24,
+      )
 
       cookieManager.setSessionCookie(mockRequest as Request, mockResponse as Response, session)
-      
-      const retrievedSessionCookie = cookieManager.getAndRemoveSessionCookie(
-        mockRequest as Request,
-        mockResponse as Response
-      )
+
+      const retrievedSessionCookie = cookieManager.getAndRemoveSessionCookie(mockRequest as Request, mockResponse as Response)
 
       expect(retrievedSessionCookie.id).toBe(session.id)
       expect(retrievedSessionCookie.nonce).toBe(session.nonce)
@@ -231,19 +225,22 @@ describe("SecureCookieManager", () => {
           secure: true,
           httpOnly: true,
           sameSite: "lax",
-          expires: undefined
-        })
+          expires: undefined,
+        }),
       )
     })
 
     it("should set session cookie with strict sameSite for security", () => {
-      const session = Session.createNew({
-        userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
-        identityProviderId: null,
-        identityProviderSessionId: null,
-        idToken: null,
-        refreshToken: null
-      }, 24)
+      const session = Session.createNew(
+        {
+          userId: "f32a9a37-4fa0-4fdc-b294-4812137f4083",
+          identityProviderId: null,
+          identityProviderSessionId: null,
+          idToken: null,
+          refreshToken: null,
+        },
+        24,
+      )
 
       cookieManager.setSessionCookie(mockRequest as Request, mockResponse as Response, session)
 
@@ -254,8 +251,8 @@ describe("SecureCookieManager", () => {
           secure: true,
           httpOnly: true,
           sameSite: "strict",
-          expires: session.expiresAt
-        })
+          expires: session.expiresAt,
+        }),
       )
     })
 
@@ -288,18 +285,18 @@ describe("SecureCookieManager", () => {
     it("should handle missing headers gracefully", () => {
       const requestWithoutHeaders: Partial<Request> = {
         headers: {},
-        cookies: {}
+        cookies: {},
       }
 
       const responseForMissingHeaders: Partial<Response> = {
-        cookie: vi.fn().mockImplementation((name: string, value: any, options: any) => {
+        cookie: vi.fn().mockImplementation((name: string, value: any, _options: any) => {
           requestWithoutHeaders.cookies![name] = value
           return responseForMissingHeaders as Response
         }),
         clearCookie: vi.fn().mockImplementation((name: string) => {
           delete requestWithoutHeaders.cookies![name]
           return responseForMissingHeaders as Response
-        })
+        }),
       }
 
       const state: TestState = { test: "data" }
@@ -314,12 +311,14 @@ describe("SecureCookieManager", () => {
       const state: TestState = { test: "data" }
 
       // Set cookie with detailed user agent including versions
-      mockRequest.headers!["user-agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      mockRequest.headers!["user-agent"] =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       cookieManager.setStateCookie(mockRequest as Request, mockResponse as Response, state)
 
       // Change to different version numbers but same browser
-      mockRequest.headers!["user-agent"] = "Mozilla/6.0 (Windows NT 10.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/538.36"
-      
+      mockRequest.headers!["user-agent"] =
+        "Mozilla/6.0 (Windows NT 10.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/538.36"
+
       // Should still work because version numbers are stripped
       const retrieved = cookieManager.getStateCookie<TestState>(mockRequest as Request, mockResponse as Response)
       expect(retrieved.test).toBe("data")
@@ -328,10 +327,7 @@ describe("SecureCookieManager", () => {
 
   describe("encryption integration", () => {
     it("should work with multiple encryption keys", () => {
-      const multiKeyProvider = new NodeEncryptionProvider([
-        "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
-        validKey,
-      ])
+      const multiKeyProvider = new NodeEncryptionProvider(["fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210", validKey])
       const multiKeyCookieManager = new SecureCookieManager(multiKeyProvider)
 
       const state: TestState = { test: "data" }
@@ -343,4 +339,3 @@ describe("SecureCookieManager", () => {
     })
   })
 })
-

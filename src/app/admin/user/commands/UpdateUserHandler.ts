@@ -18,10 +18,10 @@ export class UpdateUserHandler {
     const user = await this.userRepository.getById(id)
     user.update(props)
     await this.userRepository.update(user)
-    
+
     const event = EntityChangeEvent.entityUpdated("User", user)
     this.eventPublisher.publishEvent(event)
-    
+
     return user
   }
 }

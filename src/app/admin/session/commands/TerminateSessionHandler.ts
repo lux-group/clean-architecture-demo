@@ -17,10 +17,10 @@ export class TerminateSessionHandler {
     const session = await this.sessionRepository.getById(commands.sessionId)
     session.terminateSessionByAdmin()
     await this.sessionRepository.update(session)
-    
+
     const event = EntityChangeEvent.entityUpdated("Session", session)
     this.eventPublisher.publishEvent(event)
-    
+
     return session
   }
 }

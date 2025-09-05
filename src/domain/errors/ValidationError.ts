@@ -5,7 +5,10 @@ export interface ValidationErrorItem {
 }
 
 export class ValidationError extends Error {
-  constructor(message: string, public readonly errors: ValidationErrorItem[] = []) {
+  constructor(
+    message: string,
+    public readonly errors: ValidationErrorItem[] = [],
+  ) {
     super(message)
     this.name = "ValidationError"
   }

@@ -16,6 +16,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@biomejs/biome": "^2.2.2",
     "@prisma/client": "^6.14.0",
     "@prisma/extension-read-replicas": "^0.4.1",
     "awilix": "^12.0.5",

@@ -1,7 +1,6 @@
 import { ParsedQs } from "qs"
 import { Query, Where } from "~/lib/types"
-import { toCamelCase, toSnakeCase } from "~/lib/ObjectTransformer"
-import { Entity } from "~/domain/entities"
+import { toCamelCase, toSnakeCase } from "~/lib/transformObject"
 import { InvalidOperationError } from "~/domain/errors"
 
 function mapFieldName<T>(name: string): keyof T {
@@ -27,7 +26,7 @@ export function parseQuery<T>(
 
     parsedQuery.orderBy = {
       property: orderBy,
-      direction: query.order_direction === "desc" ? "desc" : "asc"
+      direction: query.order_direction === "desc" ? "desc" : "asc",
     }
   }
 
@@ -39,18 +38,18 @@ export function parseQuery<T>(
     .map(property => ({ property, value: query[toSnakeCase(property as string)] as unknown }))
     .filter(({ value }) => value !== undefined)
     .map(({ property, value }) => {
-      if (typeof value === 'string') {
-        if (value.startsWith('*') && value.endsWith('*')) {
-          return { operator: 'contains', property, value: value.slice(1, -1) } as Where<T>
+      if (typeof value === "string") {
+        if (value.startsWith("*") && value.endsWith("*")) {
+          return { operator: "contains", property, value: value.slice(1, -1) } as Where<T>
         }
-        if (value.startsWith('*')) {
-          return { operator: 'ends-with', property, value: value.slice(1) } as Where<T>
+        if (value.startsWith("*")) {
+          return { operator: "ends-with", property, value: value.slice(1) } as Where<T>
         }
-        if (value.endsWith('*')) {
-          return { operator: 'starts-with', property, value: value.slice(0, -1) } as Where<T>
+        if (value.endsWith("*")) {
+          return { operator: "starts-with", property, value: value.slice(0, -1) } as Where<T>
         }
       }
-      return { operator: 'equals', property, value } as Where<T>
+      return { operator: "equals", property, value } as Where<T>
     })
 
   if (filters.length > 0) {

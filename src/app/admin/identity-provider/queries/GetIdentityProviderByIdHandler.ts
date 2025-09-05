@@ -6,9 +6,7 @@ export interface GetIdentityProviderByIdQuery {
 }
 
 export class GetIdentityProviderByIdHandler {
-  constructor(
-    private readonly identityProviderRepository: IdentityProviderRepository,
-  ) {}
+  constructor(private readonly identityProviderRepository: IdentityProviderRepository) {}
 
   async execute(query: GetIdentityProviderByIdQuery): Promise<IdentityProvider> {
     return await this.identityProviderRepository.getById(query.id)

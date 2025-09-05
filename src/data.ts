@@ -8,59 +8,68 @@ export default async function createTestData(container: AwilixContainer) {
   const baseUrl = container.resolve<string>("baseUrl")
 
   // Register test Entra ID tenant for authentication.
-  await identityProviderRepository.insert(IdentityProvider.createNew({
-    name: "Entra",
-    issuerUrl: "https://b690daea-2aad-4dee-bdbf-0a66220e5977.ciamlogin.com/b690daea-2aad-4dee-bdbf-0a66220e5977/v2.0",
-    audience: "b926e720-2d57-443a-be2f-d4b13ae36515",
-    identifierClaimName: "oid",
-    authSettings: {
-      type: IdentityProviderType.Entra,
-      brand: "Test Brand",
-      clientId: "b926e720-2d57-443a-be2f-d4b13ae36515",
-      clientSecret: "o7C8Q~jQbRzi5KJdm_m98DYAQs9p_esZ7JshNcZV", // Secret stored in repo because it's an empty test tenant.
-      redirectUrls: [baseUrl],
-      autoLinkUsers: true,
-      autoCreateUsers: true
-    }
-  }))
+  await identityProviderRepository.insert(
+    IdentityProvider.createNew({
+      name: "Entra",
+      issuerUrl: "https://b690daea-2aad-4dee-bdbf-0a66220e5977.ciamlogin.com/b690daea-2aad-4dee-bdbf-0a66220e5977/v2.0",
+      audience: "b926e720-2d57-443a-be2f-d4b13ae36515",
+      identifierClaimName: "oid",
+      authSettings: {
+        type: IdentityProviderType.Entra,
+        brand: "Test Brand",
+        clientId: "b926e720-2d57-443a-be2f-d4b13ae36515",
+        clientSecret: "o7C8Q~jQbRzi5KJdm_m98DYAQs9p_esZ7JshNcZV", // Secret stored in repo because it's an empty test tenant.
+        redirectUrls: [baseUrl],
+        autoLinkUsers: true,
+        autoCreateUsers: true,
+      },
+    }),
+  )
 
   // Register test Google app for authentication.
-  await identityProviderRepository.insert(IdentityProvider.createNew({
-    name: "Google",
-    issuerUrl: "https://accounts.google.com",
-    audience: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
-    identifierClaimName: "sub",
-    authSettings: {
-      type: IdentityProviderType.Google,
-      brand: "Test Brand",
-      clientId: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
-      clientSecret: "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",
-      redirectUrls: [baseUrl],
-      autoLinkUsers: true,
-      autoCreateUsers: true
-    }
-  }))
+  await identityProviderRepository.insert(
+    IdentityProvider.createNew({
+      name: "Google",
+      issuerUrl: "https://accounts.google.com",
+      audience: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
+      identifierClaimName: "sub",
+      authSettings: {
+        type: IdentityProviderType.Google,
+        brand: "Test Brand",
+        clientId: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
+        clientSecret: "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",
+        redirectUrls: [baseUrl],
+        autoLinkUsers: true,
+        autoCreateUsers: true,
+      },
+    }),
+  )
 
   // Register GitHub for token exchange (unused).
-  await identityProviderRepository.insert(IdentityProvider.createNew({
-    name: "GitHub",
-    issuerUrl: "https://token.actions.githubusercontent.com",
-    audience: "api://TokenExchange",
-    identifierClaimName: "sub",
-    authSettings: null
-  }))
+  await identityProviderRepository.insert(
+    IdentityProvider.createNew({
+      name: "GitHub",
+      issuerUrl: "https://token.actions.githubusercontent.com",
+      audience: "api://TokenExchange",
+      identifierClaimName: "sub",
+      authSettings: null,
+    }),
+  )
 
   // Register CircleCI for token exchange (unused).
-  await identityProviderRepository.insert(IdentityProvider.createNew({
-    name: "CircleCI",
-    issuerUrl: "https://oidc.circleci.com/org/dcde7526-36e2-4073-9b73-d3d684c57e1a",
-    audience: "dcde7526-36e2-4073-9b73-d3d684c57e1a",
-    identifierClaimName: "sub",
-    authSettings: null
-  }))
+  await identityProviderRepository.insert(
+    IdentityProvider.createNew({
+      name: "CircleCI",
+      issuerUrl: "https://oidc.circleci.com/org/dcde7526-36e2-4073-9b73-d3d684c57e1a",
+      audience: "dcde7526-36e2-4073-9b73-d3d684c57e1a",
+      identifierClaimName: "sub",
+      authSettings: null,
+    }),
+  )
 
-  await signingKeyRepository.insert(SigningKey.createNew({
-    publicKey: `-----BEGIN PUBLIC KEY-----
+  await signingKeyRepository.insert(
+    SigningKey.createNew({
+      publicKey: `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAq4qFgibwtEd49x2momIF
 ktJR/iKmishVYFDy5YBB02jQQljee7FiAJv6F5LMQ9U1AKeTraBB3SDeeM1iXxob
 BeQjORQK3+Et3jgLERb8Qw4kM8lKmsxEvaFSLpx4pdEBWTwCN7dlZFRHNRHxVGmA
@@ -74,7 +83,7 @@ mMJ99vLQJGcRHmTLIWBRp5ORi1R7AiEd52703DPEwDroqucPUDsqlhsLCLru/ftD
 vwefLB+xlrS4w5qwSa9fqjT/rLIMesH4zrTni6bCFzT2AO826UutiPnv2B1lIirO
 oDZjx6Ibok1NjM+v80PGYgMCAwEAAQ==
 -----END PUBLIC KEY-----`,
-    privateKey: `-----BEGIN PRIVATE KEY-----
+      privateKey: `-----BEGIN PRIVATE KEY-----
 MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCrioWCJvC0R3j3
 HaaiYgWS0lH+IqaKyFVgUPLlgEHTaNBCWN57sWIAm/oXksxD1TUAp5OtoEHdIN54
 zWJfGhsF5CM5FArf4S3eOAsRFvxDDiQzyUqazES9oVIunHil0QFZPAI3t2VkVEc1
@@ -125,5 +134,7 @@ DFwr4KfObjmvIOtAv5G+7h7BHOkTOYHJKsV5faRwUsHvNqYojAJrKtIR1sm+SsLq
 2mODg71g7IzQd7+Dy9et7fi1anUL+yTPkTnc3CaTvYCaWCwWHrgpFkWJZWTXPBWf
 S2S/2K4UGs0QdWDBGDAYwmnartmzMhlY6P2gi8PRrvlQgPxNGJQhNo9jk54irouP
 +J+J5qrEmZcwEV0VV3WSOY0ezUUoIy8=
------END PRIVATE KEY-----`}))
+-----END PRIVATE KEY-----`,
+    }),
+  )
 }

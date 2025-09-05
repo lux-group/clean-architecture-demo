@@ -22,12 +22,10 @@ export class IssueTokenWithActiveSessionHandler {
     private readonly authorizationService: AuthorizationService,
     private readonly sessionService: SessionService,
     private readonly userRepository: UserRepository,
-  ) { }
+  ) {}
 
   async execute(command: IssueTokenWithActiveSessionInput): Promise<IssueTokenWithActiveSessionResult> {
-    const session = await this.sessionService.getActiveSessionById(
-      command.sessionId,
-      command.nonce)
+    const session = await this.sessionService.getActiveSessionById(command.sessionId, command.nonce)
 
     await this.sessionService.refreshSession(session)
 
@@ -46,12 +44,7 @@ export class IssueTokenWithActiveSessionHandler {
       user = userToImpersonate
     }
 
-    const accessToken = await this.authorizationService.issueAccessToken(
-      user,
-      impersonatedByUser,
-      session,
-      command.audience,
-      command.scope)
+    const accessToken = await this.authorizationService.issueAccessToken(user, impersonatedByUser, session, command.audience, command.scope)
 
     return accessToken
   }

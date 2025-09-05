@@ -15,13 +15,7 @@ describe("SessionService", () => {
       externalSessionLifetimeHours: 48,
       minSessionRefreshDelayMinutes: 1,
     }
-    service = new SessionService(
-      mockAuthClientFactory,
-      mockIdentityProviderRepository,
-      mockSessionRepository,
-      sessionConfig,
-      mockEventPublisher,
-    )
+    service = new SessionService(mockAuthClientFactory, mockIdentityProviderRepository, mockSessionRepository, sessionConfig, mockEventPublisher)
     vi.clearAllMocks()
   })
 
@@ -39,8 +33,7 @@ describe("SessionService", () => {
       const session = factories.createLocalSession()
       mockSessionRepository.tryGetById.mockResolvedValue(session)
 
-      await expect(service.getActiveSessionById(session.id, "nonce-123"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.sessionInvalid))
+      await expect(service.getActiveSessionById(session.id, "nonce-123")).rejects.toThrow(new AuthenticationError(commonErrors.sessionInvalid))
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
@@ -50,15 +43,13 @@ describe("SessionService", () => {
       session.terminateSessionByAdmin()
       mockSessionRepository.tryGetById.mockResolvedValue(session)
 
-      await expect(service.getActiveSessionById(session.id, session.nonce))
-        .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.getActiveSessionById(session.id, session.nonce)).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
     })
 
     it("should throw error when session not found", async () => {
       mockSessionRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.getActiveSessionById("session-123", "nonce-123"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.getActiveSessionById("session-123", "nonce-123")).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
     })
   })
 
@@ -83,7 +74,7 @@ describe("SessionService", () => {
           identifierClaimValue: "external-id",
           email: "test@example.com",
           givenName: "John",
-          surname: "Doe"
+          surname: "Doe",
         },
         idToken: "id-token",
         refreshToken: "refresh-token",
@@ -151,13 +142,13 @@ describe("SessionService", () => {
       let session = factories.createIdentityProviderSession()
       session = new Session({ ...session.props, lastRefreshAt: new Date(Date.now() - 120000) })
       const idp = factories.createIdentityProvider()
-      
+
       mockIdentityProviderRepository.getById.mockResolvedValue(idp)
       mockAuthClientFactory.createClient.mockReturnValue(mockAuthClient)
       mockAuthClient.checkSessionWithRefreshToken.mockResolvedValue({
         valid: true,
         idToken: "new-id-token",
-        refreshToken: "new-refresh-token"
+        refreshToken: "new-refresh-token",
       })
 
       await service.refreshSession(session)
@@ -200,4 +191,3 @@ describe("SessionService", () => {
     })
   })
 })
-

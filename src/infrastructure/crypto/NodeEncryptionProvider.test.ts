@@ -16,15 +16,13 @@ describe("NodeEncryptionProvider", () => {
 
     it("should throw error for invalid key length", () => {
       const shortKey = "0123456789abcdef" // 16 hex chars = 8 bytes (too short)
-      
-      expect(() => new NodeEncryptionProvider([shortKey])).toThrow(
-        "Each cookie encryption key entry must be 32 bytes (64 hex chars)"
-      )
+
+      expect(() => new NodeEncryptionProvider([shortKey])).toThrow("Each cookie encryption key entry must be 32 bytes (64 hex chars)")
     })
 
     it("should throw error for non-hex characters", () => {
       const invalidKey = "g123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" // 'g' is not hex
-      
+
       expect(() => new NodeEncryptionProvider([invalidKey])).toThrow()
     })
   })
@@ -38,7 +36,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should encrypt and decrypt a simple string", () => {
       const plainText = "Hello, World!"
-      
+
       const encrypted = provider.encrypt(plainText)
       const decrypted = provider.decrypt(encrypted)
 
@@ -49,7 +47,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should encrypt and decrypt an empty string", () => {
       const plainText = ""
-      
+
       const encrypted = provider.encrypt(plainText)
       const decrypted = provider.decrypt(encrypted)
 
@@ -58,7 +56,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should encrypt and decrypt unicode characters", () => {
       const plainText = "こんにちは 🌍 éñüïöü"
-      
+
       const encrypted = provider.encrypt(plainText)
       const decrypted = provider.decrypt(encrypted)
 
@@ -67,7 +65,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should generate different cipher text for same plaintext", () => {
       const plainText = "Hello, World!"
-      
+
       const encrypted1 = provider.encrypt(plainText)
       const encrypted2 = provider.encrypt(plainText)
 
@@ -78,7 +76,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should encrypt and decrypt long text", () => {
       const plainText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ".repeat(100)
-      
+
       const encrypted = provider.encrypt(plainText)
       const decrypted = provider.decrypt(encrypted)
 
@@ -106,7 +104,7 @@ describe("NodeEncryptionProvider", () => {
       const plainText = "Hello, World!"
 
       const encrypted = provider.encrypt(plainText)
-      
+
       // Should be able to decrypt with a provider that only has the first key
       const singleKeyProvider = new NodeEncryptionProvider([validKey])
       const decrypted = singleKeyProvider.decrypt(encrypted)
@@ -138,7 +136,7 @@ describe("NodeEncryptionProvider", () => {
 
     it("should throw error for corrupted cipher text", () => {
       const validEncrypted = provider.encrypt("test")
-      const corrupted = validEncrypted.slice(0, -5) + "XXXXX"
+      const corrupted = `${validEncrypted.slice(0, -5)}XXXXX`
 
       expect(() => provider.decrypt(corrupted)).toThrow()
     })
@@ -148,4 +146,3 @@ describe("NodeEncryptionProvider", () => {
     })
   })
 })
-

@@ -1,7 +1,7 @@
 import { Response } from "supertest"
 import { expect } from "vitest"
 import { Entity, EntityProps } from "~/domain/entities"
-import { ObjectTransformer, toISODateString, toSnakeCase } from "~/lib/ObjectTransformer"
+import { transformObject, toISODateString, toSnakeCase } from "~/lib/transformObject"
 
 type SupertestResponseMatchers<R = unknown> = {
   bodyToMatchEntity(expectedEntity: Entity<EntityProps>): R
@@ -45,7 +45,7 @@ expect.extend({
 
     try {
       const responseBody = response.body
-      const expected = ObjectTransformer.transform(expectedEntity.props, [toSnakeCase], [toISODateString])
+      const expected = transformObject(expectedEntity.props, [toSnakeCase], [toISODateString])
       
       if (objectMatches(responseBody, expected)) {
         return pass()

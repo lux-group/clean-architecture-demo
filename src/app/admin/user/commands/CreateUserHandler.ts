@@ -15,20 +15,20 @@ export class CreateUserHandler {
   ) {}
 
   async execute(command: CreateUserCommand): Promise<User> {
-    const { password, ...inputWithoutPassword } = command
+    const { password: _, ...inputWithoutPassword } = command
 
     const props: CreateUserProps = {
       ...inputWithoutPassword,
       emailVerified: false,
-      passwordHash: this.passwordVerifier.createPasswordHash(command.password)
+      passwordHash: this.passwordVerifier.createPasswordHash(command.password),
     }
 
     const user = User.createNew(props)
     await this.userRepository.insert(user)
-    
+
     const event = EntityChangeEvent.entityCreated("User", user)
     this.eventPublisher.publishEvent(event)
-    
+
     return user
   }
 }

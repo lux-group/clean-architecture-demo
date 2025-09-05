@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { AuthenticationError, InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
+import { AuthenticationError, InvalidOperationError, commonErrors } from "~/domain/errors"
 import { Session, CreateSessionProps } from "./Session"
 
 describe("Session", () => {
@@ -59,7 +59,7 @@ describe("Session", () => {
       try {
         Session.createNew({ ...mockCreateProps, [path]: value }, 24)
         fail("Expected validation error to be thrown")
-      } catch (thrownError: ValidationError | any) {
+      } catch (thrownError: any) {
         expect(thrownError.errors).toBeDefined()
         expect(thrownError.errors[0].path).toContain(path)
         expect(thrownError.errors[0].message).toContain(error)
@@ -197,7 +197,7 @@ describe("Session", () => {
 
     it("should return true when refresh is due", () => {
       const session = Session.createNew(mockCreateProps, 1)
-      
+
       // Mock old lastRefreshAt by creating session with past date
       const pastDate = new Date(Date.now() - 35 * 60000) // 35 minutes ago
       const sessionWithOldRefresh = new Session({ ...session.props, lastRefreshAt: pastDate })
@@ -345,4 +345,3 @@ describe("Session", () => {
     })
   })
 })
-

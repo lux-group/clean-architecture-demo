@@ -16,15 +16,16 @@ describe("[POST] /auth/external/frontchannel-sign-out (FrontChannelSignOut)", ()
   describe("when the request has a valid session ID", () => {
     it("should terminate the session and return 200", async () => {
       const user = await context.data.createUser()
-      let session = await context.data.createSession({
-        userId: user.id,
-        identityProviderId: identityProvider.id,
-        identityProviderSessionId: randomUUID()
-      }, 1)
+      let session = await context.data.createSession(
+        {
+          userId: user.id,
+          identityProviderId: identityProvider.id,
+          identityProviderSessionId: randomUUID(),
+        },
+        1,
+      )
 
-      const response = await request(context.server)
-        .get(`/auth/external/frontchannel-sign-out?sid=${session.identityProviderSessionId}`)
-        .send()
+      const response = await request(context.server).get(`/auth/external/frontchannel-sign-out?sid=${session.identityProviderSessionId}`).send()
 
       expect(response.status).toBe(200)
 
@@ -35,12 +36,9 @@ describe("[POST] /auth/external/frontchannel-sign-out (FrontChannelSignOut)", ()
 
   describe("when the session does not exist", () => {
     it("should return 200 even if session doesn't exist", async () => {
-      const response = await request(context.server)
-        .get(`/auth/external/frontchannel-sign-out?sid=${randomUUID()}`)
-        .send()
+      const response = await request(context.server).get(`/auth/external/frontchannel-sign-out?sid=${randomUUID()}`).send()
 
       expect(response.status).toBe(200)
     })
   })
 })
-

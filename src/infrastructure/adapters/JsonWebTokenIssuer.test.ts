@@ -1,16 +1,15 @@
 import { generateKeyPairSync } from "node:crypto"
 import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import jwt from "jsonwebtoken"
-import { SigningKey, User } from "~/domain/entities"
+import { SigningKey } from "~/domain/entities"
 import { TokenRequest, TokenIssuer } from "~/domain/adapters"
 import { JsonWebTokenIssuer } from "./JsonWebTokenIssuer"
 
 describe("JsonWebTokenIssuer", () => {
   let tokenIssuer: TokenIssuer
   let baseTokenRequest: TokenRequest
-  let user: User
   let signingKey: SigningKey
-  
+
   const baseUrl = "https://auth.example.com"
   const lifetimeSeconds = 3600
   const audience = "test-audience"
@@ -19,12 +18,12 @@ describe("JsonWebTokenIssuer", () => {
     const { privateKey: priv, publicKey: pub } = generateKeyPairSync("rsa", {
       modulusLength: 2048,
       publicKeyEncoding: { type: "spki", format: "pem" },
-      privateKeyEncoding: { type: "pkcs8", format: "pem" }
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
     })
 
     signingKey = SigningKey.createNew({
       privateKey: priv,
-      publicKey: pub
+      publicKey: pub,
     })
   })
 
@@ -108,8 +107,8 @@ describe("JsonWebTokenIssuer", () => {
           stringClaim: "value1",
           numberClaim: 42,
           booleanClaim: true,
-          nestedClaim: { nested: "value" }
-        }
+          nestedClaim: { nested: "value" },
+        },
       }
 
       const result = tokenIssuer.createAccessToken(signingKey, request)
@@ -125,9 +124,9 @@ describe("JsonWebTokenIssuer", () => {
       const before = Math.floor(Date.now() / 1000)
       const result = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
       const after = Math.floor(Date.now() / 1000) + 1 // Add 1 second buffer for timing
-      
+
       const decoded = decodeToken(result.accessToken)
-      
+
       expect(decoded.iat).toBeGreaterThanOrEqual(before)
       expect(decoded.iat).toBeLessThanOrEqual(after)
       expect(decoded.exp).toBe(decoded.iat! + lifetimeSeconds)
@@ -136,12 +135,11 @@ describe("JsonWebTokenIssuer", () => {
     it("should generate unique JTI for each token", () => {
       const result1 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
       const result2 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
-      
+
       const decoded1 = decodeToken(result1.accessToken)
       const decoded2 = decodeToken(result2.accessToken)
-      
+
       expect(decoded1.jti).not.toBe(decoded2.jti)
     })
   })
 })
-

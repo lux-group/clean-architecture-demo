@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockAuthClient } from "@test/mocks"
-import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
+import { IdentityProviderType } from "~/domain/entities"
 import { InvalidOperationError } from "~/domain/errors"
 import { ClientFactory } from "./ClientFactory"
 import { OidcClient } from "./OidcClient"
@@ -30,7 +30,7 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Entra,
-        }
+        },
       })
 
       MockOidcClient.mockImplementation(() => mockAuthClient as unknown as OidcClient)
@@ -45,7 +45,7 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Google,
-        }
+        },
       })
 
       MockOidcClient.mockImplementation(() => mockAuthClient as unknown as OidcClient)
@@ -60,7 +60,7 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Apple,
-        }
+        },
       })
 
       MockAppleClient.mockImplementation(() => mockAuthClient as unknown as AppleClient)
@@ -75,7 +75,7 @@ describe("ClientFactory", () => {
       const identityProvider = factories.createIdentityProvider({
         authSettings: {
           type: IdentityProviderType.Facebook,
-        }
+        },
       })
 
       MockFacebookClient.mockImplementation(() => mockAuthClient as unknown as FacebookClient)
@@ -88,7 +88,7 @@ describe("ClientFactory", () => {
 
     it("should throw InvalidOperationError when identity provider has no authSettings", () => {
       const identityProvider = factories.createIdentityProvider({
-        authSettings: null
+        authSettings: null,
       })
 
       expect(() => clientFactory.createClient(identityProvider)).toThrow(InvalidOperationError)

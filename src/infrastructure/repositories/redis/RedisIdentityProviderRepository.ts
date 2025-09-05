@@ -1,14 +1,14 @@
 import { RedisClientType } from "redis"
-import { ObjectTransformer, toDateObject, toISODateString } from "~/lib/ObjectTransformer"
+import { transformObject, toDateObject, toISODateString } from "~/lib/transformObject"
 import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { RedisRepository } from "./RedisRepository"
 
-export class RedisIdentityProviderRepository extends RedisRepository<IdentityProvider, IdentityProviderRepository> implements IdentityProviderRepository {
-  constructor(
-    redisClient: RedisClientType,
-    redisDecorated_identityProviderRepository: IdentityProviderRepository
-  ) {
+export class RedisIdentityProviderRepository
+  extends RedisRepository<IdentityProvider, IdentityProviderRepository>
+  implements IdentityProviderRepository
+{
+  constructor(redisClient: RedisClientType, redisDecorated_identityProviderRepository: IdentityProviderRepository) {
     super("identity_provider", 3600, redisClient, redisDecorated_identityProviderRepository)
   }
 
@@ -44,12 +44,12 @@ export class RedisIdentityProviderRepository extends RedisRepository<IdentityPro
   }
 
   protected override serializeEntity(identityProvider: IdentityProvider): string {
-    const props = ObjectTransformer.transform(identityProvider.props, [], [toISODateString])
+    const props = transformObject(identityProvider.props, [], [toISODateString])
     return JSON.stringify(props)
   }
 
   protected override deserializeEntity(data: string): IdentityProvider {
-    const props = ObjectTransformer.transform(JSON.parse(data), [], [toDateObject])
+    const props = transformObject(JSON.parse(data), [], [toDateObject])
     return new IdentityProvider(props)
   }
 
@@ -70,10 +70,6 @@ export class RedisIdentityProviderRepository extends RedisRepository<IdentityPro
     const nameCacheKey = this.getCacheKey("name", idp.props.name)
     const issuerAudienceCacheKey = this.getCacheKey("issuer_audience", idp.props.issuerUrl, idp.props.audience)
 
-    await Promise.all([
-      this.redisClient.del(idCacheKey),
-      this.redisClient.del(nameCacheKey),
-      this.redisClient.del(issuerAudienceCacheKey),
-    ])
+    await Promise.all([this.redisClient.del(idCacheKey), this.redisClient.del(nameCacheKey), this.redisClient.del(issuerAudienceCacheKey)])
   }
 }

@@ -18,10 +18,10 @@ export class UpdateIdentityProviderHandler {
     const identityProvider = await this.identityProviderRepository.getById(id)
     identityProvider.update(props)
     await this.identityProviderRepository.update(identityProvider)
-    
+
     const event = EntityChangeEvent.entityUpdated("Identity Provider", identityProvider)
     this.eventPublisher.publishEvent(event)
-    
+
     return identityProvider
   }
 }

@@ -31,29 +31,58 @@ const userSchema = z.object({
 export type UserIdentity = Readonly<z.input<typeof userIdentitySchema>>
 export type UserProps = Readonly<z.input<typeof userSchema>>
 export type CreateUserProps = Omit<UserProps, "id" | "createdAt" | "updatedAt" | "identities">
-export type UpdateUserProps = Omit<UserProps, "id" | "createdAt" | "updatedAt" | "brand" | "email" | "emailVerified" | "phone" | "passwordHash" | "identities">
+export type UpdateUserProps = Omit<
+  UserProps,
+  "id" | "createdAt" | "updatedAt" | "brand" | "email" | "emailVerified" | "phone" | "passwordHash" | "identities"
+>
 
 export class User extends Entity<UserProps> {
-  constructor(props: UserProps) {
-    super(props)
+  get isEnabled() {
+    return this.props.isEnabled
+  }
+  get brand() {
+    return this.props.brand
+  }
+  get givenName() {
+    return this.props.givenName
+  }
+  get surname() {
+    return this.props.surname
+  }
+  get email() {
+    return this.props.email
+  }
+  get emailVerified() {
+    return this.props.emailVerified
+  }
+  get phone() {
+    return this.props.phone
+  }
+  get country() {
+    return this.props.country
+  }
+  get city() {
+    return this.props.city
+  }
+  get postcode() {
+    return this.props.postcode
+  }
+  get passwordHash() {
+    return this.props.passwordHash
+  }
+  get roles() {
+    return this.props.roles
+  }
+  get identities() {
+    return this.props.identities
   }
 
-  get isEnabled() { return this.props.isEnabled }
-  get brand() { return this.props.brand }
-  get givenName() { return this.props.givenName }
-  get surname() { return this.props.surname }
-  get email() { return this.props.email }
-  get emailVerified() { return this.props.emailVerified }
-  get phone() { return this.props.phone }
-  get country() { return this.props.country }
-  get city() { return this.props.city }
-  get postcode() { return this.props.postcode }
-  get passwordHash() { return this.props.passwordHash }
-  get roles() { return this.props.roles }
-  get identities() { return this.props.identities }
-
-  get isServiceAccount() { return this.roles.includes("service") }
-  get fullName() { return User.formatFullName(this.givenName, this.surname) }
+  get isServiceAccount() {
+    return this.roles.includes("service")
+  }
+  get fullName() {
+    return User.formatFullName(this.givenName, this.surname)
+  }
 
   static formatFullName = (givenName: string, surname: string) => `${givenName} ${surname}`
 
@@ -91,9 +120,9 @@ export class User extends Entity<UserProps> {
     const newIdentity: UserIdentity = {
       id: randomUUID(),
       identityProviderId,
-      identifierClaimValue
+      identifierClaimValue,
     }
-    
+
     this.props = {
       ...this.props,
       passwordHash: null, // Clear password when adding identity
@@ -133,9 +162,7 @@ export class User extends Entity<UserProps> {
   }
 
   canImpersonateUser(userToImpersonate: User) {
-    return this.roles.includes("employee") &&
-      userToImpersonate.roles.length === 0 &&
-      userToImpersonate.id !== this.id
+    return this.roles.includes("employee") && userToImpersonate.roles.length === 0 && userToImpersonate.id !== this.id
   }
 
   handleFailedSignInAttempt() {

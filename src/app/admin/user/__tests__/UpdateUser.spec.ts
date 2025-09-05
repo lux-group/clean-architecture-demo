@@ -11,7 +11,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.createAccessToken(randomUUID(), ["user:write"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["user:write"])
   })
 
   const defaultPayload = {
@@ -19,9 +19,9 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
     given_name: "Updated Name",
     surname: "Updated Surname",
     country: "CA",
-    city: "Updated City", 
+    city: "Updated City",
     postcode: "54321",
-    roles: ["admin", "user"]
+    roles: ["admin", "user"],
   }
 
   const getPayload = (overrides: Partial<typeof defaultPayload> = {}) => ({
@@ -30,15 +30,11 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
   })
 
   describe("when the update was successful", () => {
-
     it("should return 200 with updated user", async () => {
       const original = await context.data.createUser()
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .put(`/admin/users/${original.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      const response = await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual(expect.objectContaining(payload))
@@ -48,10 +44,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const original = await context.data.createUser()
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .put(`/admin/users/${original.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      const response = await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       const updated = await context.data.getUser(original.id)
       expect(response).bodyToMatchEntity(updated)
@@ -64,10 +57,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .put(`/admin/users/${original.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      await request(context.server).put(`/admin/users/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -78,13 +68,10 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const payload = {
         is_enabled: false,
         given_name: "Updated Name",
-        surname: "Updated Surname"
+        surname: "Updated Surname",
       }
 
-      const response = await request(context.server)
-        .put(`/admin/users/${randomUUID()}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      const response = await request(context.server).put(`/admin/users/${randomUUID()}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(response.status).toBe(404)
     })
@@ -95,9 +82,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
       const original = await context.data.createUser()
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .put(`/admin/users/${original.id}`)
-        .send(payload)
+      const response = await request(context.server).put(`/admin/users/${original.id}`).send(payload)
 
       expect(response.status).toBe(401)
     })
@@ -105,7 +90,7 @@ describe("[PUT] /admin/users/:id (UpdateUser)", () => {
     it("should return 403 when the access token does not have scope 'users:write'", async () => {
       const original = await context.data.createUser()
       const payload = getPayload()
-      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["user:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["user:read"])
 
       const response = await request(context.server)
         .put(`/admin/users/${original.id}`)

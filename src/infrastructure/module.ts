@@ -15,7 +15,7 @@ export default async function registerInfrastructureServices(container: AwilixCo
     eventBus: asClass(EventBus).singleton(),
     passwordVerifier: asClass(BCryptPasswordVerifier).singleton(),
     tokenIssuer: asClass(JsonWebTokenIssuer).singleton(),
-    tokenValidator: asClass(JsonWebTokenValidator).singleton(),    
+    tokenValidator: asClass(JsonWebTokenValidator).singleton(),
     authClientFactory: asClass(ClientFactory).singleton(),
     logger: asClass(ConsoleLogger).singleton(),
     encryptionProvider: asClass(NodeEncryptionProvider).singleton(),

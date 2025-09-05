@@ -22,16 +22,15 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
       redirect_urls: ["https://test.updated.com"],
       auto_link_users: true,
       auto_create_users: true,
-    }
+    },
   })
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.createAccessToken(randomUUID(), ["identity-provider:write"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["identity-provider:write"])
   })
 
   describe("when the update was successful", () => {
-
     it("should return 200 with valid identity provider", async () => {
       const original = await context.data.createIdentityProvider()
       const payload = getPayload()
@@ -48,7 +47,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
     it("should update the identity provider in the database", async () => {
       const original = await context.data.createIdentityProvider()
       const payload = getPayload()
-      
+
       const response = await request(context.server)
         .put(`/admin/identity-providers/${original.id}`)
         .set("Authorization", `Bearer ${accessToken}`)
@@ -65,10 +64,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .put(`/admin/identity-providers/${original.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      await request(context.server).put(`/admin/identity-providers/${original.id}`).set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -86,15 +82,11 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
   })
 
   describe("when authorization fails", () => {
-    
-
     it("should return 401 when no access token is provided", async () => {
       const original = await context.data.createIdentityProvider()
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .put(`/admin/identity-providers/${original.id}`)
-        .send(payload)
+      const response = await request(context.server).put(`/admin/identity-providers/${original.id}`).send(payload)
 
       expect(response.status).toBe(401)
     })
@@ -102,7 +94,7 @@ describe("[PUT] /admin/identity-providers/:id (UpdateIdentityProvider)", () => {
     it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
       const original = await context.data.createIdentityProvider()
       const payload = getPayload()
-      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["identity-provider:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["identity-provider:read"])
 
       const response = await request(context.server)
         .put(`/admin/identity-providers/${original.id}`)

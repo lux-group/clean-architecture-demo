@@ -21,7 +21,7 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
         .post("/oauth2/token")
-        .type('form')
+        .type("form")
         .send({ grant_type: "client_credentials", client_id: employeeUser.id, client_secret: password })
 
       expect(response.status).toBe(401)
@@ -33,7 +33,7 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
         .post("/oauth2/token")
-        .type('form')
+        .type("form")
         .send({ grant_type: "client_credentials", client_id: randomUUID(), client_secret: password })
 
       expect(response.status).toBe(401)
@@ -45,7 +45,7 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
         .post("/oauth2/token")
-        .type('form')
+        .type("form")
         .send({ grant_type: "client_credentials", client_id: serviceUser.id, client_secret: "invalid" })
 
       expect(response.status).toBe(401)
@@ -57,7 +57,7 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
     it("should return 200 and access token", async () => {
       const response = await request(context.server)
         .post("/oauth2/token")
-        .type('form')
+        .type("form")
         .send({ grant_type: "client_credentials", client_id: serviceUser.id, client_secret: password })
 
       expect(response.status).toBe(200)
@@ -66,4 +66,3 @@ describe("[POST] /oauth2/token (GetTokenWithClientCredentials)", () => {
     })
   })
 })
-

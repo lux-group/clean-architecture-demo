@@ -12,12 +12,12 @@ describe("Handle Client Errors Middleware", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockRequest = {} as Request
     mockResponse = {} as Response
     mockResponse.status = vi.fn().mockReturnValue(mockResponse)
     mockResponse.json = vi.fn().mockReturnValue(mockResponse)
-    
+
     handler = handleClientErrors(mockLogger)
   })
 
@@ -145,4 +145,3 @@ describe("Handle Client Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 })
-

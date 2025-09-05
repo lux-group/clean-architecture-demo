@@ -12,9 +12,7 @@ describe("[GET] /oauth2/.well-known/jwks (GetJsonWebKeys)", () => {
 
   describe("when requesting JSON web keys", () => {
     it("should return 200 with valid keys", async () => {
-      const response = await request(context.server)
-        .get("/oauth2/.well-known/jwks")
-        .send()
+      const response = await request(context.server).get("/oauth2/.well-known/jwks").send()
 
       expect(response.status).toBe(200)
       expect(response.body.keys).toBeInstanceOf(Array)

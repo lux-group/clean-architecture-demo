@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
+import { InvalidOperationError, commonErrors } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderType, CreateIdentityProviderProps, UpdateIdentityProviderProps } from "./IdentityProvider"
 
 describe("IdentityProvider", () => {
@@ -78,14 +78,14 @@ describe("IdentityProvider", () => {
     ])("should throw a validation error when $path is $value", async ({ path, value, error }) => {
       try {
         if (path.includes(".")) {
-          const [ parent, child ] = path.split(".")
+          const [parent, child] = path.split(".")
           path = parent
-          value = { ...((mockCreateProps as any)[parent]), [child]: value } as any
+          value = { ...(mockCreateProps as any)[parent], [child]: value } as any
         }
 
         IdentityProvider.createNew({ ...(mockCreateProps as any), [path]: value } as any)
         fail("Expected validation error to be thrown")
-      } catch (thrownError: ValidationError | any) {
+      } catch (thrownError: any) {
         expect(thrownError.errors).toBeDefined()
         expect(thrownError.errors[0].path).toContain(path)
         expect(thrownError.errors[0].message).toContain(error)
@@ -175,4 +175,3 @@ describe("IdentityProvider", () => {
     })
   })
 })
-

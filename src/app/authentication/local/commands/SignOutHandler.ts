@@ -6,9 +6,7 @@ export interface SignOutCommand {
 }
 
 export class SignOutHandler {
-  constructor(
-    private readonly sessionService: SessionService,
-  ) {}
+  constructor(private readonly sessionService: SessionService) {}
 
   async execute(command: SignOutCommand): Promise<void> {
     const session = await this.sessionService.getActiveSessionById(command.sessionId, command.nonce)

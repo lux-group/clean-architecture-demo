@@ -10,8 +10,10 @@ export class MemoryUserRepository extends MemoryRepository<User> implements User
   tryGetByBrandAndEmail = (brand: string, email: string) => this.tryGet({ brand, email })
 
   tryGetByExternalIdentity = (identityProviderId: string, identifierClaimValue: string) => {
-    return Promise.resolve(Object.values(this.store).find(u => u.identities.some(i =>
-      i.identityProviderId == identityProviderId &&
-      i.identifierClaimValue == identifierClaimValue)))
+    return Promise.resolve(
+      Object.values(this.store).find(u =>
+        u.identities.some(i => i.identityProviderId === identityProviderId && i.identifierClaimValue === identifierClaimValue),
+      ),
+    )
   }
 }

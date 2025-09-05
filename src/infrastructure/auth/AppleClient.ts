@@ -10,34 +10,38 @@ export class AppleClient implements AuthClient {
     private readonly identityProvider: IdentityProvider,
   ) {}
 
-  public get supportsSignOut() { return false }
-  public get supportsEditProfile() { return false }
+  public get supportsSignOut() {
+    return false
+  }
+  public get supportsEditProfile() {
+    return false
+  }
 
   async createSignInRequest(redirectUrl: string) {
     const state = this.generateRandomString(32)
     const nonce = this.generateRandomString(32)
     const codeVerifier = this.generateRandomString(64)
-    
+
     const signInState: SignInState = {
       state,
       nonce,
       codeVerifier,
       redirectUrl,
-      identityProviderId: this.identityProvider.id
+      identityProviderId: this.identityProvider.id,
     }
 
     const params = new URLSearchParams({
       response_type: "code",
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: this.baseUrl + "/auth/external/sign-in-callback",
+      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
       scope: "name email",
       state,
       nonce,
-      response_mode: "form_post"
+      response_mode: "form_post",
     })
 
     const authUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`
-    
+
     return { url: authUrl, signInState }
   }
 
@@ -62,41 +66,41 @@ export class AppleClient implements AuthClient {
       idToken: tokenResponse.id_token,
       refreshToken: tokenResponse.refresh_token,
       accessToken: tokenResponse.access_token,
-      profile
+      profile,
     }
   }
 
-  async createSignOutRequest(redirectUrl: string, idToken?: string): Promise<SignOutRequest> {
+  async createSignOutRequest(_redirectUrl: string, _idToken?: string): Promise<SignOutRequest> {
     throw new Error("The identity provider does not support single-sign-out.")
   }
 
-  async checkSessionWithRefreshToken(refreshToken: string): Promise<CheckSessionResponse> {
+  async checkSessionWithRefreshToken(_refreshToken: string): Promise<CheckSessionResponse> {
     throw new Error("The identity provider does not support refresh tokens.")
   }
 
-  async editProfile(accessToken: string, givenName: string, surname: string): Promise<void> {
+  async editProfile(_accessToken: string, _givenName: string, _surname: string): Promise<void> {
     throw new Error("The identity provider does not support editing profiles.")
   }
 
   private generateRandomString(length: number): string {
-    return randomBytes(length).toString('base64url').slice(0, length)
+    return randomBytes(length).toString("base64url").slice(0, length)
   }
 
-  private async exchangeCodeForTokens(code: string, signInState: SignInState): Promise<any> {
+  private async exchangeCodeForTokens(code: string, _signInState: SignInState): Promise<any> {
     const tokenEndpoint = "https://appleid.apple.com/auth/token"
-    
+
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: this.baseUrl + "/auth/external/sign-in-callback",
+      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
       client_id: this.identityProvider.authSettings!.clientId,
-      client_secret: this.identityProvider.authSettings!.clientSecret
+      client_secret: this.identityProvider.authSettings!.clientSecret,
     })
 
     const response = await fetch(tokenEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString()
+      body: body.toString(),
     })
 
     if (!response.ok) {
@@ -110,7 +114,7 @@ export class AppleClient implements AuthClient {
     try {
       // Decode JWT without verification (Apple's public keys would need to be fetched for full verification)
       const decodedToken = jwt.decode(idToken, { complete: true }) as any
-      
+
       if (!decodedToken || !decodedToken.payload) {
         throw new AuthenticationError("Invalid ID token format")
       }
@@ -146,7 +150,7 @@ export class AppleClient implements AuthClient {
           if (userData.email) {
             email = userData.email
           }
-        } catch (err) {
+        } catch {
           // Ignore parsing errors for user data
         }
       }
@@ -161,7 +165,7 @@ export class AppleClient implements AuthClient {
         email,
         givenName,
         surname,
-        identifierClaimValue
+        identifierClaimValue,
       }
     } catch (error) {
       if (error instanceof AuthenticationError) {

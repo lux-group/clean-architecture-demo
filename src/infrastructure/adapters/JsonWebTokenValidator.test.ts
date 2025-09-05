@@ -3,7 +3,6 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import jwt from "jsonwebtoken"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
 import { IdentityProvider, IdentityProviderProps } from "~/domain/entities"
-import { IdentityProviderRepository } from "~/domain/repositories"
 import { JsonWebTokenValidator } from "./JsonWebTokenValidator"
 
 // Mock global fetch for OIDC metadata and JWKS endpoints
@@ -18,7 +17,7 @@ describe("JsonWebTokenValidator", () => {
   let identityProvider: IdentityProvider
   let privateKey: string
   let publicKey: string
-  
+
   const issuerUrl = "https://login.microsoftonline.com/tenant-id"
   const audience = "test-audience"
   const jwksUri = "https://login.microsoftonline.com/tenant-id/discovery/v2.0/keys"
@@ -29,13 +28,13 @@ describe("JsonWebTokenValidator", () => {
     const { privateKey: priv, publicKey: pub } = generateKeyPairSync("rsa", {
       modulusLength: 2048,
       publicKeyEncoding: { type: "spki", format: "pem" },
-      privateKeyEncoding: { type: "pkcs8", format: "pem" }
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
     })
     privateKey = priv
-    publicKey = pub;
-    
+    publicKey = pub
+
     // Store public key globally for the mock to access
-    (global as any).__testPublicKey = publicKey
+    ;(global as any).__testPublicKey = publicKey
   })
 
   beforeEach(async () => {
@@ -44,11 +43,11 @@ describe("JsonWebTokenValidator", () => {
     // Set up the jwks-rsa mock
     const jwksRsa = vi.mocked(await import("jwks-rsa"))
     jwksRsa.JwksClient = vi.fn().mockImplementation(() => ({
-      getSigningKey: vi.fn().mockImplementation((kid: string) => {
+      getSigningKey: vi.fn().mockImplementation((_kid: string) => {
         return Promise.resolve({
-          getPublicKey: () => (global as any).__testPublicKey || "invalid-key"
+          getPublicKey: () => (global as any).__testPublicKey || "invalid-key",
         })
-      })
+      }),
     }))
 
     // Mock the repository
@@ -77,21 +76,21 @@ describe("JsonWebTokenValidator", () => {
 
   const setupSuccessfulMocks = () => {
     // Mock successful OIDC metadata fetch
-    ((global.fetch as any)).mockImplementation((url: string) => {
+    ;(global.fetch as any).mockImplementation((url: string) => {
       if (url.includes("/.well-known/openid-configuration")) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({ jwks_uri: jwksUri }),
         })
       }
-      
+
       return Promise.reject(new Error("Unexpected URL"))
     })
 
     mockIdentityProviderRepository.tryGetByIssuerUrlAndAudience.mockResolvedValue(identityProvider)
   }
 
-  const createToken = (payload: any, options: { keyId?: string, algorithm?: jwt.Algorithm } = {}) => {
+  const createToken = (payload: any, options: { keyId?: string; algorithm?: jwt.Algorithm } = {}) => {
     return jwt.sign(payload, privateKey, {
       algorithm: options.algorithm || "RS256",
       keyid: options.keyId || keyId,
@@ -99,7 +98,7 @@ describe("JsonWebTokenValidator", () => {
         typ: "JWT",
         alg: options.algorithm || "RS256",
         kid: options.keyId || keyId,
-      }
+      },
     })
   }
 
@@ -131,60 +130,49 @@ describe("JsonWebTokenValidator", () => {
         },
       })
 
-      expect(mockIdentityProviderRepository.tryGetByIssuerUrlAndAudience).toHaveBeenCalledWith(
-        issuerUrl,
-        audience
-      )
+      expect(mockIdentityProviderRepository.tryGetByIssuerUrlAndAudience).toHaveBeenCalledWith(issuerUrl, audience)
     })
 
     it("should throw AuthenticationError when JWT is malformed", async () => {
       const malformedToken = "not.a.valid.jwt.token"
 
-      await expect(validator.decodeAndValidateToken(malformedToken)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(malformedToken)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should throw AuthenticationError when iss claim is missing", async () => {
       const payload = { ...createValidPayload(), iss: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should throw AuthenticationError when aud claim is missing", async () => {
       const payload = { ...createValidPayload(), aud: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should throw AuthenticationError when sub claim is missing", async () => {
       const payload = { ...createValidPayload(), sub: undefined }
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should throw AuthenticationError when identity provider is not found", async () => {
       mockIdentityProviderRepository.tryGetByIssuerUrlAndAudience.mockResolvedValue(undefined)
-      
+
       const payload = createValidPayload()
       const token = createToken(payload)
 
       await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError(`${issuerUrl} with audience ${audience} is not a trusted identity provider.`)
+        new AuthenticationError(`${issuerUrl} with audience ${audience} is not a trusted identity provider.`),
       )
     })
 
     it("should handle OIDC metadata fetch failure", async () => {
-      ((global.fetch as any)).mockImplementation((url: string) => {
+      ;(global.fetch as any).mockImplementation((url: string) => {
         if (url.includes("/.well-known/openid-configuration")) {
           return Promise.resolve({
             ok: false,
@@ -197,9 +185,7 @@ describe("JsonWebTokenValidator", () => {
       const payload = createValidPayload()
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError("Unable to fetch JWKS document.")
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError("Unable to fetch JWKS document."))
     })
 
     it("should handle JWKS document fetch failure", async () => {
@@ -209,15 +195,13 @@ describe("JsonWebTokenValidator", () => {
       vi.mocked(jwksRsa.JwksClient).mockImplementation(() => ({
         getKeys: vi.fn(),
         getSigningKeys: vi.fn(),
-        getSigningKey: vi.fn().mockRejectedValue(new Error("JWKS fetch failed"))
+        getSigningKey: vi.fn().mockRejectedValue(new Error("JWKS fetch failed")),
       }))
 
       const payload = createValidPayload()
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError("Unable to fetch JWKS document.")
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError("Unable to fetch JWKS document."))
     })
 
     it("should throw AuthenticationError when JWT signature is invalid", async () => {
@@ -225,7 +209,7 @@ describe("JsonWebTokenValidator", () => {
       const { privateKey: wrongPrivateKey } = generateKeyPairSync("rsa", {
         modulusLength: 2048,
         publicKeyEncoding: { type: "spki", format: "pem" },
-        privateKeyEncoding: { type: "pkcs8", format: "pem" }
+        privateKeyEncoding: { type: "pkcs8", format: "pem" },
       })
 
       const payload = createValidPayload()
@@ -236,12 +220,10 @@ describe("JsonWebTokenValidator", () => {
           typ: "JWT",
           alg: "RS256",
           kid: keyId,
-        }
+        },
       })
 
-      await expect(validator.decodeAndValidateToken(tokenWithWrongSignature)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(tokenWithWrongSignature)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should correctly extract profile information", async () => {
@@ -267,7 +249,7 @@ describe("JsonWebTokenValidator", () => {
     it("should use custom identifier claim name from identity provider", async () => {
       const customClaimName = "custom_id"
       const customIdentifierValue = "custom-identifier-value"
-      
+
       // Create identity provider with custom identifier claim name
       const customIdentityProviderProps: IdentityProviderProps = {
         id: "custom-idp",
@@ -322,9 +304,7 @@ describe("JsonWebTokenValidator", () => {
       }
       const token = createToken(expiredPayload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(
-        new AuthenticationError(commonErrors.invalidJwt)
-      )
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(new AuthenticationError(commonErrors.invalidJwt))
     })
 
     it("should validate token with different key IDs", async () => {
@@ -338,16 +318,13 @@ describe("JsonWebTokenValidator", () => {
           typ: "JWT",
           alg: "RS256",
           kid: differentKeyId,
-        }
+        },
       })
 
       const result = await validator.decodeAndValidateToken(token)
-      
+
       expect(result.identityProvider).toBe(identityProvider)
       expect(result.profile.identifierClaimValue).toBe("user123")
     })
   })
 })
-
-
-

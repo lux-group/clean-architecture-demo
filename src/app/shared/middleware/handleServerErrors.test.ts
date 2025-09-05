@@ -12,12 +12,12 @@ describe("Handle Server Errors Middleware", () => {
   const expectedResponse = { status: 500, message: "An internal server error occurred." }
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockRequest = {} as Request
     mockResponse = {} as Response
     mockResponse.status = vi.fn().mockReturnValue(mockResponse)
     mockResponse.json = vi.fn().mockReturnValue(mockResponse)
-    
+
     handler = handleServerErrors(mockLogger)
   })
 
@@ -54,4 +54,3 @@ describe("Handle Server Errors Middleware", () => {
     expect(nextFunction).not.toHaveBeenCalled()
   })
 })
-

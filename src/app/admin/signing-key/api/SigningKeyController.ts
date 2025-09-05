@@ -35,11 +35,9 @@ export class SigningKeyController {
 
   @Post("/")
   @Authorize({ scopes: ["signing-key:write"] })
-  async create(req: Request, res: Response) {
+  async create(_req: Request, res: Response) {
     const item = await this.createNewSigningKeyHandler.execute()
-    res.status(201)
-      .header("Location", `${this.baseUrl}/admin/signing-keys/${item.id}`)
-      .json(this.present(item))
+    res.status(201).header("Location", `${this.baseUrl}/admin/signing-keys/${item.id}`).json(this.present(item))
   }
 
   @Delete("/:id")

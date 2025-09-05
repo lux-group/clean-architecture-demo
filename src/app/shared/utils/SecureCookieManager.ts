@@ -15,40 +15,34 @@ export class SecureCookieManager {
 
   constructor(private readonly encryptionProvider: EncryptionProvider) {}
 
-  setStateCookie = (req: Request, res: Response, state: object) =>
-    this.setCookie(req, res, this.stateCookieName, state, false, undefined, )
+  setStateCookie = (req: Request, res: Response, state: object) => this.setCookie(req, res, this.stateCookieName, state, false, undefined)
 
-  getStateCookie = <T extends object>(req: Request, res: Response) =>
-    this.getCookie<T>(req, res, this.stateCookieName)
+  getStateCookie = <T extends object>(req: Request, res: Response) => this.getCookie<T>(req, res, this.stateCookieName)
 
-  getAndRemoveStateCookie = <T extends object>(req: Request, res: Response) =>
-    this.getAndRemoveCookie<T>(req, res, this.stateCookieName)
+  getAndRemoveStateCookie = <T extends object>(req: Request, res: Response) => this.getAndRemoveCookie<T>(req, res, this.stateCookieName)
 
   setSessionCookie = (req: Request, res: Response, session: Session) =>
     this.setCookie(req, res, this.sessionCookieName, { id: session.id, nonce: session.nonce }, true, session.expiresAt)
 
-  getSessionCookie = (req: Request, res: Response) =>
-    this.getCookie<SessionCookie>(req, res, this.sessionCookieName)
+  getSessionCookie = (req: Request, res: Response) => this.getCookie<SessionCookie>(req, res, this.sessionCookieName)
 
-  getAndRemoveSessionCookie = (req: Request, res: Response) =>
-    this.getAndRemoveCookie<SessionCookie>(req, res, this.sessionCookieName)
+  getAndRemoveSessionCookie = (req: Request, res: Response) => this.getAndRemoveCookie<SessionCookie>(req, res, this.sessionCookieName)
 
-  removeSessionCookie = (res: Response) =>
-    res.clearCookie(this.sessionCookieName)
+  removeSessionCookie = (res: Response) => res.clearCookie(this.sessionCookieName)
 
   encryptCookie = (payload: object, headers: Record<string, string | string[] | undefined>): string => {
-    (payload as Record<string, string>).device = this.extractFingerprint(headers)
+    ;(payload as Record<string, string>).device = this.extractFingerprint(headers)
     const json = JSON.stringify(payload)
     return this.encryptionProvider.encrypt(json)
   }
 
   private setCookie(req: Request, res: Response, name: string, payload: object, sameSite?: boolean, expires?: Date) {
     const options: CookieOptions = {
-      secure: true,                           // Don't send cookie over plain HTTP.
-      httpOnly: true,                         // Don't allow cookie to be read by javascript to prevent XSS attacks.
-      sameSite: sameSite ? "strict" : "lax",  // Use strict where possible but some redirects may require lax.
+      secure: true, // Don't send cookie over plain HTTP.
+      httpOnly: true, // Don't allow cookie to be read by javascript to prevent XSS attacks.
+      sameSite: sameSite ? "strict" : "lax", // Use strict where possible but some redirects may require lax.
       expires,
-    };
+    }
 
     res.cookie(name, this.encryptCookie(payload, req.headers), options)
   }
@@ -63,13 +57,12 @@ export class SecureCookieManager {
     try {
       const decrypted = this.encryptionProvider.decrypt(encrypted)
       payload = JSON.parse(decrypted)
-    }
-    catch {
+    } catch {
       res.clearCookie(name)
       throw new AuthenticationError(commonErrors.cookieInvalid)
     }
 
-    if ((payload as Record<string, string>).device != this.extractFingerprint(req.headers)) {
+    if ((payload as Record<string, string>).device !== this.extractFingerprint(req.headers)) {
       res.clearCookie(name)
       throw new AuthenticationError(commonErrors.cookieInvalid)
     }
@@ -86,9 +79,11 @@ export class SecureCookieManager {
   // This is just for demo purposes. There is surely a better way to do this.
   // Consider something like: https://github.com/salesforce/tough-cookie
   private extractFingerprint(headers: Record<string, string | string[] | undefined>): string {
-    const acceptLanguage = headers["accept-language"] as string || ""
-    const rawUserAgent = headers["user-agent"] as string || ""
+    const acceptLanguage = (headers["accept-language"] as string) || ""
+    const rawUserAgent = (headers["user-agent"] as string) || ""
     const userAgent = rawUserAgent.replace(/\/[\d.]+/g, "").trim()
-    return createHash("sha256").update(acceptLanguage + userAgent).digest("hex")
+    return createHash("sha256")
+      .update(acceptLanguage + userAgent)
+      .digest("hex")
   }
 }

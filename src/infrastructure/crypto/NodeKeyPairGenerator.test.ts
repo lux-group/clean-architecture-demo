@@ -37,7 +37,7 @@ describe("NodeKeyPairGenerator", () => {
       // Check key details
       expect(publicKey.asymmetricKeyType).toBe("rsa")
       expect(privateKey.asymmetricKeyType).toBe("rsa")
-      
+
       // For RSA keys, we can check the key size by examining the key details
       const publicKeyDetails = publicKey.asymmetricKeyDetails as any
       const privateKeyDetails = privateKey.asymmetricKeyDetails as any
@@ -51,7 +51,7 @@ describe("NodeKeyPairGenerator", () => {
 
       // Test that the keys are mathematically related by doing a sign/verify operation
       const testData = Buffer.from("test message for signing")
-      
+
       const signature = sign("sha256", testData, privateKey)
       const isValid = verify("sha256", testData, publicKey, signature)
 
@@ -59,4 +59,3 @@ describe("NodeKeyPairGenerator", () => {
     })
   })
 })
-

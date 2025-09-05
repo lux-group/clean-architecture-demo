@@ -5,9 +5,7 @@ import { SigningKey } from "~/domain/entities"
 import { SigningKeyRepository } from "~/domain/repositories"
 
 export class GetJsonWebKeysHandler {
-  constructor(
-    private readonly signingKeyRepository: SigningKeyRepository,
-  ) {}
+  constructor(private readonly signingKeyRepository: SigningKeyRepository) {}
 
   async execute(): Promise<object> {
     const query: Query<SigningKey> = {
@@ -15,7 +13,7 @@ export class GetJsonWebKeysHandler {
       limit: 10,
       orderBy: { property: "createdAt", direction: "desc" },
     }
-    
+
     const { items: validationKeys } = await this.signingKeyRepository.query(query)
 
     const keys = await Promise.all(
@@ -26,7 +24,7 @@ export class GetJsonWebKeysHandler {
         jwk.alg = "RS256"
         jwk.use = "sig"
         return jwk
-      })
+      }),
     )
 
     return { keys }

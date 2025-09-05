@@ -6,28 +6,28 @@ import { Repository } from "~/domain/repositories"
 export abstract class MemoryRepository<T extends Entity<EntityProps>> implements Repository<T> {
   protected readonly store: Record<string, T> = {}
 
-  constructor(private readonly resourceName: string) { }
+  constructor(private readonly resourceName: string) {}
 
   async query(options: Query<T>): Promise<QueryResult<T>> {
     const entities = Object.values(this.store)
     return {
       items: entities.slice(options.offset, options.offset + options.limit),
-      total: entities.length
+      total: entities.length,
     }
   }
 
   async tryGet(filters: Record<string, unknown>): Promise<T | undefined> {
     const entities = Object.entries(filters)
-    const entity = Object.values(this.store).find(obj =>
-      entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value)
-    )
+    const entity = Object.values(this.store).find(obj => entities.every(([key, value]) => (obj as unknown as Record<string, unknown>)[key] === value))
     return entity
   }
 
   async get(filters: Record<string, unknown>): Promise<T> {
     const entity = await this.tryGet(filters)
     if (!entity) {
-      const filterString = Object.entries(filters).map(([key, value]) => `${key} ${value}`).join(", ")
+      const filterString = Object.entries(filters)
+        .map(([key, value]) => `${key} ${value}`)
+        .join(", ")
       throw new NotFoundError(`${this.resourceName} with ${filterString} not found`)
     }
 

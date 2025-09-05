@@ -5,7 +5,7 @@ import { ConcurrencyError, ValidationError } from "~/domain/errors"
 
 describe("clients/prisma/extensions.ts", () => {
   const extension = convertKnownErrors()
-  let mockQuery = vi.fn()
+  const mockQuery = vi.fn()
   let result: any
   let error: Error
 
@@ -77,9 +77,7 @@ describe("clients/prisma/extensions.ts", () => {
     })
 
     it("throws expected error", () => {
-      expect(error).toStrictEqual(
-        new ValidationError("Item with same foo and bar already exists."),
-      )
+      expect(error).toStrictEqual(new ValidationError("Item with same foo and bar already exists."))
     })
   })
 
@@ -110,9 +108,7 @@ describe("clients/prisma/extensions.ts", () => {
     })
 
     it("throws expected error", () => {
-      expect(error).toStrictEqual(
-        new ValidationError("Resource with same foo already exists."),
-      )
+      expect(error).toStrictEqual(new ValidationError("Resource with same foo already exists."))
     })
   })
 
@@ -143,9 +139,7 @@ describe("clients/prisma/extensions.ts", () => {
     })
 
     it("throws expected error", () => {
-      expect(error).toStrictEqual(
-        new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user."),
-      )
+      expect(error).toStrictEqual(new ConcurrencyError("The resource you are trying to access has been modified or deleted by another user."))
     })
   })
 })

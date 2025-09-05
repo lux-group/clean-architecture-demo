@@ -11,13 +11,13 @@ export class WellKnownController {
   ) {}
 
   @Get("/openid-configuration")
-  async getOpenidConfiguration(req: Request, res: Response) {
+  async getOpenidConfiguration(_req: Request, res: Response) {
     const document = await this.getOpenidConfigurationHandler.execute()
     res.json(document)
   }
 
   @Get("/jwks")
-  async getJsonWebKeys(req: Request, res: Response) {
+  async getJsonWebKeys(_req: Request, res: Response) {
     const document = await this.getJsonWebKeysHandler.execute()
     res.json(document)
   }

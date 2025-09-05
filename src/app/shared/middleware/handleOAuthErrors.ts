@@ -16,7 +16,7 @@ export function handleOAuthErrors(logger: Logger) {
   // The second wrapper function is used by the decorator to inject arguments.
   // This middleware doesn't have any though but we still need to wrap it.
   return () => {
-    return (err: unknown, req: Request, res: Response, next: NextFunction) => {
+    return (err: unknown, _req: Request, res: Response, next: NextFunction) => {
       logger.info(err)
 
       if (err instanceof InvalidOperationError || err instanceof ValidationError) {

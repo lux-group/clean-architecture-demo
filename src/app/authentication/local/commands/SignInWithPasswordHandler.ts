@@ -14,10 +14,7 @@ export class SignInWithPasswordHandler {
   ) {}
 
   async execute(command: SignInWithPasswordCommand): Promise<Session> {
-    const user = await this.authenticationService.authenticateWithEmailAndPassword(
-      command.brand,
-      command.email,
-      command.password)
+    const user = await this.authenticationService.authenticateWithEmailAndPassword(command.brand, command.email, command.password)
 
     const session = await this.sessionService.startLocalSession(user.id)
 

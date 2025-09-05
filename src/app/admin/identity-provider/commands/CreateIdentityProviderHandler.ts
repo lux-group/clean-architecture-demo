@@ -14,10 +14,10 @@ export class CreateIdentityProviderHandler {
   async execute(command: CreateIdentityProviderCommand): Promise<IdentityProvider> {
     const identityProvider = IdentityProvider.createNew(command)
     await this.identityProviderRepository.insert(identityProvider)
-    
+
     const event = EntityChangeEvent.entityCreated("Identity Provider", identityProvider)
     this.eventPublisher.publishEvent(event)
-    
+
     return identityProvider
   }
 }

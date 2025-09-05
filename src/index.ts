@@ -1,5 +1,5 @@
+import { Server } from "node:http"
 import { createContainer, InjectionMode, AwilixContainer } from "awilix"
-import { Server } from "http"
 import createServer from "~/app/server"
 import registerApp from "~/app/module"
 import registerDomainServices from "~/domain/services/module"
@@ -38,12 +38,12 @@ async function start(): Promise<void> {
     injectionMode: InjectionMode.CLASSIC,
     strict: true,
   })
-  
+
   await registerConfig(container, environment)
   await registerApp(container)
   await registerDomainServices(container)
   await registerInfrastructureServices(container)
-  
+
   if (environment === "dev") {
     await registerMemoryRepositories(container)
     await createTestData(container)

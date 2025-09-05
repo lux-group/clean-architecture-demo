@@ -30,7 +30,7 @@ describe("EventBus", () => {
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -51,7 +51,7 @@ describe("EventBus", () => {
         id: "auth-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       const sessionEvent: Event<SessionEventDetails> = {
@@ -59,7 +59,7 @@ describe("EventBus", () => {
         id: "session-1",
         timestamp: new Date(),
         result: "Success",
-        details: { activity: "", userId: "123" }
+        details: { activity: "", userId: "123" },
       }
 
       eventBus.publishEvent(authEvent)
@@ -82,7 +82,7 @@ describe("EventBus", () => {
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -105,7 +105,7 @@ describe("EventBus", () => {
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -126,7 +126,7 @@ describe("EventBus", () => {
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -156,7 +156,7 @@ describe("EventBus", () => {
         timestamp: new Date(),
         result: "Success",
         reason: "Valid credentials",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -179,7 +179,7 @@ describe("EventBus", () => {
         id: "test-1",
         timestamp: new Date(),
         result: "Success",
-        details: { method: "Active Session", userId: "123" }
+        details: { method: "Active Session", userId: "123" },
       }
 
       eventBus.publishEvent(testEvent)
@@ -190,4 +190,3 @@ describe("EventBus", () => {
     })
   })
 })
-

@@ -6,9 +6,7 @@ export interface GetSessionByIdQuery {
 }
 
 export class GetSessionByIdHandler {
-  constructor(
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+  constructor(private readonly sessionRepository: SessionRepository) {}
 
   async execute(query: GetSessionByIdQuery): Promise<Session> {
     return await this.sessionRepository.getById(query.id)

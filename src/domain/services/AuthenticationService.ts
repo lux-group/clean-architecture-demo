@@ -89,16 +89,20 @@ export class AuthenticationService {
       const result = await this.tokenValidator.decodeAndValidateToken(identityToken)
       identityProvider = result.identityProvider
       profile = result.profile
-    } catch (error) {
-      this.publishEvent(AuthenticationEvent.identityProviderTokenFailed())
-      throw new AuthenticationError(commonErrors.authenticationFailed)
+    } catch (error: unknown) {
+      if (error instanceof AuthenticationError) {
+        this.publishEvent(AuthenticationEvent.identityProviderTokenFailed())
+        throw new AuthenticationError(commonErrors.authenticationFailed)
+      }
+
+      throw error
     }
 
     const { user } = await this.authenticateWithExternalIdentity(identityProvider, profile)
     return user
   }
 
-  async authenticateWithExternalIdentity(idp: IdentityProvider, profile: Profile): Promise<{ user: User, newIdentity?: UserIdentity }> {
+  async authenticateWithExternalIdentity(idp: IdentityProvider, profile: Profile): Promise<{ user: User; newIdentity?: UserIdentity }> {
     const identityProviderId = idp.id
     const identifierClaimValue = profile.identifierClaimValue
 

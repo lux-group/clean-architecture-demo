@@ -6,9 +6,7 @@ export interface GetUserByIdQuery {
 }
 
 export class GetUserByIdHandler {
-  constructor(
-    private readonly userRepository: UserRepository,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async execute(query: GetUserByIdQuery): Promise<User> {
     return await this.userRepository.getById(query.id)

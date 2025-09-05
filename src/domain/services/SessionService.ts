@@ -17,7 +17,7 @@ export class SessionService {
     private readonly sessionRepository: SessionRepository,
     private readonly sessionConfig: SessionConfig,
     private readonly eventPublisher: EventPublisher,
-  ) { }
+  ) {}
 
   async getActiveSessionById(id: string, nonce: string) {
     const session = await this.sessionRepository.tryGetById(id)
@@ -27,10 +27,10 @@ export class SessionService {
 
     session.ensureIsActive()
 
-    if (session.nonce != nonce) {
+    if (session.nonce !== nonce) {
       this.eventPublisher.publishEvent(SessionEvent.nonceMismatchDetected(session))
       throw new AuthenticationError(commonErrors.sessionInvalid)
-    } 
+    }
 
     return session
   }
@@ -76,7 +76,7 @@ export class SessionService {
     await this.sessionRepository.update(session)
     this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(session))
   }
-  
+
   async terminateIdentityProviderSessionByUser(session: Session) {
     session.terminateIdentityProviderSessionByUser()
     await this.sessionRepository.update(session)
@@ -114,7 +114,7 @@ export class SessionService {
     } else {
       await this.terminateSessionByIdentityProvider(session)
     }
-  
+
     return session
   }
 

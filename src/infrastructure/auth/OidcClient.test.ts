@@ -44,7 +44,7 @@ describe("OidcClient", () => {
         redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
-      }
+      },
     })
 
     entraIdentityProvider = factories.createIdentityProvider({
@@ -60,7 +60,7 @@ describe("OidcClient", () => {
         redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
-      }
+      },
     })
 
     // Create OIDC clients
@@ -75,7 +75,7 @@ describe("OidcClient", () => {
       given_name: "John",
       family_name: "Doe",
       sub: "google-user-123",
-      oid: "entra-user-123"
+      oid: "entra-user-123",
     }
 
     // Mock OIDC configuration - cast to any to avoid type issues
@@ -83,7 +83,7 @@ describe("OidcClient", () => {
       issuer: identityProvider.issuerUrl,
       authorization_endpoint: "https://accounts.google.com/oauth/authorize",
       token_endpoint: "https://oauth2.googleapis.com/token",
-      end_session_endpoint: "https://accounts.google.com/logout"
+      end_session_endpoint: "https://accounts.google.com/logout",
     } as any
 
     // Mock openid-client functions
@@ -115,7 +115,7 @@ describe("OidcClient", () => {
       expect(mockClient.discovery).toHaveBeenCalledWith(
         new URL(identityProvider.issuerUrl),
         identityProvider.authSettings!.clientId,
-        identityProvider.authSettings!.clientSecret
+        identityProvider.authSettings!.clientSecret,
       )
 
       expect(mockClient.randomPKCECodeVerifier).toHaveBeenCalled()
@@ -129,7 +129,7 @@ describe("OidcClient", () => {
       const callArgs = mockClient.buildAuthorizationUrl.mock.calls[0]
       const urlParams = callArgs[1] as URLSearchParams
       expect(urlParams.get("scope")).toBe("email openid profile")
-      expect(urlParams.get("redirect_uri")).toBe(baseUrl + "/auth/external/sign-in-callback")
+      expect(urlParams.get("redirect_uri")).toBe(`${baseUrl}/auth/external/sign-in-callback`)
       expect(urlParams.get("code_challenge")).toBe("mock-code-challenge")
       expect(urlParams.get("code_challenge_method")).toBe("S256")
       expect(urlParams.get("nonce")).toBe("mock-nonce")
@@ -141,7 +141,7 @@ describe("OidcClient", () => {
         nonce: "mock-nonce",
         codeVerifier: "mock-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       })
     })
 
@@ -173,14 +173,14 @@ describe("OidcClient", () => {
         nonce: "test-nonce",
         codeVerifier: "test-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       }
 
       mockTokenResult = {
         id_token: "mock-id-token",
         access_token: "mock-access-token",
         refresh_token: "mock-refresh-token",
-        claims: vi.fn().mockReturnValue(mockClaims)
+        claims: vi.fn().mockReturnValue(mockClaims),
       }
 
       mockClient.authorizationCodeGrant.mockResolvedValue(mockTokenResult as any)
@@ -198,8 +198,8 @@ describe("OidcClient", () => {
           expectedState: signInState.state,
           expectedNonce: signInState.nonce,
           pkceCodeVerifier: signInState.codeVerifier,
-          idTokenExpected: true
-        }
+          idTokenExpected: true,
+        },
       )
 
       expect(result).toEqual({
@@ -211,8 +211,8 @@ describe("OidcClient", () => {
           identifierClaimValue: "google-user-123",
           email: "test@example.com",
           givenName: "John",
-          surname: "Doe"
-        }
+          surname: "Doe",
+        },
       })
     })
 
@@ -220,7 +220,7 @@ describe("OidcClient", () => {
       // Create new mock without optional tokens
       const mockTokenResultWithoutOptionals = {
         id_token: "mock-id-token",
-        claims: vi.fn().mockReturnValue(mockClaims)
+        claims: vi.fn().mockReturnValue(mockClaims),
       }
       mockClient.authorizationCodeGrant.mockResolvedValue(mockTokenResultWithoutOptionals as any)
 
@@ -236,67 +236,65 @@ describe("OidcClient", () => {
     it("should throw AuthenticationError for wrong issuer", async () => {
       mockClaims.iss = "https://wrong-issuer.com"
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(`Expected issuer ${identityProvider.issuerUrl} but received https://wrong-issuer.com.`)
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        AuthenticationError,
+      )
+
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        `Expected issuer ${identityProvider.issuerUrl} but received https://wrong-issuer.com.`,
+      )
     })
 
     it("should throw AuthenticationError for wrong audience", async () => {
       mockClaims.aud = "wrong-audience"
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(`Expected audience ${identityProvider.audience} but received wrong-audience.`)
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        AuthenticationError,
+      )
+
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        `Expected audience ${identityProvider.audience} but received wrong-audience.`,
+      )
     })
 
     it("should handle audience as array", async () => {
       mockClaims.aud = ["wrong-audience", "another-wrong-audience"]
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow(`Expected audience ${identityProvider.audience} but received wrong-audience, another-wrong-audience.`)
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        AuthenticationError,
+      )
+
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        `Expected audience ${identityProvider.audience} but received wrong-audience, another-wrong-audience.`,
+      )
     })
 
     it("should accept correct audience in array", async () => {
       mockClaims.aud = [identityProvider.audience, "another-audience"]
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).resolves.toBeDefined()
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).resolves.toBeDefined()
     })
 
     it("should throw error for missing email claim", async () => {
       delete mockClaims.email
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow("Expected ID token claims not received. Check request scopes or token configuration in app registration.")
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
+      )
     })
 
     it("should throw error for missing identifier claim", async () => {
       delete mockClaims.sub
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow("Expected ID token claims not received. Check request scopes or token configuration in app registration.")
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
+      )
     })
 
     it("should use correct identifier claim for Entra", async () => {
       const entraSignInState = {
         ...signInState,
-        identityProviderId: entraIdentityProvider.id
+        identityProviderId: entraIdentityProvider.id,
       }
 
       mockClaims.iss = entraIdentityProvider.issuerUrl
@@ -314,23 +312,19 @@ describe("OidcClient", () => {
 
     beforeEach(() => {
       // Mock JWT decode for the getClaim method
-      vi.spyOn(jwt, 'decode').mockReturnValue({
-        header: { alg: 'RS256', typ: 'JWT' },
-        payload: { login_hint: 'test@example.com' },
-        signature: 'signature'
+      vi.spyOn(jwt, "decode").mockReturnValue({
+        header: { alg: "RS256", typ: "JWT" },
+        payload: { login_hint: "test@example.com" },
+        signature: "signature",
       } as jwt.Jwt)
     })
 
     it("should throw error for providers that don't support sign-out", async () => {
-      await expect(
-        oidcClient.createSignOutRequest(redirectUrl, idToken)
-      ).rejects.toThrow("The identity provider does not support single-sign-out.")
+      await expect(oidcClient.createSignOutRequest(redirectUrl, idToken)).rejects.toThrow("The identity provider does not support single-sign-out.")
     })
 
     it("should throw error when ID token is missing", async () => {
-      await expect(
-        entraClient.createSignOutRequest(redirectUrl)
-      ).rejects.toThrow("ID Token is required for OIDC sign-out.")
+      await expect(entraClient.createSignOutRequest(redirectUrl)).rejects.toThrow("ID Token is required for OIDC sign-out.")
     })
 
     it("should create sign-out request for Entra with logout_hint", async () => {
@@ -340,14 +334,14 @@ describe("OidcClient", () => {
 
       const callArgs = mockClient.buildEndSessionUrl.mock.calls[0]
       const urlParams = callArgs[1] as URLSearchParams
-      expect(urlParams.get("post_logout_redirect_uri")).toBe(baseUrl + "/auth/external/sign-out-callback")
+      expect(urlParams.get("post_logout_redirect_uri")).toBe(`${baseUrl}/auth/external/sign-out-callback`)
       expect(urlParams.get("logout_hint")).toBe("test@example.com")
       expect(urlParams.get("id_token_hint")).toBeNull()
 
       expect(result.url).toBe("https://accounts.google.com/logout?test=params")
       expect(result.signOutState).toEqual({
         identityProviderId: entraIdentityProvider.id,
-        redirectUrl
+        redirectUrl,
       })
     })
   })
@@ -357,7 +351,7 @@ describe("OidcClient", () => {
       const refreshToken = "mock-refresh-token"
       const mockRefreshResult = {
         id_token: "new-id-token",
-        refresh_token: "new-refresh-token"
+        refresh_token: "new-refresh-token",
       }
 
       mockClient.refreshTokenGrant.mockResolvedValue(mockRefreshResult as any)
@@ -368,7 +362,7 @@ describe("OidcClient", () => {
       expect(result).toEqual({
         valid: true,
         idToken: "new-id-token",
-        refreshToken: "new-refresh-token"
+        refreshToken: "new-refresh-token",
       })
     })
 
@@ -377,7 +371,7 @@ describe("OidcClient", () => {
       const error = new client.ResponseBodyError("Invalid refresh token", {
         status: 400,
         headers: new Headers(),
-        body: "error details"
+        body: "error details",
       } as any)
 
       mockClient.refreshTokenGrant.mockRejectedValue(error)
@@ -393,15 +387,13 @@ describe("OidcClient", () => {
 
       mockClient.refreshTokenGrant.mockRejectedValue(error)
 
-      await expect(
-        oidcClient.checkSessionWithRefreshToken(refreshToken)
-      ).rejects.toThrow("Network error")
+      await expect(oidcClient.checkSessionWithRefreshToken(refreshToken)).rejects.toThrow("Network error")
     })
 
     it("should handle missing optional tokens in refresh response", async () => {
       const refreshToken = "mock-refresh-token"
       const mockRefreshResult = {
-        id_token: "new-id-token"
+        id_token: "new-id-token",
         // refresh_token is missing
       }
 
@@ -412,7 +404,7 @@ describe("OidcClient", () => {
       expect(result).toEqual({
         valid: true,
         idToken: "new-id-token",
-        refreshToken: undefined
+        refreshToken: undefined,
       })
     })
   })
@@ -421,43 +413,36 @@ describe("OidcClient", () => {
     const accessToken = "mock-access-token"
 
     it("should throw error for providers that don't support profile editing", async () => {
-      await expect(
-        oidcClient.editProfile(accessToken, "John", "Doe")
-      ).rejects.toThrow("The identity provider does not support editing profiles.")
+      await expect(oidcClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow("The identity provider does not support editing profiles.")
     })
 
     it("should successfully update profile for Entra", async () => {
       mockFetch.mockResolvedValue({
-        ok: true
+        ok: true,
       } as Response)
 
       await entraClient.editProfile(accessToken, "John", "Doe")
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://graph.microsoft.com/v1.0/me",
-        {
-          method: "PATCH",
-          headers: {
-            "Authorization": "Bearer " + accessToken,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            surname: "Doe",
-            givenName: "John"
-          })
-        }
-      )
+      expect(mockFetch).toHaveBeenCalledWith("https://graph.microsoft.com/v1.0/me", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          surname: "Doe",
+          givenName: "John",
+        }),
+      })
     })
 
     it("should throw error on failed HTTP response", async () => {
       mockFetch.mockResolvedValue({
         ok: false,
-        status: 403
+        status: 403,
       } as Response)
 
-      await expect(
-        entraClient.editProfile(accessToken, "John", "Doe")
-      ).rejects.toThrow("Failed to update user profile. HTTP error 403")
+      await expect(entraClient.editProfile(accessToken, "John", "Doe")).rejects.toThrow("Failed to update user profile. HTTP error 403")
     })
   })
 
@@ -478,9 +463,7 @@ describe("OidcClient", () => {
       const discoveryError = new Error("Discovery failed")
       mockClient.discovery.mockRejectedValue(discoveryError)
 
-      await expect(
-        oidcClient.createSignInRequest(redirectUrl)
-      ).rejects.toThrow("Discovery failed")
+      await expect(oidcClient.createSignInRequest(redirectUrl)).rejects.toThrow("Discovery failed")
     })
 
     it("should propagate authorization code grant errors", async () => {
@@ -489,15 +472,15 @@ describe("OidcClient", () => {
         nonce: "test-nonce",
         codeVerifier: "test-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       }
 
       const grantError = new Error("Token exchange failed")
       mockClient.authorizationCodeGrant.mockRejectedValue(grantError)
 
-      await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")
-      ).rejects.toThrow("Token exchange failed")
+      await expect(oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code")).rejects.toThrow(
+        "Token exchange failed",
+      )
     })
   })
 
@@ -505,24 +488,23 @@ describe("OidcClient", () => {
     describe("getClaim", () => {
       it("should extract claim from JWT token", () => {
         const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbl9oaW50IjoidGVzdEBleGFtcGxlLmNvbSIsImN1c3RvbSI6InZhbHVlIn0.signature"
-        
-        vi.spyOn(jwt, 'decode').mockReturnValue({
-          header: { alg: 'RS256', typ: 'JWT' },
-          payload: { 
-            login_hint: 'test@example.com',
-            custom: 'value'
+
+        vi.spyOn(jwt, "decode").mockReturnValue({
+          header: { alg: "RS256", typ: "JWT" },
+          payload: {
+            login_hint: "test@example.com",
+            custom: "value",
           },
-          signature: 'signature'
+          signature: "signature",
         } as jwt.Jwt)
 
         // Use reflection to test the private method
         const getClaimMethod = (entraClient as any).getClaim.bind(entraClient)
-        
-        expect(getClaimMethod(token, 'login_hint')).toBe('test@example.com')
-        expect(getClaimMethod(token, 'custom')).toBe('value')
-        expect(getClaimMethod(token, 'nonexistent')).toBeUndefined()
+
+        expect(getClaimMethod(token, "login_hint")).toBe("test@example.com")
+        expect(getClaimMethod(token, "custom")).toBe("value")
+        expect(getClaimMethod(token, "nonexistent")).toBeUndefined()
       })
     })
   })
 })
-

@@ -14,15 +14,12 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
 
     const user = await context.data.createUser()
     session = await context.data.createSession({ userId: user.id }, 24)
-    accessToken = await context.createAccessToken(user.id, ["session:read"])    
+    accessToken = await context.createAccessToken(user.id, ["session:read"])
   })
 
   describe("when sessions exist", () => {
     it("should return 200 with valid sessions", async () => {
-      const response = await request(context.server)
-        .get("/admin/sessions?offset=0&limit=10")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      const response = await request(context.server).get("/admin/sessions?offset=0&limit=10").set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(response.status).toBe(200)
       expect(response.body.total).toBeGreaterThanOrEqual(1)
@@ -43,10 +40,7 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
     })
 
     it("should return paginated sessions", async () => {
-      const response = await request(context.server)
-        .get(`/admin/sessions?offset=10000&limit=10`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      const response = await request(context.server).get(`/admin/sessions?offset=10000&limit=10`).set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(response.status).toBe(200)
       expect(response.body.total).toBeGreaterThanOrEqual(1)
@@ -55,9 +49,9 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
 
     it("should return sessions with selected fields", async () => {
       const response = await request(context.server)
-      .get(`/admin/sessions?offset=0&limit=10&select=id,user_id`)
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send()
+        .get(`/admin/sessions?offset=0&limit=10&select=id,user_id`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send()
 
       expect(response.status).toBe(200)
       expect(response.body.items.length).toBeGreaterThanOrEqual(1)
@@ -78,15 +72,13 @@ describe("[GET] /admin/sessions (SearchSessions)", () => {
 
   describe("when authorization fails", () => {
     it("should return 401 when no access token is provided", async () => {
-      const response = await request(context.server)
-        .get("/admin/sessions?offset=0&limit=10")
-        .send()
+      const response = await request(context.server).get("/admin/sessions?offset=0&limit=10").send()
 
       expect(response.status).toBe(401)
     })
 
     it("should return 403 when the access token does not have scope 'sessions:read'", async () => {
-      const nonReadAccessToken = await context.createAccessToken(session.userId, ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(session.userId, ["foo:bar"])
 
       const response = await request(context.server)
         .get("/admin/sessions?offset=0&limit=10")

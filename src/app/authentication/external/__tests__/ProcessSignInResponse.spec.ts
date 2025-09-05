@@ -24,18 +24,20 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
     it("should auto-create new user after successful sign-in", async () => {
       const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
-        idToken: "unused",
-        refreshToken: "unused",
-        accessToken: "unused",
-        sessionId: randomUUID(),
-        profile: {
-          identifierClaimValue: randomUUID(),
-          email: `${randomUUID()}@example.com`,
-          givenName: randomUUID(),
-          surname: randomUUID(),
-        }
-      }))
+      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          idToken: "unused",
+          refreshToken: "unused",
+          accessToken: "unused",
+          sessionId: randomUUID(),
+          profile: {
+            identifierClaimValue: randomUUID(),
+            email: `${randomUUID()}@example.com`,
+            givenName: randomUUID(),
+            surname: randomUUID(),
+          },
+        }),
+      )
 
       const response = await request(context.server)
         .get("/auth/external/sign-in-callback")
@@ -44,9 +46,9 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
+      )
     })
 
     it("should auto-link existing user after successful sign-in", async () => {
@@ -54,18 +56,20 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
       const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
       const identifierClaimValue = randomUUID()
 
-      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
-        idToken: "unused",
-        refreshToken: "unused",
-        accessToken: "unused",
-        sessionId: randomUUID(),
-        profile: {
-          identifierClaimValue,
-          email: user.email,
-          givenName: randomUUID(),
-          surname: randomUUID(),
-        }
-      }))
+      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          idToken: "unused",
+          refreshToken: "unused",
+          accessToken: "unused",
+          sessionId: randomUUID(),
+          profile: {
+            identifierClaimValue,
+            email: user.email,
+            givenName: randomUUID(),
+            surname: randomUUID(),
+          },
+        }),
+      )
 
       const response = await request(context.server)
         .get("/auth/external/sign-in-callback")
@@ -74,9 +78,9 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
+      )
 
       const updatedUser = await context.data.getUser(user.id)
       expect(updatedUser.identities).toHaveLength(1)
@@ -90,18 +94,20 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com`, isEnabled: false })
       const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
-        idToken: "unused",
-        refreshToken: "unused",
-        accessToken: "unused",
-        sessionId: randomUUID(),
-        profile: {
-          identifierClaimValue: randomUUID(),
-          email: user.email,
-          givenName: randomUUID(),
-          surname: randomUUID(),
-        }
-      }))
+      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          idToken: "unused",
+          refreshToken: "unused",
+          accessToken: "unused",
+          sessionId: randomUUID(),
+          profile: {
+            identifierClaimValue: randomUUID(),
+            email: user.email,
+            givenName: randomUUID(),
+            surname: randomUUID(),
+          },
+        }),
+      )
 
       const response = await request(context.server)
         .get("/auth/external/sign-in-callback")
@@ -110,9 +116,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toMatch(/error=Authentication%20method%20is%20not%20allowed/)
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-state=;/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([expect.stringMatching(/auth-state=;/)]))
     })
   })
 
@@ -120,27 +124,29 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
     it("should sign in successfully", async () => {
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com` })
       const identifierClaimValue = randomUUID()
-      
+
       // Add identity to the user by getting it from the database and updating it
       const userToUpdate = await context.data.getUser(user.id)
       userToUpdate.addIdentity(identityProvider.id, identifierClaimValue)
       const userRepository = context.container.resolve("userRepository")
       await userRepository.update(userToUpdate)
-      
+
       const cookie = context.data.createAuthStateCookie(identityProvider.authSettings!.redirectUrls[0], identityProvider.id)
 
-      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() => Promise.resolve({
-        idToken: "unused",
-        refreshToken: "unused",
-        accessToken: "unused",
-        sessionId: randomUUID(),
-        profile: {
-          identifierClaimValue,
-          email: user.email,
-          givenName: randomUUID(),
-          surname: randomUUID(),
-        }
-      }))
+      mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
+        Promise.resolve({
+          idToken: "unused",
+          refreshToken: "unused",
+          accessToken: "unused",
+          sessionId: randomUUID(),
+          profile: {
+            identifierClaimValue,
+            email: user.email,
+            givenName: randomUUID(),
+            surname: randomUUID(),
+          },
+        }),
+      )
 
       const response = await request(context.server)
         .get("/auth/external/sign-in-callback")
@@ -149,18 +155,15 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(
+        expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
+      )
     })
   })
 
   describe("when state is invalid", () => {
     it("should return 401 error", async () => {
-      const response = await request(context.server)
-        .get("/auth/external/sign-in-callback")
-        .set("Cookie", [`auth-state=invalid-state`])
-        .send()
+      const response = await request(context.server).get("/auth/external/sign-in-callback").set("Cookie", [`auth-state=invalid-state`]).send()
 
       expect(response.status).toBe(401)
     })
@@ -168,12 +171,9 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
   describe("when state is missing", () => {
     it("should return 401 error", async () => {
-      const response = await request(context.server)
-        .get("/auth/external/sign-in-callback")
-        .send()
+      const response = await request(context.server).get("/auth/external/sign-in-callback").send()
 
       expect(response.status).toBe(401)
     })
   })
 })
-

@@ -14,7 +14,7 @@ export const schema = z.object({
   tokenIssuer: z.object({
     path: z.string().nonempty().default("/oauth2"),
     audience: z.string().nonempty(),
-    lifetimeSeconds: z.number().min(1).default(3600)
+    lifetimeSeconds: z.number().min(1).default(3600),
   }),
 })
 

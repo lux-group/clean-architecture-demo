@@ -8,19 +8,16 @@ describe("[GET] /admin/users (SearchUsers)", () => {
   let context: TestContext
   let user: User
   let accessToken: string
-  
+
   beforeAll(async () => {
     context = await getTestContext()
     user = await context.data.createUser()
-    accessToken = await context.createAccessToken(user.id, ["user:read"])    
+    accessToken = await context.createAccessToken(user.id, ["user:read"])
   })
 
   describe("when users exist", () => {
     it("should return 200 with valid users", async () => {
-      const response = await request(context.server)
-        .get("/admin/users?offset=0&limit=10")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      const response = await request(context.server).get("/admin/users?offset=0&limit=10").set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(response.status).toBe(200)
       expect(response.body.total).toBeGreaterThanOrEqual(1)
@@ -56,10 +53,7 @@ describe("[GET] /admin/users (SearchUsers)", () => {
   })
 
   it("should return paginated users", async () => {
-    const response = await request(context.server)
-      .get(`/admin/users?offset=10000&limit=10`)
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send()
+    const response = await request(context.server).get(`/admin/users?offset=10000&limit=10`).set("Authorization", `Bearer ${accessToken}`).send()
 
     expect(response.status).toBe(200)
     expect(response.body.total).toBeGreaterThanOrEqual(1)
@@ -76,20 +70,15 @@ describe("[GET] /admin/users (SearchUsers)", () => {
   })
   describe("when authorization fails", () => {
     it("should return 401 when no access token is provided", async () => {
-      const response = await request(context.server)
-        .get("/admin/users?offset=0&limit=10")
-        .send()
+      const response = await request(context.server).get("/admin/users?offset=0&limit=10").send()
 
       expect(response.status).toBe(401)
     })
 
     it("should return 403 when the access token does not have scope 'users:read'", async () => {
-      const nonReadAccessToken = await context.createAccessToken(user.id, ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(user.id, ["foo:bar"])
 
-      const response = await request(context.server)
-        .get("/admin/users?offset=0&limit=10")
-        .set("Authorization", `Bearer ${nonReadAccessToken}`)
-        .send()
+      const response = await request(context.server).get("/admin/users?offset=0&limit=10").set("Authorization", `Bearer ${nonReadAccessToken}`).send()
 
       expect(response.status).toBe(403)
     })

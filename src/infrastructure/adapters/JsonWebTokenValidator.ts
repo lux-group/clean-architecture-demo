@@ -6,9 +6,9 @@ import { IdentityProvider } from "~/domain/entities"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { TokenValidationResult, TokenValidator } from "~/domain/adapters"
 
-// Cache instance for JWKS clients. 
+// Cache instance for JWKS clients.
 const jwksClientCache = new ClientCache<IdentityProvider, JwksClient>(async idp => {
-  const url = idp.issuerUrl + "/.well-known/openid-configuration"
+  const url = `${idp.issuerUrl}/.well-known/openid-configuration`
   const response = await fetch(url)
   if (!response.ok) {
     throw new AuthenticationError(`Failed to retrieve OIDC metadata from ${url}. HTTP error ${response.status}`)
@@ -29,7 +29,7 @@ export class JsonWebTokenValidator implements TokenValidator {
       const decodedJwt = jwt.decode(token, { complete: true }) as jwt.Jwt
       headerClaims = decodedJwt.header
       bodyClaims = decodedJwt.payload as JwtPayload
-    } catch(err) {
+    } catch {
       throw new AuthenticationError(commonErrors.invalidJwt)
     }
 
@@ -47,13 +47,13 @@ export class JsonWebTokenValidator implements TokenValidator {
     try {
       const client = await jwksClientCache.get(identityProvider)
       signingKey = await client.getSigningKey(headerClaims.kid)
-    } catch(err) {
+    } catch {
       throw new AuthenticationError("Unable to fetch JWKS document.")
     }
 
     try {
       jwt.verify(token, signingKey.getPublicKey())
-    } catch(err) {
+    } catch {
       throw new AuthenticationError(commonErrors.invalidJwt)
     }
 
@@ -61,7 +61,7 @@ export class JsonWebTokenValidator implements TokenValidator {
       email: bodyClaims.email as string,
       givenName: bodyClaims.given_name as string,
       surname: bodyClaims.family_name as string,
-      identifierClaimValue: bodyClaims[identityProvider.identifierClaimName] as string
+      identifierClaimValue: bodyClaims[identityProvider.identifierClaimName] as string,
     }
 
     return { identityProvider, profile }

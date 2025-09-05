@@ -6,10 +6,7 @@ import { AuthenticationError } from "~/domain/errors"
 import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/domain/adapters"
 
 const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(async idp =>
-  client.discovery(
-    new URL(idp.issuerUrl),
-    idp.authSettings!.clientId,
-    idp.authSettings!.clientSecret)
+  client.discovery(new URL(idp.issuerUrl), idp.authSettings!.clientId, idp.authSettings!.clientSecret),
 )
 
 export class OidcClient implements AuthClient {
@@ -19,8 +16,12 @@ export class OidcClient implements AuthClient {
     private readonly isEntra: boolean,
   ) {}
 
-  public get supportsSignOut() { return this.isEntra }
-  public get supportsEditProfile() { return this.isEntra }
+  public get supportsSignOut() {
+    return this.isEntra
+  }
+  public get supportsEditProfile() {
+    return this.isEntra
+  }
 
   async createSignInRequest(redirectUrl: string) {
     const codeVerifier = client.randomPKCECodeVerifier()
@@ -32,16 +33,14 @@ export class OidcClient implements AuthClient {
       nonce,
       codeVerifier,
       redirectUrl,
-      identityProviderId: this.identityProvider.id
+      identityProviderId: this.identityProvider.id,
     }
 
     const config = await oidcConfigCache.get(this.identityProvider)
-    
+
     // Google does not support offline_access (refresh tokens).
     // For Entra, we need permission to write to the user's profile.
-    const scope = this.isEntra
-      ? "email openid profile offline_access User.ReadWrite"
-      : "email openid profile"
+    const scope = this.isEntra ? "email openid profile offline_access User.ReadWrite" : "email openid profile"
 
     // There are additional options that can be useful:
     // - prompt:      Set to 'none' to attempt a silent login.
@@ -51,7 +50,7 @@ export class OidcClient implements AuthClient {
     // Additional scopes offline_access and User.Read/User.ReadWrite should be granted in Entra by admin consent.
     const params = new URLSearchParams({
       scope,
-      redirect_uri: this.baseUrl + "/auth/external/sign-in-callback",
+      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
       nonce,
@@ -68,14 +67,14 @@ export class OidcClient implements AuthClient {
       expectedState: signInState.state,
       expectedNonce: signInState.nonce,
       pkceCodeVerifier: signInState.codeVerifier,
-      idTokenExpected: true
+      idTokenExpected: true,
     }
 
     const config = await oidcConfigCache.get(this.identityProvider)
     const result = await client.authorizationCodeGrant(config, url, checks)
     const claims = result.claims()!
 
-    if (claims.iss != this.identityProvider.issuerUrl) {
+    if (claims.iss !== this.identityProvider.issuerUrl) {
       throw new AuthenticationError(`Expected issuer ${this.identityProvider.issuerUrl} but received ${claims.iss}.`)
     }
 
@@ -103,8 +102,8 @@ export class OidcClient implements AuthClient {
         identifierClaimValue,
         email,
         givenName,
-        surname,      
-      }
+        surname,
+      },
     }
 
     return response
@@ -121,11 +120,11 @@ export class OidcClient implements AuthClient {
 
     const signOutState: SignOutState = {
       identityProviderId: this.identityProvider.id,
-      redirectUrl
+      redirectUrl,
     }
 
     const params = new URLSearchParams({
-      post_logout_redirect_uri: this.baseUrl + "/auth/external/sign-out-callback",
+      post_logout_redirect_uri: `${this.baseUrl}/auth/external/sign-out-callback`,
     })
 
     if (this.isEntra) {
@@ -144,8 +143,7 @@ export class OidcClient implements AuthClient {
     try {
       const result = await client.refreshTokenGrant(config, refreshToken)
       return { valid: true, idToken: result.id_token, refreshToken: result.refresh_token }
-    }
-    catch (err) {
+    } catch (err) {
       if (err instanceof client.ResponseBodyError) {
         return { valid: false }
       }
@@ -162,13 +160,13 @@ export class OidcClient implements AuthClient {
     const response = await fetch("https://graph.microsoft.com/v1.0/me", {
       method: "PATCH",
       headers: {
-        "Authorization": "Bearer " + accessToken,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         surname,
         givenName,
-      })
+      }),
     })
 
     if (!response.ok) {

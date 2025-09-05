@@ -15,14 +15,13 @@ export class PrismaUserRepository implements UserRepository {
 
   async query(options: Query<User>): Promise<QueryResult<User>> {
     const query = mapQuery(options, ["identities"]) as Prisma.UserFindManyArgs
-    const [total, users] = await this.prismaClient.$replica().$transaction([
-      this.prismaClient.$replica().user.count({ where: query.where }),
-      this.prismaClient.$replica().user.findMany(query),
-    ])
+    const [total, users] = await this.prismaClient
+      .$replica()
+      .$transaction([this.prismaClient.$replica().user.count({ where: query.where }), this.prismaClient.$replica().user.findMany(query)])
 
     return {
       items: users.map((u: any) => this.mapToUser(u)),
-      total
+      total,
     }
   }
 
@@ -38,7 +37,7 @@ export class PrismaUserRepository implements UserRepository {
   async tryGetById(id: string): Promise<User | undefined> {
     const user = await this.prismaClient.$primary().user.findUnique({
       where: { id },
-      include: { identities: true }
+      include: { identities: true },
     })
 
     return user ? this.mapToUser(user) : undefined
@@ -49,12 +48,12 @@ export class PrismaUserRepository implements UserRepository {
       where: {
         unique_brand_email: {
           brand,
-          email
-        }
+          email,
+        },
       },
       include: {
-        identities: true
-      }
+        identities: true,
+      },
     })
 
     return user ? this.mapToUser(user) : undefined
@@ -65,16 +64,16 @@ export class PrismaUserRepository implements UserRepository {
       where: {
         unique_identity_provider_claim: {
           identityProviderId,
-          identifierClaimValue
-        }
+          identifierClaimValue,
+        },
       },
       include: {
         user: {
           include: {
-            identities: true
-          }
-        }
-      }
+            identities: true,
+          },
+        },
+      },
     })
 
     return userIdentity ? this.mapToUser(userIdentity.user) : undefined
@@ -85,9 +84,9 @@ export class PrismaUserRepository implements UserRepository {
       data: {
         ...this.mapToPrismaUser(user),
         identities: {
-          create: user.identities.map(identity => this.mapToPrismaUserIdentity(user, identity))
-        }
-      }
+          create: user.identities.map(identity => this.mapToPrismaUserIdentity(identity)),
+        },
+      },
     })
 
     user.commit()
@@ -102,11 +101,11 @@ export class PrismaUserRepository implements UserRepository {
           deleteMany: { id: { notIn: user.identities.map(identity => identity.id) } },
           upsert: user.identities.map(identity => ({
             where: { id: identity.id },
-            update: this.mapToPrismaUserIdentity(user, identity),
-            create: this.mapToPrismaUserIdentity(user, identity)
+            update: this.mapToPrismaUserIdentity(identity),
+            create: this.mapToPrismaUserIdentity(identity),
           })),
-        }
-      }
+        },
+      },
     })
 
     user.commit()
@@ -135,7 +134,7 @@ export class PrismaUserRepository implements UserRepository {
       postcode: u.postcode,
       passwordHash: u.passwordHash,
       roles: u.roles,
-      identities: u.identities.map(ui => this.mapToUserIdentity(ui))
+      identities: u.identities.map(ui => this.mapToUserIdentity(ui)),
     })
   }
 
@@ -143,7 +142,7 @@ export class PrismaUserRepository implements UserRepository {
     return {
       id: i.id,
       identityProviderId: i.identityProviderId,
-      identifierClaimValue: i.identifierClaimValue
+      identifierClaimValue: i.identifierClaimValue,
     } as UserIdentity
   }
 
@@ -163,15 +162,15 @@ export class PrismaUserRepository implements UserRepository {
       city: u.city,
       postcode: u.postcode,
       passwordHash: u.passwordHash,
-      roles: u.roles as string[]
+      roles: u.roles as string[],
     } as PrismaUser
   }
 
-  private mapToPrismaUserIdentity(u: User, i: UserIdentity): Omit<PrismaUserIdentity, 'userId'> {
+  private mapToPrismaUserIdentity(i: UserIdentity): Omit<PrismaUserIdentity, "userId"> {
     return {
       id: i.id,
       identityProviderId: i.identityProviderId,
-      identifierClaimValue: i.identifierClaimValue
+      identifierClaimValue: i.identifierClaimValue,
     } as PrismaUserIdentity
   }
 }

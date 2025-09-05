@@ -11,19 +11,12 @@ export interface AuthorizeOptions {
 }
 
 // The first wrapper function is used for dependency injection.
-export function authorize(
-  baseUrl: string,
-  logger: Logger,
-  tokenIssuerConfig: TokenIssuerConfig,
-  signingKeyRepository: SigningKeyRepository
-) {
+export function authorize(baseUrl: string, logger: Logger, tokenIssuerConfig: TokenIssuerConfig, signingKeyRepository: SigningKeyRepository) {
   // The second wrapper function is used by the decorator to inject arguments.
   return (options: AuthorizeOptions) => {
-
     // This is the actual middleware function.
     return (req: Request, res: Response, next: NextFunction) => {
       const authMiddleware = async () => {
-
         // Extract the token from the request headers.
         const token = req.headers.authorization?.split(" ")[1]
         if (!token) {
@@ -72,7 +65,7 @@ export function authorize(
           }
 
           jwt.verify(token, signingKey.publicKey, options)
-        } catch(err) {
+        } catch (err) {
           logger.info("Access token verification failed. ", { error: err })
           res.status(401).send()
           return

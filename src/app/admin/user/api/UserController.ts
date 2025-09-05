@@ -40,9 +40,7 @@ export class UserController {
   async create(req: Request, res: Response) {
     const command: CreateUserCommand = this.parseCreateBody(req.body)
     const item = await this.createUserHandler.execute(command)
-    res.status(201)
-      .header("Location", `${this.baseUrl}/admin/users/${item.id}`)
-      .json(this.present(item))
+    res.status(201).header("Location", `${this.baseUrl}/admin/users/${item.id}`).json(this.present(item))
   }
 
   @Put("/:id")
@@ -110,7 +108,7 @@ export class UserController {
       identities: item.identities.map(identity => ({
         identity_provider_id: identity.identityProviderId,
         identifier_claim_value: identity.identifierClaimValue,
-      }))
+      })),
     }
   }
 }

@@ -17,20 +17,24 @@ const SubjectTokenType = {
   AccessToken: "urn:ietf:params:oauth:token-type:access_token",
 } as const
 
-type TokenRequest = ({
-  grant_type: typeof GrantType.SessionCookie
-  subject_to_impersonate_id?: string
-} | {
-  grant_type: typeof GrantType.ClientCredentials
-  client_id: string
-  client_secret: string
-} | {
-  grant_type: typeof GrantType.TokenExchange
-  subject_token_type: typeof SubjectTokenType.AccessToken
-  subject_token: string
-  actor_token: string | undefined
-  actor_token_type: string | undefined
-}) & {
+type TokenRequest = (
+  | {
+      grant_type: typeof GrantType.SessionCookie
+      subject_to_impersonate_id?: string
+    }
+  | {
+      grant_type: typeof GrantType.ClientCredentials
+      client_id: string
+      client_secret: string
+    }
+  | {
+      grant_type: typeof GrantType.TokenExchange
+      subject_token_type: typeof SubjectTokenType.AccessToken
+      subject_token: string
+      actor_token: string | undefined
+      actor_token_type: string | undefined
+    }
+) & {
   audience?: string
   scope?: string
 }
@@ -49,33 +53,33 @@ export class TokenController {
   async getAccessToken(req: Request, res: Response) {
     const body = req.body as TokenRequest
 
-    let result: TokenResponse | undefined = undefined
+    let result: TokenResponse | undefined
 
-    if (body.grant_type == GrantType.SessionCookie) {
+    if (body.grant_type === GrantType.SessionCookie) {
       const cookie = this.secureCookieManager.getSessionCookie(req, res)
       result = await this.issueTokenWithActiveSessionHandler.execute({
         sessionId: cookie.id,
         nonce: cookie.nonce,
         userToImpersonateId: body.subject_to_impersonate_id,
         audience: body.audience,
-        scope: body.scope
+        scope: body.scope,
       })
     }
 
-    if (body.grant_type == GrantType.ClientCredentials) {
+    if (body.grant_type === GrantType.ClientCredentials) {
       result = await this.issueTokenWithClientCredentialsHandler.execute({
         clientId: body.client_id,
         clientSecret: body.client_secret,
         audience: body.audience,
-        scope: body.scope
+        scope: body.scope,
       })
     }
 
-    if (body.grant_type == GrantType.TokenExchange) {
+    if (body.grant_type === GrantType.TokenExchange) {
       result = await this.issueTokenWithTokenExchangeHandler.execute({
         token: body.subject_token,
         audience: body.audience,
-        scope: body.scope
+        scope: body.scope,
       })
     }
 

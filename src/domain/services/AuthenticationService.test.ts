@@ -2,26 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as factories from "@test/factories"
 import { mockEventPublisher, mockPasswordVerifier, mockTokenValidator, mockUserRepository } from "@test/mocks"
 import { AuthenticationError, commonErrors } from "~/domain/errors"
-import { AuthenticationEvent } from "~/domain/events"
 import { AuthenticationService } from "./AuthenticationService"
 
 const mockProfile = {
   identifierClaimValue: "external-id",
   email: "test@example.com",
   givenName: "John",
-  surname: "Doe"
+  surname: "Doe",
 }
 
 describe("AuthenticationService", () => {
   let service: AuthenticationService
 
   beforeEach(() => {
-    service = new AuthenticationService(
-      mockUserRepository,
-      mockEventPublisher,
-      mockPasswordVerifier,
-      mockTokenValidator
-    )
+    service = new AuthenticationService(mockUserRepository, mockEventPublisher, mockPasswordVerifier, mockTokenValidator)
     vi.clearAllMocks()
   })
 
@@ -37,8 +31,8 @@ describe("AuthenticationService", () => {
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           topic: "Authentication",
-          result: "Success"
-        })
+          result: "Success",
+        }),
       )
     })
 
@@ -46,15 +40,14 @@ describe("AuthenticationService", () => {
       const session = factories.createLocalSession()
       session.terminateSessionByAdmin()
 
-      await expect(service.authenticateWithActiveSession(session))
-        .rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
+      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(new AuthenticationError(commonErrors.sessionExpired))
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           topic: "Authentication",
           result: "Failed",
-          reason: commonErrors.sessionExpired
-        })
+          reason: commonErrors.sessionExpired,
+        }),
       )
     })
 
@@ -62,8 +55,7 @@ describe("AuthenticationService", () => {
       const session = factories.createLocalSession()
       mockUserRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithActiveSession(session))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
     })
 
     it("should throw error when user cannot sign in with active session", async () => {
@@ -71,8 +63,9 @@ describe("AuthenticationService", () => {
       const session = factories.createLocalSession()
       mockUserRepository.tryGetById.mockResolvedValue(user)
 
-      await expect(service.authenticateWithActiveSession(session))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
+      await expect(service.authenticateWithActiveSession(session)).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationMethodNotAllowed),
+      )
     })
   })
 
@@ -87,18 +80,19 @@ describe("AuthenticationService", () => {
       expect(result).toBe(user)
       expect(mockPasswordVerifier.verifyPassword).toHaveBeenCalledWith("password", user.passwordHash)
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ 
+        expect.objectContaining({
           topic: "Authentication",
-          result: "Success" 
-        })
+          result: "Success",
+        }),
       )
     })
 
     it("should throw error when user not found", async () => {
       mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithEmailAndPassword("test-brand", "test@example.com", "password")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
     })
 
     it("should throw error when password verification fails", async () => {
@@ -106,16 +100,18 @@ describe("AuthenticationService", () => {
       mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
       mockPasswordVerifier.verifyPassword.mockReturnValue(false)
 
-      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
     })
 
     it("should throw error when user cannot sign in with password", async () => {
-      const user = factories.createUser( { roles: ["service"] })
+      const user = factories.createUser({ roles: ["service"] })
       mockUserRepository.tryGetByBrandAndEmail.mockResolvedValue(user)
 
-      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
+      await expect(service.authenticateWithEmailAndPassword(user.brand, user.email, "password")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationMethodNotAllowed),
+      )
     })
   })
 
@@ -134,16 +130,18 @@ describe("AuthenticationService", () => {
     it("should throw error when client not found", async () => {
       mockUserRepository.tryGetById.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithClientCredentials("client-id", "client-secret"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithClientCredentials("client-id", "client-secret")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
     })
 
     it("should throw error when client cannot use client credentials", async () => {
       const user = factories.createUser()
       mockUserRepository.tryGetById.mockResolvedValue(user)
 
-      await expect(service.authenticateWithClientCredentials(user.id, "client-secret"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
+      await expect(service.authenticateWithClientCredentials(user.id, "client-secret")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationMethodNotAllowed),
+      )
     })
   })
 
@@ -155,7 +153,7 @@ describe("AuthenticationService", () => {
 
       mockTokenValidator.decodeAndValidateToken.mockResolvedValue({
         identityProvider: idp,
-        profile: mockProfile
+        profile: mockProfile,
       })
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
@@ -167,17 +165,18 @@ describe("AuthenticationService", () => {
     })
 
     it("should throw error when token validation fails", async () => {
-      mockTokenValidator.decodeAndValidateToken.mockRejectedValue(new Error("Invalid token"))
+      mockTokenValidator.decodeAndValidateToken.mockRejectedValue(new AuthenticationError("Invalid token"))
 
-      await expect(service.authenticateWithExternalIdentityToken("invalid-token"))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithExternalIdentityToken("invalid-token")).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           topic: "Authentication",
           result: "Failed",
-          reason: commonErrors.authenticationFailed
-        })
+          reason: commonErrors.authenticationFailed,
+        }),
       )
     })
   })
@@ -187,7 +186,7 @@ describe("AuthenticationService", () => {
       const idp = factories.createIdentityProvider()
       const user = factories.createUser({ roles: ["service"] })
       user.addIdentity(idp.id, "external-id")
-      
+
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
 
       const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
@@ -202,8 +201,8 @@ describe("AuthenticationService", () => {
       const idp = factories.createIdentityProvider({
         authSettings: {
           autoLinkUsers: true,
-          autoCreateUsers: false
-        }
+          autoCreateUsers: false,
+        },
       })
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
@@ -212,10 +211,12 @@ describe("AuthenticationService", () => {
       const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
 
       expect(result.user).toBe(user)
-      expect(result.newIdentity).toEqual(expect.objectContaining({
-        identityProviderId: idp.id,
-        identifierClaimValue: mockProfile.identifierClaimValue
-      }))
+      expect(result.newIdentity).toEqual(
+        expect.objectContaining({
+          identityProviderId: idp.id,
+          identifierClaimValue: mockProfile.identifierClaimValue,
+        }),
+      )
       expect(mockUserRepository.update).toHaveBeenCalled()
     })
 
@@ -223,8 +224,8 @@ describe("AuthenticationService", () => {
       const idp = factories.createIdentityProvider({
         authSettings: {
           autoLinkUsers: false,
-          autoCreateUsers: true
-        }
+          autoCreateUsers: true,
+        },
       })
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
@@ -232,20 +233,24 @@ describe("AuthenticationService", () => {
 
       const result = await service.authenticateWithExternalIdentity(idp, mockProfile)
 
-      expect(result.user).toEqual(expect.objectContaining({
-        email: mockProfile.email,
-        givenName: mockProfile.givenName,
-        surname: mockProfile.surname, 
-        identities: expect.arrayContaining([
-          expect.objectContaining({
-            identifierClaimValue: mockProfile.identifierClaimValue
-          })
-        ])
-      }))
-      expect(result.newIdentity).toEqual(expect.objectContaining({
-        identityProviderId: idp.id,
-        identifierClaimValue: mockProfile.identifierClaimValue
-      }))
+      expect(result.user).toEqual(
+        expect.objectContaining({
+          email: mockProfile.email,
+          givenName: mockProfile.givenName,
+          surname: mockProfile.surname,
+          identities: expect.arrayContaining([
+            expect.objectContaining({
+              identifierClaimValue: mockProfile.identifierClaimValue,
+            }),
+          ]),
+        }),
+      )
+      expect(result.newIdentity).toEqual(
+        expect.objectContaining({
+          identityProviderId: idp.id,
+          identifierClaimValue: mockProfile.identifierClaimValue,
+        }),
+      )
       expect(mockUserRepository.insert).toHaveBeenCalled()
     })
 
@@ -253,14 +258,15 @@ describe("AuthenticationService", () => {
       const idp = factories.createIdentityProvider({
         authSettings: {
           autoLinkUsers: false,
-          autoCreateUsers: false
-        }
+          autoCreateUsers: false,
+        },
       })
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(undefined)
 
-      await expect(service.authenticateWithExternalIdentity(idp, mockProfile))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationFailed))
+      await expect(service.authenticateWithExternalIdentity(idp, mockProfile)).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationFailed),
+      )
     })
 
     it("should throw error when user cannot sign in with identity provider", async () => {
@@ -269,9 +275,9 @@ describe("AuthenticationService", () => {
 
       mockUserRepository.tryGetByExternalIdentity.mockResolvedValue(user)
 
-      await expect(service.authenticateWithExternalIdentity(idp, mockProfile))
-        .rejects.toThrow(new AuthenticationError(commonErrors.authenticationMethodNotAllowed))
+      await expect(service.authenticateWithExternalIdentity(idp, mockProfile)).rejects.toThrow(
+        new AuthenticationError(commonErrors.authenticationMethodNotAllowed),
+      )
     })
   })
 })
-

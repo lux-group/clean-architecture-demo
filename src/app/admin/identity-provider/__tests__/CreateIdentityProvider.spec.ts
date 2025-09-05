@@ -22,7 +22,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
       redirect_urls: ["https://test.updated.com"],
       auto_link_users: true,
       auto_create_users: true,
-    }
+    },
   })
 
   beforeAll(async () => {
@@ -34,10 +34,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
     it("should return 201 with valid identity provider", async () => {
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .post("/admin/identity-providers")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      const response = await request(context.server).post("/admin/identity-providers").set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(response.status).toBe(201)
       expect(response.body).toEqual(expect.objectContaining(payload))
@@ -46,11 +43,8 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
 
     it("should create the identity provider in the database", async () => {
       const payload = getPayload()
-      
-      const response = await request(context.server)
-        .post("/admin/identity-providers")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+
+      const response = await request(context.server).post("/admin/identity-providers").set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       const created = await context.data.getIdentityProvider(response.body.id)
       expect(response).bodyToMatchEntity(created)
@@ -58,14 +52,11 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
 
     it("should publish an event", async () => {
       const payload = getPayload()
-      
+
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .post("/admin/identity-providers")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(payload)
+      await request(context.server).post("/admin/identity-providers").set("Authorization", `Bearer ${accessToken}`).send(payload)
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -75,9 +66,7 @@ describe("[POST] /admin/identity-providers (CreateIdentityProvider)", () => {
     it("should return 401 when no access token is provided", async () => {
       const payload = getPayload()
 
-      const response = await request(context.server)
-        .post("/admin/identity-providers")
-        .send(payload)
+      const response = await request(context.server).post("/admin/identity-providers").send(payload)
 
       expect(response.status).toBe(401)
     })

@@ -11,9 +11,7 @@ describe("[GET] /oauth2/.well-known/openid-configuration (GetOpenidConfiguration
 
   describe("when requesting OpenID configuration", () => {
     it("should return 200 with valid configuration", async () => {
-      const response = await request(context.server)
-        .get("/oauth2/.well-known/openid-configuration")
-        .send()
+      const response = await request(context.server).get("/oauth2/.well-known/openid-configuration").send()
 
       expect(response.status).toBe(200)
       expect(response.body.jwks_uri).toMatch(/\.well-known\/jwks$/)

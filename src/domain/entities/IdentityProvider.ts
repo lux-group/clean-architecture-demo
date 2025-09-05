@@ -10,7 +10,7 @@ export const IdentityProviderType = {
   Facebook: "FACEBOOK",
 } as const
 
-export type IdentityProviderType = typeof IdentityProviderType[keyof typeof IdentityProviderType]
+export type IdentityProviderType = (typeof IdentityProviderType)[keyof typeof IdentityProviderType]
 
 const identityProviderAuthSettingsSchema = z.object({
   type: z.enum(IdentityProviderType),
@@ -39,15 +39,21 @@ export type CreateIdentityProviderProps = Omit<IdentityProviderProps, "id" | "cr
 export type UpdateIdentityProviderProps = Omit<IdentityProviderProps, "id" | "createdAt" | "updatedAt">
 
 export class IdentityProvider extends Entity<IdentityProviderProps> {
-  constructor(props: IdentityProviderProps) {
-    super(props)
+  get name() {
+    return this.props.name
   }
-
-  get name() { return this.props.name }
-  get issuerUrl() { return this.props.issuerUrl }
-  get audience() { return this.props.audience }
-  get identifierClaimName() { return this.props.identifierClaimName }
-  get authSettings() { return this.props.authSettings }
+  get issuerUrl() {
+    return this.props.issuerUrl
+  }
+  get audience() {
+    return this.props.audience
+  }
+  get identifierClaimName() {
+    return this.props.identifierClaimName
+  }
+  get authSettings() {
+    return this.props.authSettings
+  }
 
   static createNew(props: CreateIdentityProviderProps) {
     const now = new Date()

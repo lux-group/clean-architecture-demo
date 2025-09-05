@@ -8,10 +8,10 @@ import { EventPublisher } from "~/domain/adapters"
 describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
   let context: TestContext
   let accessToken: string
-  
+
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.createAccessToken(randomUUID(), ["signing-key:write"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["signing-key:write"])
   })
 
   describe("when the deletion was successful", () => {
@@ -29,10 +29,7 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
     it("should remove the signing key from the database", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
 
-      await request(context.server)
-        .delete(`/admin/signing-keys/${signingKey.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).delete(`/admin/signing-keys/${signingKey.id}`).set("Authorization", `Bearer ${accessToken}`).send()
 
       const exists = await context.data.signingKeyExists(signingKey.id)
       expect(exists).toBe(false)
@@ -40,14 +37,11 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
 
     it("should publish an event", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
-      
+
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .delete(`/admin/signing-keys/${signingKey.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).delete(`/admin/signing-keys/${signingKey.id}`).set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -81,16 +75,14 @@ describe("[DELETE] /admin/signing-keys/:id (DeleteSigningKey)", () => {
     it("should return 401 when no access token is provided", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
 
-      const response = await request(context.server)
-        .delete(`/admin/signing-keys/${signingKey.id}`)
-        .send()
+      const response = await request(context.server).delete(`/admin/signing-keys/${signingKey.id}`).send()
 
       expect(response.status).toBe(401)
     })
 
     it("should return 403 when the access token does not have scope 'signing-keys:write'", async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null })
-      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["signing-key:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["signing-key:read"])
 
       const response = await request(context.server)
         .delete(`/admin/signing-keys/${signingKey.id}`)

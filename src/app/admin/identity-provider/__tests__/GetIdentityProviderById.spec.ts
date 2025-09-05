@@ -37,21 +37,19 @@ describe("[GET] /admin/identity-providers/:id (GetIdentityProviderById)", () => 
       expect(response.status).toBe(404)
     })
   })
-  
+
   describe("when authorization fails", () => {
     it("should return 401 when no access token is provided", async () => {
       const identityProvider = await context.data.createIdentityProvider()
 
-      const response = await request(context.server)
-        .get(`/admin/identity-providers/${identityProvider.id}`)
-        .send()
+      const response = await request(context.server).get(`/admin/identity-providers/${identityProvider.id}`).send()
 
       expect(response.status).toBe(401)
     })
 
     it("should return 403 when the access token does not have scope 'identity-providers:read'", async () => {
       const identityProvider = await context.data.createIdentityProvider()
-      const nonReadAccessToken = await context.createAccessToken(randomUUID(), ["foo:bar"]) 
+      const nonReadAccessToken = await context.createAccessToken(randomUUID(), ["foo:bar"])
 
       const response = await request(context.server)
         .get(`/admin/identity-providers/${identityProvider.id}`)

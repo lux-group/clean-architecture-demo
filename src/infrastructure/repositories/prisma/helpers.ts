@@ -36,7 +36,7 @@ export function mapQuery<T extends object>(query: Query<T>, include?: (keyof T)[
 
   if (include) {
     if (find.select) {
-      include.forEach(key => find.select![key] = true)
+      include.forEach(key => (find.select![key] = true))
     } else {
       find.include = mapSelect(include)
     }
@@ -50,10 +50,13 @@ export function mapSelect<T extends object>(select?: (keyof T)[]): PrismaSelectI
     return undefined
   }
 
-  return select?.reduce((acc, key) => {
-    acc[key] = true
-    return acc
-  }, {} as PrismaSelectInput<T>)
+  return select?.reduce(
+    (acc, key) => {
+      acc[key] = true
+      return acc
+    },
+    {} as PrismaSelectInput<T>,
+  )
 }
 
 export function mapOrderBy<T extends object>(orderBy?: OrderBy<T>): PrismaOrderByInput<T> | undefined {

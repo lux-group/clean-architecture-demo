@@ -46,12 +46,9 @@ describe("[POST] /auth/local/sign-out (SignOut)", () => {
 
   describe("when no session cookie exists", () => {
     it("should return 401", async () => {
-      const response = await request(context.server)
-        .post("/auth/local/sign-out")
-        .send()
+      const response = await request(context.server).post("/auth/local/sign-out").send()
 
       expect(response.status).toBe(401)
     })
   })
 })
-

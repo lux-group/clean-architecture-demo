@@ -16,7 +16,7 @@ export class DeleteSigningKeyHandler {
     const signingKey = await this.signingKeyRepository.getById(command.id)
     signingKey.ensureCanDelete()
     await this.signingKeyRepository.delete(signingKey)
-    
+
     const event = EntityChangeEvent.entityDeleted("Signing Key", command.id)
     this.eventPublisher.publishEvent(event)
   }

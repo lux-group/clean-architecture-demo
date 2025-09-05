@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { InvalidOperationError, ValidationError, commonErrors } from "~/domain/errors"
+import { InvalidOperationError, commonErrors } from "~/domain/errors"
 import { CreateUserProps, UpdateUserProps, User } from "./User"
 
 describe("User", () => {
@@ -33,8 +33,6 @@ describe("User", () => {
     passwordHash: "hashed-secret",
     roles: ["service"],
   }
-
-  const identityProviderId = "56d2a462-403f-4984-a839-d3044f99fb1d"
 
   describe("createNew", () => {
     it("should create a new User with generated properties", () => {
@@ -69,7 +67,7 @@ describe("User", () => {
       try {
         User.createNew({ ...mockCreateProps, [path]: value })
         fail("Expected validation error to be thrown")
-      } catch (thrownError: ValidationError | any) {
+      } catch (thrownError: any) {
         expect(thrownError.errors).toBeDefined()
         expect(thrownError.errors[0].path).toContain(path)
         expect(thrownError.errors[0].message).toContain(error)
@@ -322,7 +320,7 @@ describe("User", () => {
 
     it("should handle service account authentication", () => {
       const user = User.createNew(mockServiceAccountProps)
-      
+
       expect(user.isServiceAccount).toBe(true)
       expect(user.canSignInWithClientSecret()).toBe(true)
       expect(user.canSignInWithPassword()).toBe(false)
@@ -330,4 +328,3 @@ describe("User", () => {
     })
   })
 })
-

@@ -1,31 +1,27 @@
 import { describe, expect, it } from "vitest"
-import { 
-  ObjectTransformer, 
-  toCamelCase, 
-  toSnakeCase, 
-  toISODateString, 
+import {
+  transformObject,
+  toCamelCase,
+  toSnakeCase,
+  toISODateString,
   toDateObject,
   type KeyTransformer,
-  type ValueTransformer
-} from "./ObjectTransformer"
+  type ValueTransformer,
+} from "./transformObject"
 
-describe("ObjectTransformer", () => {
+describe("transformObject", () => {
   describe("transform", () => {
     it("should transform array of objects with key and value transformers", () => {
       const input = [
         { user_name: "john", created_at: new Date("2023-01-01") },
-        { user_name: "jane", created_at: new Date("2023-01-02") }
+        { user_name: "jane", created_at: new Date("2023-01-02") },
       ]
-      
-      const result = ObjectTransformer.transform(
-        input,
-        [toCamelCase],
-        [toISODateString]
-      )
-      
+
+      const result = transformObject(input, [toCamelCase], [toISODateString])
+
       expect(result).toEqual([
         { userName: "john", createdAt: "2023-01-01T00:00:00.000Z" },
-        { userName: "jane", createdAt: "2023-01-02T00:00:00.000Z" }
+        { userName: "jane", createdAt: "2023-01-02T00:00:00.000Z" },
       ])
     })
 
@@ -36,103 +32,78 @@ describe("ObjectTransformer", () => {
           last_name: "Doe",
           contact_info: {
             email_address: "john@example.com",
-            phone_number: "123-456-7890"
-          }
-        }
+            phone_number: "123-456-7890",
+          },
+        },
       }
-      
-      const result = ObjectTransformer.transform(
-        input,
-        [toCamelCase],
-        []
-      )
-      
+
+      const result = transformObject(input, [toCamelCase], [])
+
       expect(result).toEqual({
         userProfile: {
           firstName: "John",
           lastName: "Doe",
           contactInfo: {
             emailAddress: "john@example.com",
-            phoneNumber: "123-456-7890"
-          }
-        }
+            phoneNumber: "123-456-7890",
+          },
+        },
       })
     })
 
     it("should handle null values", () => {
-      const result = ObjectTransformer.transform(null, [toCamelCase], [])
+      const result = transformObject(null, [toCamelCase], [])
       expect(result).toBeNull()
     })
 
     it("should handle primitive values", () => {
-      expect(ObjectTransformer.transform("string", [], [])).toBe("string")
-      expect(ObjectTransformer.transform(123, [], [])).toBe(123)
-      expect(ObjectTransformer.transform(true, [], [])).toBe(true)
-      expect(ObjectTransformer.transform(undefined, [], [])).toBeUndefined()
+      expect(transformObject("string", [], [])).toBe("string")
+      expect(transformObject(123, [], [])).toBe(123)
+      expect(transformObject(true, [], [])).toBe(true)
+      expect(transformObject(undefined, [], [])).toBeUndefined()
     })
 
     it("should handle Date objects without transformation", () => {
       const date = new Date("2023-01-01")
-      const result = ObjectTransformer.transform(date, [toCamelCase], [])
+      const result = transformObject(date, [toCamelCase], [])
       expect(result).toBe(date)
       expect(result instanceof Date).toBe(true)
     })
 
     it("should apply multiple key transformers in sequence", () => {
       const customTransformer: KeyTransformer = (key: string) => `prefix_${key}`
-      
+
       const input = { user_name: "john" }
-      const result = ObjectTransformer.transform(
-        input,
-        [toCamelCase, customTransformer],
-        []
-      )
-      
-      expect(result).toEqual({ "prefix_userName": "john" })
+      const result = transformObject(input, [toCamelCase, customTransformer], [])
+
+      expect(result).toEqual({ prefix_userName: "john" })
     })
 
     it("should apply multiple value transformers in sequence", () => {
-      const upperCaseTransformer: ValueTransformer = (value: any) => 
-        typeof value === "string" ? value.toUpperCase() : value
-      
+      const upperCaseTransformer: ValueTransformer = (value: any) => (typeof value === "string" ? value.toUpperCase() : value)
+
       const input = { name: "john" }
-      const result = ObjectTransformer.transform(
-        input,
-        [],
-        [upperCaseTransformer, (value: any) => typeof value === "string" ? `${value}!` : value]
-      )
-      
+      const result = transformObject(input, [], [upperCaseTransformer, (value: any) => (typeof value === "string" ? `${value}!` : value)])
+
       expect(result).toEqual({ name: "JOHN!" })
     })
 
     it("should handle empty objects", () => {
-      const result = ObjectTransformer.transform({}, [toCamelCase], [])
+      const result = transformObject({}, [toCamelCase], [])
       expect(result).toEqual({})
     })
 
     it("should handle empty arrays", () => {
-      const result = ObjectTransformer.transform([], [toCamelCase], [])
+      const result = transformObject([], [toCamelCase], [])
       expect(result).toEqual([])
     })
 
     it("should handle mixed array of primitives and objects", () => {
-      const input = [
-        "string",
-        123,
-        { user_name: "john" },
-        null,
-        { active_status: true }
-      ]
-      
-      const result = ObjectTransformer.transform(input, [toCamelCase], [])
-      
-      expect(result).toEqual([
-        "string",
-        123,
-        { userName: "john" },
-        null,
-        { activeStatus: true }
-      ])
+      const input = ["string", 123, { user_name: "john" }, null, { active_status: true }]
+
+      const result = transformObject(input, [toCamelCase], [])
+
+      expect(result).toEqual(["string", 123, { userName: "john" }, null, { activeStatus: true }])
     })
   })
 })
@@ -220,7 +191,7 @@ describe("toISODateString", () => {
   it("should handle different Date values", () => {
     const date1 = new Date("2023-12-25T00:00:00.000Z")
     const date2 = new Date("1990-06-15T15:30:45.123Z")
-    
+
     expect(toISODateString(date1)).toBe("2023-12-25T00:00:00.000Z")
     expect(toISODateString(date2)).toBe("1990-06-15T15:30:45.123Z")
   })
@@ -237,7 +208,7 @@ describe("toDateObject", () => {
     const dateString1 = "2023-01-01"
     const dateString2 = "2023/01/01"
     const dateString3 = "Jan 1, 2023"
-    
+
     expect(toDateObject(dateString1) instanceof Date).toBe(true)
     expect(toDateObject(dateString2) instanceof Date).toBe(true)
     expect(toDateObject(dateString3) instanceof Date).toBe(true)
@@ -264,10 +235,10 @@ describe("toDateObject", () => {
   it("should handle edge cases", () => {
     // Empty string should not be converted
     expect(toDateObject("")).toBe("")
-    
+
     // Whitespace-only string should not be converted
     expect(toDateObject("   ")).toBe("   ")
-    
+
     // Large number strings might be interpreted as timestamps, so they could be converted
     const result = toDateObject("123456")
     // Since Date.parse("123456") returns a valid number, this will be converted to a Date

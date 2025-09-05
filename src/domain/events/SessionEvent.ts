@@ -17,13 +17,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   readonly reason?: string
   readonly details: SessionEventDetails
 
-  private constructor(
-    id: string,
-    timestamp: Date,
-    result: "Success" | "Failed" | "Warning",
-    details: SessionEventDetails,
-    reason?: string
-  ) {
+  private constructor(id: string, timestamp: Date, result: "Success" | "Failed" | "Warning", details: SessionEventDetails, reason?: string) {
     this.id = id
     this.timestamp = timestamp
     this.result = result
@@ -32,7 +26,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   static nonceMismatchDetected(session: Session) {
-    return this.warning("Nonce mismatch indicating potential session hijacking attempt", {
+    return SessionEvent.warning("Nonce mismatch indicating potential session hijacking attempt", {
       activity: "Session validation failed",
       sessionId: session.id,
       userId: session.userId,
@@ -41,7 +35,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   static sessionCreated(session: Session) {
-    return this.success({
+    return SessionEvent.success({
       activity: "Session created",
       sessionId: session.id,
       userId: session.userId,
@@ -50,7 +44,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   static sessionRefreshed(session: Session) {
-    return this.success({
+    return SessionEvent.success({
       activity: "Session refreshed",
       sessionId: session.id,
       userId: session.userId,
@@ -59,7 +53,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   static sessionTerminatedByUser(session: Session) {
-    return this.success({
+    return SessionEvent.success({
       activity: "Session terminated by user",
       sessionId: session.id,
       userId: session.userId,
@@ -68,7 +62,7 @@ export class SessionEvent implements Event<SessionEventDetails> {
   }
 
   static sessionTerminatedByIdentityProvider(session: Session) {
-    return this.success({
+    return SessionEvent.success({
       activity: "Session terminated by identity provider",
       sessionId: session.id,
       userId: session.userId,

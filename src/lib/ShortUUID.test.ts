@@ -6,7 +6,7 @@ describe("ShortUUID", () => {
     it("should convert a standard UUID to a short base64url string", () => {
       const uuid = "550e8400-e29b-41d4-a716-446655440000"
       const result = UUIDToShort(uuid)
-      
+
       expect(result).toBe("VQ6EAOKbQdSnFkRmVUQAAA")
       expect(typeof result).toBe("string")
       expect(result.length).toBeLessThan(uuid.length)
@@ -16,14 +16,14 @@ describe("ShortUUID", () => {
       const uuid = "123e4567-e89b-12d3-a456-426614174000"
       const result1 = UUIDToShort(uuid)
       const result2 = UUIDToShort(uuid)
-      
+
       expect(result1).toBe(result2)
     })
 
     it("should not contain standard base64 characters (+, /, =)", () => {
       const uuid = "550e8400-e29b-41d4-a716-446655440000"
       const result = UUIDToShort(uuid)
-      
+
       expect(result).not.toContain("+")
       expect(result).not.toContain("/")
       expect(result).not.toContain("=")
@@ -34,7 +34,7 @@ describe("ShortUUID", () => {
     it("should convert a short base64url string back to a standard UUID", () => {
       const short = "VQ6EAOKbQdSnFkRmVUQAAA"
       const result = shortToUUID(short)
-      
+
       expect(result).toBe("550e8400-e29b-41d4-a716-446655440000")
     })
 
@@ -42,7 +42,7 @@ describe("ShortUUID", () => {
       const short = "Ej5FZ-ibEtOkVkJmFBdAAA"
       const result1 = shortToUUID(short)
       const result2 = shortToUUID(short)
-      
+
       expect(result1).toBe(result2)
     })
   })
@@ -52,7 +52,7 @@ describe("ShortUUID", () => {
       const originalUuid = "550e8400-e29b-41d4-a716-446655440000"
       const short = UUIDToShort(originalUuid)
       const convertedBack = shortToUUID(short)
-      
+
       expect(convertedBack).toBe(originalUuid)
     })
 
@@ -60,9 +60,8 @@ describe("ShortUUID", () => {
       const originalShort = "VQ6EAOKbQdSnFkRmVUQAAA"
       const uuid = shortToUUID(originalShort)
       const convertedBack = UUIDToShort(uuid)
-      
+
       expect(convertedBack).toBe(originalShort)
     })
   })
 })
-

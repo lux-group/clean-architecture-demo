@@ -10,19 +10,21 @@ import { mapQuery } from "./helpers"
 export class PrismaIdentityProviderRepository implements IdentityProviderRepository {
   constructor(
     private readonly prismaClient: PrismaClient,
-    private readonly encryptionProvider: EncryptionProvider
-  ) { }
+    private readonly encryptionProvider: EncryptionProvider,
+  ) {}
 
   async query(options: Query<IdentityProvider>): Promise<QueryResult<IdentityProvider>> {
     const query = mapQuery(options) as Prisma.IdentityProviderFindManyArgs
-    const [total, identityProviders] = await this.prismaClient.$replica().$transaction([
-      this.prismaClient.$replica().identityProvider.count({ where: query.where}),
-      this.prismaClient.$replica().identityProvider.findMany(query),
-    ])
+    const [total, identityProviders] = await this.prismaClient
+      .$replica()
+      .$transaction([
+        this.prismaClient.$replica().identityProvider.count({ where: query.where }),
+        this.prismaClient.$replica().identityProvider.findMany(query),
+      ])
 
     return {
       items: identityProviders.map(idp => this.mapToIdentityProvider(idp)),
-      total
+      total,
     }
   }
 
@@ -37,7 +39,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
 
   async tryGetById(id: string): Promise<IdentityProvider | undefined> {
     const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
-      where: { id }
+      where: { id },
     })
 
     return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
@@ -45,7 +47,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
 
   async tryGetByName(name: string): Promise<IdentityProvider | undefined> {
     const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
-      where: { name }
+      where: { name },
     })
 
     return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
@@ -56,24 +58,24 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
       where: {
         unique_issuer_audience: {
           issuerUrl,
-          audience
-        }
-      }
+          audience,
+        },
+      },
     })
-    
+
     return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
   }
 
   async insert(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.$primary().identityProvider.create({
-      data: this.mapToPrismaIdentityProvider(identityProvider)
+      data: this.mapToPrismaIdentityProvider(identityProvider),
     })
   }
 
   async update(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.$primary().identityProvider.update({
       where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt },
-      data: this.mapToPrismaIdentityProvider(identityProvider)
+      data: this.mapToPrismaIdentityProvider(identityProvider),
     })
 
     identityProvider.commit()
@@ -81,7 +83,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
 
   async delete(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.$primary().identityProvider.delete({
-      where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt }
+      where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt },
     })
   }
 
@@ -94,15 +96,17 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
       issuerUrl: idp.issuerUrl,
       audience: idp.audience,
       identifierClaimName: idp.identifierClaimName,
-      authSettings: idp.authSettingsType ? {
-        type: idp.authSettingsType as IdentityProviderType,
-        brand: idp.authSettingsBrand!,
-        clientId: idp.authSettingsClientId!,
-        clientSecret: this.encryptionProvider.decrypt(idp.authSettingsClientSecret!),
-        redirectUrls: idp.authSettingsRedirectUrls || [],
-        autoLinkUsers: idp.authSettingsAutoLinkUsers!,
-        autoCreateUsers: idp.authSettingsAutoCreateUsers!
-      } : null,
+      authSettings: idp.authSettingsType
+        ? {
+            type: idp.authSettingsType as IdentityProviderType,
+            brand: idp.authSettingsBrand!,
+            clientId: idp.authSettingsClientId!,
+            clientSecret: this.encryptionProvider.decrypt(idp.authSettingsClientSecret!),
+            redirectUrls: idp.authSettingsRedirectUrls || [],
+            autoLinkUsers: idp.authSettingsAutoLinkUsers!,
+            autoCreateUsers: idp.authSettingsAutoCreateUsers!,
+          }
+        : null,
     })
   }
 
@@ -121,7 +125,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
       authSettingsClientSecret: idp.authSettings?.clientSecret ? this.encryptionProvider.encrypt(idp.authSettings?.clientSecret) : null,
       authSettingsRedirectUrls: idp.authSettings?.redirectUrls as string[] | undefined,
       authSettingsAutoLinkUsers: idp.authSettings?.autoLinkUsers,
-      authSettingsAutoCreateUsers: idp.authSettings?.autoCreateUsers
+      authSettingsAutoCreateUsers: idp.authSettings?.autoCreateUsers,
     } as PrismaIdentityProvider
   }
 }

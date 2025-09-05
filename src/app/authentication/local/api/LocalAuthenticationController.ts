@@ -20,7 +20,7 @@ export class LocalAuthenticationController {
     const command: SignInWithPasswordCommand = {
       brand: req.body?.brand,
       email: req.body?.email,
-      password: req.body?.password
+      password: req.body?.password,
     }
 
     const session = await this.signInWithPasswordHandler.execute(command)
@@ -34,9 +34,9 @@ export class LocalAuthenticationController {
 
     const command: SignOutCommand = {
       sessionId: cookie.id,
-      nonce: cookie.nonce
+      nonce: cookie.nonce,
     }
-    
+
     await this.signOutHandler.execute(command)
     res.status(204).send()
   }

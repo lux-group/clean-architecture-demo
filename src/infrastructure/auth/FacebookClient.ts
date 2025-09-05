@@ -9,33 +9,37 @@ export class FacebookClient implements AuthClient {
     private readonly identityProvider: IdentityProvider,
   ) {}
 
-  public get supportsSignOut() { return false }
-  public get supportsEditProfile() { return false }
+  public get supportsSignOut() {
+    return false
+  }
+  public get supportsEditProfile() {
+    return false
+  }
 
   async createSignInRequest(redirectUrl: string): Promise<SignInRequest> {
     const state = this.generateRandomString(32)
     const nonce = this.generateRandomString(32)
     const codeVerifier = this.generateRandomString(64)
-    
+
     const signInState: SignInState = {
       state,
       nonce,
       codeVerifier,
       redirectUrl,
-      identityProviderId: this.identityProvider.id
+      identityProviderId: this.identityProvider.id,
     }
 
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: this.baseUrl + "/auth/external/sign-in-callback",
+      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
       scope: "email public_profile",
       response_type: "code",
       state,
-      nonce
+      nonce,
     })
 
     const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`
-    
+
     return { url: authUrl, signInState }
   }
 
@@ -59,7 +63,7 @@ export class FacebookClient implements AuthClient {
 
     // Exchange authorization code for access token
     const tokenResponse = await this.exchangeCodeForToken(code)
-    
+
     // Get user profile information
     const profile = await this.getUserProfile(tokenResponse.access_token)
 
@@ -67,39 +71,39 @@ export class FacebookClient implements AuthClient {
       idToken: "", // Facebook doesn't provide ID tokens in OAuth 2.0 flow
       refreshToken: undefined, // Facebook access tokens are long-lived but not refresh tokens
       accessToken: tokenResponse.access_token,
-      profile
+      profile,
     }
   }
 
-  async createSignOutRequest(redirectUrl: string, idToken?: string): Promise<SignOutRequest> {
+  async createSignOutRequest(_redirectUrl: string, _idToken?: string): Promise<SignOutRequest> {
     throw new Error("The identity provider does not support single-sign-out.")
   }
 
-  async checkSessionWithRefreshToken(refreshToken: string): Promise<CheckSessionResponse> {
+  async checkSessionWithRefreshToken(_refreshToken: string): Promise<CheckSessionResponse> {
     throw new Error("The identity provider does not support refresh tokens.")
   }
 
-  async editProfile(accessToken: string, givenName: string, surname: string): Promise<void> {
+  async editProfile(_accessToken: string, _givenName: string, _surname: string): Promise<void> {
     throw new Error("The identity provider does not support editing profiles.")
   }
 
   private generateRandomString(length: number): string {
-    return randomBytes(length).toString('base64url').slice(0, length)
+    return randomBytes(length).toString("base64url").slice(0, length)
   }
 
   private async exchangeCodeForToken(code: string) {
     const tokenEndpoint = "https://graph.facebook.com/v18.0/oauth/access_token"
-    
+
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
       client_secret: this.identityProvider.authSettings!.clientSecret,
-      redirect_uri: this.baseUrl + "/auth/external/sign-in-callback",
-      code
+      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      code,
     })
 
     const response = await fetch(`${tokenEndpoint}?${params.toString()}`, {
       method: "GET",
-      headers: { "Accept": "application/json" }
+      headers: { Accept: "application/json" },
     })
 
     if (!response.ok) {
@@ -111,15 +115,15 @@ export class FacebookClient implements AuthClient {
 
   private async getUserProfile(accessToken: string): Promise<Profile> {
     const profileEndpoint = "https://graph.facebook.com/v18.0/me"
-    
+
     const params = new URLSearchParams({
       access_token: accessToken,
-      fields: "id,email,first_name,last_name"
+      fields: "id,email,first_name,last_name",
     })
 
     const response = await fetch(`${profileEndpoint}?${params.toString()}`, {
       method: "GET",
-      headers: { "Accept": "application/json" }
+      headers: { Accept: "application/json" },
     })
 
     if (!response.ok) {
@@ -145,7 +149,7 @@ export class FacebookClient implements AuthClient {
       email,
       givenName,
       surname,
-      identifierClaimValue
+      identifierClaimValue,
     }
   }
 }

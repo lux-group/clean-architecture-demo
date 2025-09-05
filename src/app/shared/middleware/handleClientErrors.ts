@@ -3,7 +3,7 @@ import { Logger } from "~/infrastructure/logging"
 import { AuthenticationError, AuthorizationError, ConcurrencyError, InvalidOperationError, NotFoundError, ValidationError } from "~/domain/errors"
 
 export function handleClientErrors(logger: Logger) {
-  return (err: unknown, req: Request, res: Response, next: NextFunction) => {
+  return (err: unknown, _req: Request, res: Response, next: NextFunction) => {
     logger.info(err)
 
     if (err instanceof ValidationError) {

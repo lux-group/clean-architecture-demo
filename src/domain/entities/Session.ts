@@ -11,7 +11,7 @@ export const SessionStatus = {
   TerminatedByProvider: "TERMINATED_BY_PROVIDER",
 } as const
 
-export type SessionStatus = typeof SessionStatus[keyof typeof SessionStatus]
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
 
 const sessionSchema = z.object({
   id: z.uuid(),
@@ -30,25 +30,46 @@ const sessionSchema = z.object({
 })
 
 export type SessionProps = Readonly<z.input<typeof sessionSchema>>
-export type CreateSessionProps = Omit<SessionProps, "id" | "createdAt" | "updatedAt" | "lastRefreshAt" | "expiresAt" | "terminatedAt" | "status" | "nonce">
+export type CreateSessionProps = Omit<
+  SessionProps,
+  "id" | "createdAt" | "updatedAt" | "lastRefreshAt" | "expiresAt" | "terminatedAt" | "status" | "nonce"
+>
 
 export class Session extends Entity<SessionProps> {
-  constructor(props: SessionProps) {
-    super(props)
+  get lastRefreshAt() {
+    return this.props.lastRefreshAt
+  }
+  get expiresAt() {
+    return this.props.expiresAt
+  }
+  get terminatedAt() {
+    return this.props.terminatedAt
+  }
+  get status() {
+    return this.props.status
+  }
+  get nonce() {
+    return this.props.nonce
+  }
+  get userId() {
+    return this.props.userId
+  }
+  get identityProviderId() {
+    return this.props.identityProviderId
+  }
+  get identityProviderSessionId() {
+    return this.props.identityProviderSessionId
+  }
+  get idToken() {
+    return this.props.idToken
+  }
+  get refreshToken() {
+    return this.props.refreshToken
   }
 
-  get lastRefreshAt() { return this.props.lastRefreshAt }
-  get expiresAt() { return this.props.expiresAt }
-  get terminatedAt() { return this.props.terminatedAt }
-  get status() { return this.props.status }
-  get nonce() { return this.props.nonce }
-  get userId() { return this.props.userId }
-  get identityProviderId() { return this.props.identityProviderId }
-  get identityProviderSessionId() { return this.props.identityProviderSessionId }
-  get idToken() { return this.props.idToken }
-  get refreshToken() { return this.props.refreshToken }
-
-  get isActive() { return this.status == SessionStatus.Active && this.expiresAt > new Date() }
+  get isActive() {
+    return this.status === SessionStatus.Active && this.expiresAt > new Date()
+  }
 
   static createNew(props: CreateSessionProps, expiresInHours: number) {
     const now = new Date()
@@ -78,7 +99,7 @@ export class Session extends Entity<SessionProps> {
     if (nonce !== this.nonce) {
       throw new AuthenticationError(commonErrors.sessionInvalid)
     }
-    
+
     if (!this.isActive) {
       throw new AuthenticationError(commonErrors.sessionExpired)
     }
@@ -100,18 +121,18 @@ export class Session extends Entity<SessionProps> {
     if (!this.identityProviderId) {
       return false
     }
-    
+
     const elapsedTime = Date.now() - new Date(this.lastRefreshAt).getTime()
     return elapsedTime > minSessionRefreshDelayMinutes * 60000
   }
 
   setLastRefresh(idToken?: string, refreshToken?: string) {
-    this.props ={
+    this.props = {
       ...this.props,
       updatedAt: new Date(),
       lastRefreshAt: new Date(),
       idToken: idToken ?? this.idToken,
-      refreshToken: refreshToken ?? this.refreshToken
+      refreshToken: refreshToken ?? this.refreshToken,
     }
   }
 
@@ -139,11 +160,11 @@ export class Session extends Entity<SessionProps> {
   }
 
   private changeStatus(newStatus: SessionStatus) {
-    if (this.status != SessionStatus.Active) {
+    if (this.status !== SessionStatus.Active) {
       return
     }
 
-    if (newStatus == SessionStatus.Active) {
+    if (newStatus === SessionStatus.Active) {
       throw new InvalidOperationError(commonErrors.sessionExpired)
     }
 

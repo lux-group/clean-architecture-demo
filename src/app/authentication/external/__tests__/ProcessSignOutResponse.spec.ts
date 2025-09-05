@@ -28,12 +28,9 @@ describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () 
 
   describe("when state is missing", () => {
     it("should return 401 error", async () => {
-      const response = await request(context.server)
-        .get("/auth/external/sign-out-callback")
-        .send()
+      const response = await request(context.server).get("/auth/external/sign-out-callback").send()
 
       expect(response.status).toBe(401)
     })
   })
 })
-

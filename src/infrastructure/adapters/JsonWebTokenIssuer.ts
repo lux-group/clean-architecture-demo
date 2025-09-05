@@ -22,7 +22,7 @@ export class JsonWebTokenIssuer implements TokenIssuer {
       iat: now,
       exp: now + this.tokenIssuerConfig.lifetimeSeconds,
       scope: request.scopes?.join(" "),
-      ...request.claims
+      ...request.claims,
     }
 
     // We shorten the key ID to save size.

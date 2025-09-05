@@ -19,7 +19,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
         .post("/oauth2/token")
-        .type('form')
+        .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
       expect(response.status).toBe(401)
@@ -35,7 +35,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const response = await request(context.server)
         .post("/oauth2/token")
         .set("Cookie", [`auth-session=${cookie}`])
-        .type('form')
+        .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
       expect(response.status).toBe(401)
@@ -51,7 +51,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const response = await request(context.server)
         .post("/oauth2/token")
         .set("Cookie", [`auth-session=${cookie}`])
-        .type('form')
+        .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
       expect(response.status).toBe(200)
@@ -74,10 +74,10 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const response = await request(context.server)
         .post("/oauth2/token")
         .set("Cookie", [`auth-session=${cookie}`])
-        .type('form')
+        .type("form")
         .send({
           grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
-          subject_to_impersonate_id: userToImpersonate.id
+          subject_to_impersonate_id: userToImpersonate.id,
         })
 
       expect(response.status).toBe(200)

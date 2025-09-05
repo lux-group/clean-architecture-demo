@@ -11,7 +11,7 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.createAccessToken(randomUUID(), ["identity-provider:write"]) 
+    accessToken = await context.createAccessToken(randomUUID(), ["identity-provider:write"])
   })
 
   describe("when the deletion was successful", () => {
@@ -29,10 +29,7 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
     it("should remove the identity provider from the database", async () => {
       const identityProvider = await context.data.createIdentityProvider()
 
-      await request(context.server)
-        .delete(`/admin/identity-providers/${identityProvider.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).delete(`/admin/identity-providers/${identityProvider.id}`).set("Authorization", `Bearer ${accessToken}`).send()
 
       const exists = await context.data.identityProviderExists(identityProvider.id)
       expect(exists).toBe(false)
@@ -40,14 +37,11 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
 
     it("should publish an event", async () => {
       const identityProvider = await context.data.createIdentityProvider()
-      
+
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .delete(`/admin/identity-providers/${identityProvider.id}`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).delete(`/admin/identity-providers/${identityProvider.id}`).set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -68,16 +62,14 @@ describe("[DELETE] /admin/identity-providers/:id (DeleteIdentityProvider)", () =
     it("should return 401 when no access token is provided", async () => {
       const identityProvider = await context.data.createIdentityProvider()
 
-      const response = await request(context.server)
-        .delete(`/admin/identity-providers/${identityProvider.id}`)
-        .send()
+      const response = await request(context.server).delete(`/admin/identity-providers/${identityProvider.id}`).send()
 
       expect(response.status).toBe(401)
     })
 
     it("should return 403 when the access token does not have scope 'identity-providers:write'", async () => {
       const identityProvider = await context.data.createIdentityProvider()
-      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["identity-provider:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ["identity-provider:read"])
 
       const response = await request(context.server)
         .delete(`/admin/identity-providers/${identityProvider.id}`)

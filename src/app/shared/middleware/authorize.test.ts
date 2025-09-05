@@ -70,7 +70,9 @@ describe("Authorize Middleware", () => {
 
   it("returns 401 and logs warn when token is invalid (decode throws)", async () => {
     setAuthHeader()
-    vi.spyOn(jwt, "decode").mockImplementation(() => { throw new Error("bad token") })
+    vi.spyOn(jwt, "decode").mockImplementation(() => {
+      throw new Error("bad token")
+    })
 
     const handler = createHandler()
     await handler(mockRequest, mockResponse, nextFunction)
@@ -112,8 +114,12 @@ describe("Authorize Middleware", () => {
     const short = UUIDToShort(uuid)
     mockDecoded({ kid: short })
 
-    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ publicKey: "PUBLIC" })
-    vi.spyOn(jwt, "verify").mockImplementation(() => { throw new Error("invalid signature") })
+    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      publicKey: "PUBLIC",
+    })
+    vi.spyOn(jwt, "verify").mockImplementation(() => {
+      throw new Error("invalid signature")
+    })
 
     const handler = createHandler()
     await handler(mockRequest, mockResponse, nextFunction)
@@ -128,7 +134,9 @@ describe("Authorize Middleware", () => {
     const short = UUIDToShort(uuid)
     mockDecoded({ kid: short, roles: ["user"] as unknown as JwtPayload["roles"] })
 
-    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ publicKey: "PUBLIC" })
+    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      publicKey: "PUBLIC",
+    })
     vi.spyOn(jwt, "verify").mockImplementation(() => undefined as unknown as jwt.Jwt)
 
     const handler = createHandler({ roles: ["admin"] })
@@ -144,7 +152,9 @@ describe("Authorize Middleware", () => {
     const short = UUIDToShort(uuid)
     mockDecoded({ kid: short, scope: "read write" })
 
-    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ publicKey: "PUBLIC" })
+    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      publicKey: "PUBLIC",
+    })
     vi.spyOn(jwt, "verify").mockImplementation(() => undefined as unknown as jwt.Jwt)
 
     const handler = createHandler({ scopes: ["admin"] })
@@ -160,7 +170,9 @@ describe("Authorize Middleware", () => {
     const short = UUIDToShort(uuid)
     mockDecoded({ kid: short, roles: ["user", "admin"] as unknown as JwtPayload["roles"], scope: "read write" })
 
-    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ publicKey: "PUBLIC" })
+    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      publicKey: "PUBLIC",
+    })
     vi.spyOn(jwt, "verify").mockImplementation(() => undefined as unknown as jwt.Jwt)
 
     const handler = createHandler({ roles: ["admin"] })
@@ -176,7 +188,9 @@ describe("Authorize Middleware", () => {
     const short = UUIDToShort(uuid)
     mockDecoded({ kid: short, scope: "read write users.read" })
 
-    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ publicKey: "PUBLIC" })
+    ;(mockSigningKeyRepository.tryGetById as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      publicKey: "PUBLIC",
+    })
     vi.spyOn(jwt, "verify").mockImplementation(() => undefined as unknown as jwt.Jwt)
 
     const handler = createHandler({ scopes: ["users.read"] })
@@ -186,5 +200,3 @@ describe("Authorize Middleware", () => {
     expect(mockResponse.status).not.toHaveBeenCalled()
   })
 })
-
-

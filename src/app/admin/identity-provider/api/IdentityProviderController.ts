@@ -40,9 +40,7 @@ export class IdentityProviderController {
   async create(req: Request, res: Response) {
     const command: CreateIdentityProviderCommand = this.parseBody(req.body)
     const item = await this.createIdentityProviderHandler.execute(command)
-    res.status(201)
-      .header("Location", `${this.baseUrl}/admin/identity-providers/${item.id}`)
-      .json(this.present(item))
+    res.status(201).header("Location", `${this.baseUrl}/admin/identity-providers/${item.id}`).json(this.present(item))
   }
 
   @Put("/:id")
@@ -67,15 +65,17 @@ export class IdentityProviderController {
       issuerUrl: body.issuer_url,
       audience: body.audience,
       identifierClaimName: body.identifier_claim_name,
-      authSettings: body.auth_settings ? {
-        type: body.auth_settings.type,
-        brand: body.auth_settings.brand,
-        clientId: body.auth_settings.client_id,
-        clientSecret: body.auth_settings.client_secret,
-        redirectUrls: body.auth_settings.redirect_urls,
-        autoLinkUsers: body.auth_settings.auto_link_users,
-        autoCreateUsers: body.auth_settings.auto_create_users,
-      } as IdentityProviderAuthSettings : null
+      authSettings: body.auth_settings
+        ? ({
+            type: body.auth_settings.type,
+            brand: body.auth_settings.brand,
+            clientId: body.auth_settings.client_id,
+            clientSecret: body.auth_settings.client_secret,
+            redirectUrls: body.auth_settings.redirect_urls,
+            autoLinkUsers: body.auth_settings.auto_link_users,
+            autoCreateUsers: body.auth_settings.auto_create_users,
+          } as IdentityProviderAuthSettings)
+        : null,
     }
   }
 
@@ -88,15 +88,17 @@ export class IdentityProviderController {
       issuer_url: item.issuerUrl,
       audience: item.audience,
       identifier_claim_name: item.identifierClaimName,
-      auth_settings: item.authSettings ? {
-        type: item.authSettings.type,
-        brand: item.authSettings.brand,
-        client_id: item.authSettings.clientId,
-        client_secret: item.authSettings.clientSecret,
-        redirect_urls: item.authSettings.redirectUrls,
-        auto_link_users: item.authSettings.autoLinkUsers,
-        auto_create_users: item.authSettings.autoCreateUsers,
-      } : null
+      auth_settings: item.authSettings
+        ? {
+            type: item.authSettings.type,
+            brand: item.authSettings.brand,
+            client_id: item.authSettings.clientId,
+            client_secret: item.authSettings.clientSecret,
+            redirect_urls: item.authSettings.redirectUrls,
+            auto_link_users: item.authSettings.autoLinkUsers,
+            auto_create_users: item.authSettings.autoCreateUsers,
+          }
+        : null,
     }
   }
 }

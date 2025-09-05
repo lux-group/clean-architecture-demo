@@ -8,11 +8,7 @@ describe("AuthorizationService", () => {
   let service: AuthorizationService
 
   beforeEach(() => {
-    service = new AuthorizationService(
-      mockSigningKeyRepository,
-      mockTokenIssuer,
-      mockEventPublisher
-    )
+    service = new AuthorizationService(mockSigningKeyRepository, mockTokenIssuer, mockEventPublisher)
     vi.clearAllMocks()
   })
 
@@ -46,8 +42,8 @@ describe("AuthorizationService", () => {
     })
 
     it("should issue access token with impersonation", async () => {
-      const user = factories.createUser( { roles: [] })
-      const impersonatingUser = factories.createUser( { roles: ["employee"] })
+      const user = factories.createUser({ roles: [] })
+      const impersonatingUser = factories.createUser({ roles: ["employee"] })
       const session = factories.createLocalSession()
       const signingKey = factories.createSigningKey()
       const tokenResponse = { accessToken: "mock-token", expiresIn: 3600 }
@@ -64,8 +60,7 @@ describe("AuthorizationService", () => {
       const user = factories.createUser()
       mockSigningKeyRepository.tryGetActiveSigningKey.mockResolvedValue(undefined)
 
-      await expect(service.issueAccessToken(user))
-        .rejects.toThrow("No active signing key found.")
+      await expect(service.issueAccessToken(user)).rejects.toThrow("No active signing key found.")
     })
 
     it("should throw error when impersonation is not allowed", async () => {
@@ -76,11 +71,11 @@ describe("AuthorizationService", () => {
 
       mockSigningKeyRepository.tryGetActiveSigningKey.mockResolvedValue(signingKey)
 
-      await expect(service.issueAccessToken(user, impersonatingUser, session))
-        .rejects.toThrow(new AuthorizationError(commonErrors.impersonationNotAllowed))
+      await expect(service.issueAccessToken(user, impersonatingUser, session)).rejects.toThrow(
+        new AuthorizationError(commonErrors.impersonationNotAllowed),
+      )
 
       expect(mockEventPublisher.publishEvent).toHaveBeenCalled()
     })
   })
 })
-

@@ -11,7 +11,9 @@ export default async function registerPrismaRepositories(container: AwilixContai
   await prismaClient.$connect()
 
   container.register({
-    prismaClient: asFunction(() => prismaClient).singleton().disposer(c => c.$disconnect()),
+    prismaClient: asFunction(() => prismaClient)
+      .singleton()
+      .disposer(c => c.$disconnect()),
 
     identityProviderRepository: asClass(PrismaIdentityProviderRepository).singleton(),
     sessionRepository: asClass(PrismaSessionRepository).singleton(),

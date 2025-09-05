@@ -6,8 +6,8 @@ import { createClient } from "redis"
 
 function decorate<T>(container: AwilixContainer, name: string, resolver: Resolver<T>) {
   container.register({
-    ["redisDecorated_" + name]: container.registrations[name],
-    [name]: resolver
+    [`redisDecorated_${name}`]: container.registrations[name],
+    [name]: resolver,
   })
 }
 
@@ -16,11 +16,13 @@ export default async function registerRedisDecoratorRepositories(container: Awil
   const { redisUrl } = container.resolve("config")
 
   const client = createClient({ url: redisUrl })
-  client.on('error', err => logger.error("Redis Client Error:", err))
+  client.on("error", err => logger.error("Redis Client Error:", err))
   await client.connect()
 
   container.register({
-    redisClient: asFunction(() => client).singleton().disposer(c => c.quit()),
+    redisClient: asFunction(() => client)
+      .singleton()
+      .disposer(c => c.quit()),
   })
 
   decorate(container, "sessionRepository", asClass(RedisSessionRepository).singleton())

@@ -6,9 +6,7 @@ export interface GetSigningKeyByIdQuery {
 }
 
 export class GetSigningKeyByIdHandler {
-  constructor(
-    private readonly signingKeyRepository: SigningKeyRepository,
-  ) {}
+  constructor(private readonly signingKeyRepository: SigningKeyRepository) {}
 
   async execute(query: GetSigningKeyByIdQuery): Promise<SigningKey> {
     return await this.signingKeyRepository.getById(query.id)

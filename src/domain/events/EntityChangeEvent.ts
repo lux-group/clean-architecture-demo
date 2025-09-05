@@ -21,12 +21,7 @@ export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
   readonly result: EntityChangeResult
   readonly details: EntityChangeEventDetails
 
-  private constructor(
-    id: string,
-    timestamp: Date,
-    result: EntityChangeResult,
-    details: EntityChangeEventDetails,
-  ) {
+  private constructor(id: string, timestamp: Date, result: EntityChangeResult, details: EntityChangeEventDetails) {
     this.id = id
     this.timestamp = timestamp
     this.result = result
@@ -34,7 +29,7 @@ export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
   }
 
   static entityCreated(entityType: EntityType, entity: Entity<EntityProps>) {
-    return this.success(entity.createdAt, {
+    return EntityChangeEvent.success(entity.createdAt, {
       activity: "Created",
       entityId: entity.id,
       entityType: entityType,
@@ -42,7 +37,7 @@ export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
   }
 
   static entityUpdated(entityType: EntityType, entity: Entity<EntityProps>) {
-    return this.success(entity.updatedAt, {
+    return EntityChangeEvent.success(entity.updatedAt, {
       activity: "Updated",
       entityId: entity.id,
       entityType: entityType,
@@ -50,7 +45,7 @@ export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
   }
 
   static entityDeleted(entityType: EntityType, entityId: string) {
-    return this.success(new Date(), {
+    return EntityChangeEvent.success(new Date(), {
       activity: "Deleted",
       entityId: entityId,
       entityType: entityType,

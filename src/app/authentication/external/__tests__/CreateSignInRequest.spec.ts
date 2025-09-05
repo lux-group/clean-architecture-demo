@@ -21,16 +21,18 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
 
   describe("when the request is valid", () => {
     it("should redirect to IDP and set state cookie", async () => {
-      mockAuthClient.createSignInRequest = vi.fn().mockImplementation(redirectUrl => Promise.resolve({
-        url: "https://custom.provider.com/auth",
-        signInState: {
-          state: "unused",
-          nonce: "unused", 
-          codeVerifier: "unused",
-          identityProviderId: "unused",
-          redirectUrl,
-        }
-      }))
+      mockAuthClient.createSignInRequest = vi.fn().mockImplementation(redirectUrl =>
+        Promise.resolve({
+          url: "https://custom.provider.com/auth",
+          signInState: {
+            state: "unused",
+            nonce: "unused",
+            codeVerifier: "unused",
+            identityProviderId: "unused",
+            redirectUrl,
+          },
+        }),
+      )
 
       const response = await request(context.server)
         .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=${identityProvider.name}`)
@@ -38,17 +40,13 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toBe("https://custom.provider.com/auth")
-      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([
-        expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)
-      ]))
+      expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([expect.stringMatching(/auth-state=.*HttpOnly; Secure;/)]))
     })
   })
 
   describe("when redirect_uri is missing", () => {
     it("should return 400", async () => {
-      const response = await request(context.server)
-        .get(`/auth/external/sign-in?provider=${identityProvider.name}`)
-        .send()
+      const response = await request(context.server).get(`/auth/external/sign-in?provider=${identityProvider.name}`).send()
 
       expect(response.status).toBe(400)
     })

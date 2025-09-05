@@ -29,7 +29,7 @@ export class SessionController {
     const item = await this.getSessionByIdHandler.execute(query)
     res.json(this.present(item))
   }
-  
+
   @Post("/:id/terminate")
   @Authorize({ scopes: ["session:write"] })
   async terminate(req: Request, res: Response) {

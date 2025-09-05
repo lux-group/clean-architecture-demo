@@ -1,4 +1,4 @@
-import { SigningKey, User } from "~/domain/entities"
+import { SigningKey } from "~/domain/entities"
 
 export interface TokenRequest {
   readonly userId: string

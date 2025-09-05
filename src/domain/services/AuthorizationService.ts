@@ -34,7 +34,7 @@ export class AuthorizationService {
     const claims = {
       brand: user.brand,
       roles: user.roles,
-      impersonated_by_sub: impersonatedByUser?.id
+      impersonated_by_sub: impersonatedByUser?.id,
     }
 
     this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(session, claims))
@@ -43,7 +43,7 @@ export class AuthorizationService {
       userId: user.id,
       sessionId: session?.id,
       audience,
-      claims
+      claims,
     })
   }
 }

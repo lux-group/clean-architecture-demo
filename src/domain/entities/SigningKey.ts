@@ -15,12 +15,12 @@ export type SigningKeyProps = Readonly<z.input<typeof signingKeySchema>>
 export type CreateSigningKeyProps = Omit<SigningKeyProps, "id" | "createdAt" | "updatedAt">
 
 export class SigningKey extends Entity<SigningKeyProps> {
-  constructor(props: SigningKeyProps) {
-    super(props)
+  get publicKey() {
+    return this.props.publicKey
   }
-
-  get publicKey() { return this.props.publicKey }
-  get privateKey() { return this.props.privateKey }
+  get privateKey() {
+    return this.props.privateKey
+  }
 
   static createNew(props: CreateSigningKeyProps) {
     const now = new Date()

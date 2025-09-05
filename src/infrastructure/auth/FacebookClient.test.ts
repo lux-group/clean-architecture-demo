@@ -33,7 +33,7 @@ describe("FacebookClient", () => {
         redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
-      }
+      },
     })
 
     // Create Facebook client
@@ -62,7 +62,7 @@ describe("FacebookClient", () => {
         nonce: expect.any(String),
         codeVerifier: expect.any(String),
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       })
 
       // Verify that state and nonce are included in URL
@@ -92,12 +92,12 @@ describe("FacebookClient", () => {
         nonce: "test-nonce",
         codeVerifier: "test-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       }
 
       mockTokenResponse = {
         access_token: "mock-access-token",
-        token_type: "bearer"
+        token_type: "bearer",
       }
 
       mockUserProfile = {
@@ -105,7 +105,7 @@ describe("FacebookClient", () => {
         facebook_id: "facebook-user-123", // Add the identifier claim field
         email: "test@example.com",
         first_name: "John",
-        last_name: "Doe"
+        last_name: "Doe",
       }
 
       // Mock token exchange response
@@ -113,14 +113,14 @@ describe("FacebookClient", () => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockTokenResponse)
+            json: vi.fn().mockResolvedValue(mockTokenResponse),
           } as any)
         }
         // Mock profile fetch response
         if (url.includes("/me")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockUserProfile)
+            json: vi.fn().mockResolvedValue(mockUserProfile),
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -137,8 +137,8 @@ describe("FacebookClient", () => {
         expect.stringContaining("https://graph.facebook.com/v18.0/oauth/access_token"),
         expect.objectContaining({
           method: "GET",
-          headers: { "Accept": "application/json" }
-        })
+          headers: { Accept: "application/json" },
+        }),
       )
 
       // Verify profile fetch call
@@ -146,8 +146,8 @@ describe("FacebookClient", () => {
         expect.stringContaining("https://graph.facebook.com/v18.0/me"),
         expect.objectContaining({
           method: "GET",
-          headers: { "Accept": "application/json" }
-        })
+          headers: { Accept: "application/json" },
+        }),
       )
 
       expect(result).toEqual({
@@ -158,8 +158,8 @@ describe("FacebookClient", () => {
           identifierClaimValue: "facebook-user-123",
           email: "test@example.com",
           givenName: "John",
-          surname: "Doe"
-        }
+          surname: "Doe",
+        },
       })
     })
 
@@ -167,15 +167,15 @@ describe("FacebookClient", () => {
       // Update identity provider to use custom identifier claim
       const customIdentityProvider = factories.createIdentityProvider({
         ...identityProvider,
-        identifierClaimName: "custom_id"
+        identifierClaimName: "custom_id",
       })
       const customFacebookClient = new FacebookClient(baseUrl, customIdentityProvider)
 
       mockUserProfile.custom_id = "custom-123"
-      
+
       const customSignInState: SignInState = {
         ...signInState,
-        identityProviderId: customIdentityProvider.id
+        identityProviderId: customIdentityProvider.id,
       }
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
@@ -189,13 +189,13 @@ describe("FacebookClient", () => {
       // Update identity provider to use custom identifier claim that doesn't exist
       const customIdentityProvider = factories.createIdentityProvider({
         ...identityProvider,
-        identifierClaimName: "nonexistent_field"
+        identifierClaimName: "nonexistent_field",
       })
       const customFacebookClient = new FacebookClient(baseUrl, customIdentityProvider)
 
       const customSignInState: SignInState = {
         ...signInState,
-        identityProviderId: customIdentityProvider.id
+        identityProviderId: customIdentityProvider.id,
       }
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
@@ -208,37 +208,25 @@ describe("FacebookClient", () => {
     it("should throw error when Facebook returns OAuth error", async () => {
       const urlPath = "/auth/external/sign-in-callback?error=access_denied&error_description=User+denied+access"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Facebook OAuth error: access_denied")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Facebook OAuth error: access_denied")
     })
 
     it("should throw error when authorization code is missing", async () => {
       const urlPath = "/auth/external/sign-in-callback?state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Authorization code not received from Facebook")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Authorization code not received from Facebook")
     })
 
     it("should throw error for invalid state", async () => {
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=wrong-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Invalid state parameter")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid state parameter")
     })
 
     it("should throw error when token exchange fails", async () => {
@@ -247,7 +235,7 @@ describe("FacebookClient", () => {
           return Promise.resolve({
             ok: false,
             status: 400,
-            statusText: "Bad Request"
+            statusText: "Bad Request",
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -255,13 +243,9 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Token exchange failed: 400 Bad Request")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Token exchange failed: 400 Bad Request")
     })
 
     it("should throw error when profile fetch fails", async () => {
@@ -269,14 +253,14 @@ describe("FacebookClient", () => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockTokenResponse)
+            json: vi.fn().mockResolvedValue(mockTokenResponse),
           } as any)
         }
         if (url.includes("/me")) {
           return Promise.resolve({
             ok: false,
             status: 403,
-            statusText: "Forbidden"
+            statusText: "Forbidden",
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -284,13 +268,9 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Failed to fetch user profile: 403 Forbidden")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Failed to fetch user profile: 403 Forbidden")
     })
 
     it("should throw error when Facebook API returns error in profile response", async () => {
@@ -298,7 +278,7 @@ describe("FacebookClient", () => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockTokenResponse)
+            json: vi.fn().mockResolvedValue(mockTokenResponse),
           } as any)
         }
         if (url.includes("/me")) {
@@ -307,9 +287,9 @@ describe("FacebookClient", () => {
             json: vi.fn().mockResolvedValue({
               error: {
                 message: "Invalid access token",
-                type: "OAuthException"
-              }
-            })
+                type: "OAuthException",
+              },
+            }),
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -317,13 +297,9 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Facebook API error: Invalid access token")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Facebook API error: Invalid access token")
     })
 
     it("should throw error when required profile information is missing", async () => {
@@ -331,7 +307,7 @@ describe("FacebookClient", () => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockTokenResponse)
+            json: vi.fn().mockResolvedValue(mockTokenResponse),
           } as any)
         }
         if (url.includes("/me")) {
@@ -340,9 +316,9 @@ describe("FacebookClient", () => {
             json: vi.fn().mockResolvedValue({
               id: "facebook-user-123",
               first_name: "John",
-              last_name: "Doe"
+              last_name: "Doe",
               // missing email
-            })
+            }),
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -350,13 +326,11 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow(AuthenticationError)
-      
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Required profile information not available from Facebook")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
+        "Required profile information not available from Facebook",
+      )
     })
 
     it("should handle missing optional profile fields", async () => {
@@ -364,7 +338,7 @@ describe("FacebookClient", () => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue(mockTokenResponse)
+            json: vi.fn().mockResolvedValue(mockTokenResponse),
           } as any)
         }
         if (url.includes("/me")) {
@@ -372,9 +346,9 @@ describe("FacebookClient", () => {
             ok: true,
             json: vi.fn().mockResolvedValue({
               id: "facebook-user-123",
-              email: "test@example.com"
+              email: "test@example.com",
               // missing first_name and last_name
-            })
+            }),
           } as any)
         }
         return Promise.reject(new Error("Unexpected URL"))
@@ -388,7 +362,7 @@ describe("FacebookClient", () => {
         identifierClaimValue: "facebook-user-123",
         email: "test@example.com",
         givenName: "",
-        surname: ""
+        surname: "",
       })
     })
 
@@ -397,9 +371,7 @@ describe("FacebookClient", () => {
 
       await facebookClient.processSignInResponse(signInState, urlPath)
 
-      const tokenCall = mockFetch.mock.calls.find(call => 
-        call[0].includes("oauth/access_token")
-      )
+      const tokenCall = mockFetch.mock.calls.find(call => call[0].includes("oauth/access_token"))
       expect(tokenCall).toBeDefined()
       expect(tokenCall![0]).toContain("client_id=facebook-client-id")
       expect(tokenCall![0]).toContain("client_secret=facebook-client-secret")
@@ -412,9 +384,7 @@ describe("FacebookClient", () => {
 
       await facebookClient.processSignInResponse(signInState, urlPath)
 
-      const profileCall = mockFetch.mock.calls.find(call => 
-        call[0].includes("/me")
-      )
+      const profileCall = mockFetch.mock.calls.find(call => call[0].includes("/me"))
       expect(profileCall).toBeDefined()
       expect(profileCall![0]).toContain("access_token=mock-access-token")
       expect(profileCall![0]).toContain("fields=id%2Cemail%2Cfirst_name%2Clast_name")
@@ -423,25 +393,23 @@ describe("FacebookClient", () => {
 
   describe("createSignOutRequest", () => {
     it("should throw error as Facebook doesn't support sign-out", async () => {
-      await expect(
-        facebookClient.createSignOutRequest(redirectUrl)
-      ).rejects.toThrow("The identity provider does not support single-sign-out.")
+      await expect(facebookClient.createSignOutRequest(redirectUrl)).rejects.toThrow("The identity provider does not support single-sign-out.")
     })
   })
 
   describe("checkSessionWithRefreshToken", () => {
     it("should throw error as Facebook doesn't support refresh tokens", async () => {
-      await expect(
-        facebookClient.checkSessionWithRefreshToken("refresh-token")
-      ).rejects.toThrow("The identity provider does not support refresh tokens.")
+      await expect(facebookClient.checkSessionWithRefreshToken("refresh-token")).rejects.toThrow(
+        "The identity provider does not support refresh tokens.",
+      )
     })
   })
 
   describe("editProfile", () => {
     it("should throw error as Facebook doesn't support profile editing", async () => {
-      await expect(
-        facebookClient.editProfile("access-token", "John", "Doe")
-      ).rejects.toThrow("The identity provider does not support editing profiles.")
+      await expect(facebookClient.editProfile("access-token", "John", "Doe")).rejects.toThrow(
+        "The identity provider does not support editing profiles.",
+      )
     })
   })
 
@@ -452,16 +420,14 @@ describe("FacebookClient", () => {
         nonce: "test-nonce",
         codeVerifier: "test-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       }
 
       mockFetch.mockRejectedValue(new Error("Network error"))
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Network error")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Network error")
     })
 
     it("should propagate fetch errors during profile fetch", async () => {
@@ -470,14 +436,14 @@ describe("FacebookClient", () => {
         nonce: "test-nonce",
         codeVerifier: "test-code-verifier",
         redirectUrl,
-        identityProviderId: identityProvider.id
+        identityProviderId: identityProvider.id,
       }
 
       mockFetch.mockImplementation((url: string) => {
         if (url.includes("oauth/access_token")) {
           return Promise.resolve({
             ok: true,
-            json: vi.fn().mockResolvedValue({ access_token: "token" })
+            json: vi.fn().mockResolvedValue({ access_token: "token" }),
           } as any)
         }
         if (url.includes("/me")) {
@@ -488,9 +454,7 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(
-        facebookClient.processSignInResponse(signInState, urlPath)
-      ).rejects.toThrow("Network error")
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Network error")
     })
   })
 })

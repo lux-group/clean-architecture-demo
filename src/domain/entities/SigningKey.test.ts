@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fail } from "node:assert"
-import { InvalidOperationError, ValidationError } from "~/domain/errors"
+import { InvalidOperationError } from "~/domain/errors"
 import { SigningKey, CreateSigningKeyProps } from "./SigningKey"
 
 describe("SigningKey", () => {
@@ -41,7 +41,7 @@ describe("SigningKey", () => {
       try {
         SigningKey.createNew({ ...mockCreateProps, [path]: value })
         fail("Expected validation error to be thrown")
-      } catch (thrownError: ValidationError | any) {
+      } catch (thrownError: any) {
         expect(thrownError.errors).toBeDefined()
         expect(thrownError.errors[0].path).toContain(path)
         expect(thrownError.errors[0].message).toContain(error)
@@ -97,9 +97,9 @@ describe("SigningKey", () => {
 
     it("should throw InvalidOperationError when trying to deactivate already deactivated key", () => {
       const signingKey = SigningKey.createNew(mockCreateProps)
-      
+
       signingKey.deactivate() // First deactivation
-      
+
       expect(() => {
         signingKey.deactivate() // Second deactivation attempt
       }).toThrow(InvalidOperationError)
@@ -163,4 +163,3 @@ describe("SigningKey", () => {
     })
   })
 })
-

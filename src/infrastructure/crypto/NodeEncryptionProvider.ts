@@ -7,8 +7,7 @@ export class NodeEncryptionProvider implements EncryptionProvider {
   constructor(encryptionKeys: string[]) {
     this.encryptionKeys = encryptionKeys.map(hex => {
       const buf = Buffer.from(hex, "hex")
-      if (buf.length !== 32)
-        throw new Error("Each cookie encryption key entry must be 32 bytes (64 hex chars)")
+      if (buf.length !== 32) throw new Error("Each cookie encryption key entry must be 32 bytes (64 hex chars)")
       return buf
     })
   }

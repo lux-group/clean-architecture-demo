@@ -12,7 +12,7 @@ describe("Handle OAuth Errors Middleware", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockRequest = {} as Request
     mockResponse = {} as Response
     mockResponse.status = vi.fn().mockReturnValue(mockResponse)
@@ -99,4 +99,3 @@ describe("Handle OAuth Errors Middleware", () => {
     expect(nextFunction).toHaveBeenCalledWith(error)
   })
 })
-

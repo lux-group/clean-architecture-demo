@@ -10,19 +10,18 @@ import { mapQuery } from "./helpers"
 export class PrismaSessionRepository implements SessionRepository {
   constructor(
     private readonly prismaClient: PrismaClient,
-    private readonly encryptionProvider: EncryptionProvider
-  ) { }
+    private readonly encryptionProvider: EncryptionProvider,
+  ) {}
 
   async query(options: Query<Session>): Promise<QueryResult<Session>> {
     const query = mapQuery(options) as Prisma.SessionFindManyArgs
-    const [total, sessions] = await this.prismaClient.$replica().$transaction([
-      this.prismaClient.$replica().session.count({ where: query.where}),
-      this.prismaClient.$replica().session.findMany(query),
-    ])
+    const [total, sessions] = await this.prismaClient
+      .$replica()
+      .$transaction([this.prismaClient.$replica().session.count({ where: query.where }), this.prismaClient.$replica().session.findMany(query)])
 
     return {
       items: sessions.map(s => this.mapToSession(s)),
-      total
+      total,
     }
   }
 
@@ -37,7 +36,7 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async tryGetById(id: string): Promise<Session | undefined> {
     const session = await this.prismaClient.$primary().session.findUnique({
-      where: { id }
+      where: { id },
     })
 
     return session ? this.mapToSession(session) : undefined
@@ -45,7 +44,7 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async tryGetByIdentityProviderSessionId(identityProviderSessionId: string): Promise<Session | undefined> {
     const session = await this.prismaClient.$primary().session.findUnique({
-      where: { identityProviderSessionId }
+      where: { identityProviderSessionId },
     })
 
     return session ? this.mapToSession(session) : undefined
@@ -53,14 +52,14 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async insert(session: Session): Promise<void> {
     await this.prismaClient.$primary().session.create({
-      data: this.mapToPrismaSession(session)
+      data: this.mapToPrismaSession(session),
     })
   }
 
   async update(session: Session): Promise<void> {
     await this.prismaClient.$primary().session.update({
       where: { id: session.id, updatedAt: session.originalUpdatedAt },
-      data: this.mapToPrismaSession(session)
+      data: this.mapToPrismaSession(session),
     })
 
     session.commit()
@@ -68,7 +67,7 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async delete(session: Session): Promise<void> {
     await this.prismaClient.$primary().session.delete({
-      where: { id: session.id, updatedAt: session.originalUpdatedAt }
+      where: { id: session.id, updatedAt: session.originalUpdatedAt },
     })
   }
 
@@ -86,7 +85,7 @@ export class PrismaSessionRepository implements SessionRepository {
       identityProviderId: s.identityProviderId,
       identityProviderSessionId: s.identityProviderSessionId,
       idToken: s.idToken,
-      refreshToken: s.refreshToken ? this.encryptionProvider.decrypt(s.refreshToken) : null
+      refreshToken: s.refreshToken ? this.encryptionProvider.decrypt(s.refreshToken) : null,
     })
   }
 
@@ -104,7 +103,7 @@ export class PrismaSessionRepository implements SessionRepository {
       identityProviderId: session.identityProviderId,
       identityProviderSessionId: session.identityProviderSessionId,
       idToken: session.idToken,
-      refreshToken: session.refreshToken ? this.encryptionProvider.encrypt(session.refreshToken) : null
+      refreshToken: session.refreshToken ? this.encryptionProvider.encrypt(session.refreshToken) : null,
     } as PrismaSession
   }
 }

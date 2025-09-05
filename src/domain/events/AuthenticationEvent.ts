@@ -19,13 +19,7 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
   readonly reason?: string
   readonly details: AuthenticationEventDetails
 
-  private constructor(
-    id: string,
-    timestamp: Date,
-    result: "Success" | "Failed",
-    details: AuthenticationEventDetails,
-    reason?: string
-  ) {
+  private constructor(id: string, timestamp: Date, result: "Success" | "Failed", details: AuthenticationEventDetails, reason?: string) {
     this.id = id
     this.timestamp = timestamp
     this.result = result
@@ -34,125 +28,114 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
   }
 
   static activeSessionSuccess(session: Session) {
-    return this.success({
+    return AuthenticationEvent.success({
       method: "Active Session",
       userId: session.userId,
-      sessionId: session.id
+      sessionId: session.id,
     })
   }
 
   static activeSessionExpired(session: Session) {
-    return this.failed(commonErrors.sessionExpired, {
+    return AuthenticationEvent.failed(commonErrors.sessionExpired, {
       method: "Active Session",
       userId: session.userId,
-      sessionId: session.id
+      sessionId: session.id,
     })
   }
 
   static activeSessionFailed(session: Session) {
-    return this.failed(commonErrors.authenticationFailed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
       method: "Active Session",
       userId: session.userId,
-      sessionId: session.id
+      sessionId: session.id,
     })
   }
 
   static activeSessionMethodNotAllowed(session: Session) {
-    return this.failed(commonErrors.authenticationMethodNotAllowed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
       method: "Active Session",
       userId: session.userId,
-      sessionId: session.id
+      sessionId: session.id,
     })
   }
 
   static passwordSuccess(user: User) {
-    return this.success({
+    return AuthenticationEvent.success({
       method: "Password",
       userId: user.id,
     })
   }
 
   static passwordFailed(user?: User) {
-    return this.failed(commonErrors.authenticationFailed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
       method: "Password",
       userId: user?.id,
     })
   }
 
   static passwordMethodNotAllowed(user: User) {
-    return this.failed(commonErrors.authenticationMethodNotAllowed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
       method: "Password",
       userId: user.id,
     })
   }
 
   static clientCredentialsSuccess(user: User) {
-    return this.success({
+    return AuthenticationEvent.success({
       method: "Client Credentials",
-      userId: user.id
+      userId: user.id,
     })
   }
 
   static clientCredentialsFailed(clientId: string) {
-    return this.failed(commonErrors.authenticationFailed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
       method: "Client Credentials",
-      userId: clientId
+      userId: clientId,
     })
   }
 
   static clientCredentialsMethodNotAllowed(clientId: string) {
-    return this.failed(commonErrors.authenticationMethodNotAllowed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
       method: "Client Credentials",
-      userId: clientId
+      userId: clientId,
     })
   }
 
   static identityProviderSuccess(user: User, identityProviderId: string, identifierClaimValue: string) {
-    return this.success({
+    return AuthenticationEvent.success({
       method: "Identity Provider",
       userId: user.id,
       identityProviderId,
-      identifierClaimValue
+      identifierClaimValue,
     })
   }
 
   static identityProviderFailed(identityProviderId: string, identifierClaimValue: string) {
-    return this.failed(commonErrors.authenticationFailed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
       method: "Identity Provider",
       identityProviderId,
-      identifierClaimValue
+      identifierClaimValue,
     })
   }
 
   static identityProviderMethodNotAllowed(user: User, identityProviderId: string, identifierClaimValue: string) {
-    return this.failed(commonErrors.authenticationMethodNotAllowed, {
+    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
       method: "Identity Provider",
       userId: user.id,
       identityProviderId,
-      identifierClaimValue
+      identifierClaimValue,
     })
   }
 
   static identityProviderTokenFailed() {
-    return this.failed(commonErrors.authenticationFailed, { method: "Identity Provider" })
+    return AuthenticationEvent.failed(commonErrors.authenticationFailed, { method: "Identity Provider" })
   }
 
   private static success(details: AuthenticationEventDetails): AuthenticationEvent {
-    return new AuthenticationEvent(
-      randomUUID(),
-      new Date(),
-      "Success",
-      details
-    )
+    return new AuthenticationEvent(randomUUID(), new Date(), "Success", details)
   }
 
   private static failed(reason: string, details: AuthenticationEventDetails): AuthenticationEvent {
-    return new AuthenticationEvent(
-      randomUUID(),
-      new Date(),
-      "Failed",
-      details,
-      reason
-    )
+    return new AuthenticationEvent(randomUUID(), new Date(), "Failed", details, reason)
   }
 }

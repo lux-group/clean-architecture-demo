@@ -2,14 +2,14 @@ import { Logger } from "."
 
 export class ConsoleLogger implements Logger {
   error(message: string | unknown, ...meta: unknown[]): void {
-    console.error(message)
+    console.error(message, ...meta)
   }
 
   warn(message: string | unknown, ...meta: unknown[]): void {
-    console.warn(message)
+    console.warn(message, ...meta)
   }
 
   info(message: string | unknown, ...meta: unknown[]): void {
-    console.info(message)
+    console.info(message, ...meta)
   }
 }

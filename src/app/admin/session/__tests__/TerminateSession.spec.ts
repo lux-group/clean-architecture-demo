@@ -11,7 +11,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
 
   beforeAll(async () => {
     context = await getTestContext()
-    accessToken = await context.createAccessToken(randomUUID(), ["session:write"])    
+    accessToken = await context.createAccessToken(randomUUID(), ["session:write"])
   })
 
   describe("when the termination was successful", () => {
@@ -31,10 +31,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
 
-      await request(context.server)
-        .post(`/admin/sessions/${session.id}/terminate`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).post(`/admin/sessions/${session.id}/terminate`).set("Authorization", `Bearer ${accessToken}`).send()
 
       const updatedSession = await context.data.getSession(session.id)
       expect(updatedSession.terminatedAt).toBeDefined()
@@ -43,14 +40,11 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
     it("should publish an event", async () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
-      
+
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
       vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
 
-      await request(context.server)
-        .post(`/admin/sessions/${session.id}/terminate`)
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send()
+      await request(context.server).post(`/admin/sessions/${session.id}/terminate`).set("Authorization", `Bearer ${accessToken}`).send()
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce()
     })
@@ -72,9 +66,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
 
-      const response = await request(context.server)
-        .post(`/admin/sessions/${session.id}/terminate`)
-        .send()
+      const response = await request(context.server).post(`/admin/sessions/${session.id}/terminate`).send()
 
       expect(response.status).toBe(401)
     })
@@ -82,7 +74,7 @@ describe("[POST] /admin/sessions/:id/terminate (TerminateSession)", () => {
     it("should return 403 when the access token does not have scope 'sessions:write'", async () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 24)
-      const nonWriteAccessToken = await context.createAccessToken(user.id, ["session:read"]) 
+      const nonWriteAccessToken = await context.createAccessToken(user.id, ["session:read"])
 
       const response = await request(context.server)
         .post(`/admin/sessions/${session.id}/terminate`)

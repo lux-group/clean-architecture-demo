@@ -51,16 +51,15 @@ export class ExternalAuthenticationController {
     try {
       const command: ProcessSignInResponseCommand = {
         state: signInState,
-        url: req.url
+        url: req.url,
       }
 
       const session = await this.processSignInResponseHandler.execute(command)
       this.secureCookieManager.setSessionCookie(req, res, session)
       res.redirect(signInState.redirectUrl)
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err)
-      res.redirect(signInState.redirectUrl + "?error=" + encodeURIComponent(this.getErrorMessage(err)))
+      res.redirect(`${signInState.redirectUrl}?error=${encodeURIComponent(this.getErrorMessage(err))}`)
     }
   }
 
@@ -96,17 +95,16 @@ export class ExternalAuthenticationController {
   @Get("/frontchannel-sign-out")
   async frontChannelSignOut(req: Request, res: Response) {
     const command: FrontChannelSignOutCommand = {
-      sid: req.query.sid as string
+      sid: req.query.sid as string,
     }
-  
+
     await this.frontChannelSignOutHandler.execute(command)
     res.status(200).send()
   }
 
   private getErrorMessage(err: unknown) {
-    if (err instanceof AuthenticationError || err instanceof InvalidOperationError)
-      return err.message
-    
+    if (err instanceof AuthenticationError || err instanceof InvalidOperationError) return err.message
+
     return "An unknown error occurred. Please try again."
   }
 }

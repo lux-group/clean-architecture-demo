@@ -7,9 +7,7 @@ export type SearchSigningKeysQuery = Query<SigningKey>
 export type SearchSigningKeysResult = QueryResult<SigningKey>
 
 export class SearchSigningKeysHandler {
-  constructor(
-    private readonly signingKeyRepository: SigningKeyRepository,
-  ) {}
+  constructor(private readonly signingKeyRepository: SigningKeyRepository) {}
 
   async execute(query: SearchSigningKeysQuery): Promise<SearchSigningKeysResult> {
     return await this.signingKeyRepository.query(query)

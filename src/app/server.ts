@@ -9,8 +9,8 @@ export default function createServer(container: AwilixContainer) {
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
-        "script-src": ["'self'", "'unsafe-inline'"] // Only required for demo page; not recommended for production
-      }
+        "script-src": ["'self'", "'unsafe-inline'"], // Only required for demo page; not recommended for production
+      },
     },
   }
 
@@ -19,7 +19,7 @@ export default function createServer(container: AwilixContainer) {
     .use(cookieParser())
     .use(express.json({ limit: "100kb" }))
     .use(express.urlencoded({ limit: "100kb" }))
-    .use("/", express.static(__dirname + "/public"))
+    .use("/", express.static(`${__dirname}/public`))
     .use(createRouterFromDecorators(container))
     .use(container.resolve("handleClientErrors"))
     .use(container.resolve("handleServerErrors"))
