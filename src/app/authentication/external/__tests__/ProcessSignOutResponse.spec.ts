@@ -5,19 +5,16 @@ import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () => {
   let context: TestContext
-  let identityProvider: IdentityProvider
+  let idp: IdentityProvider
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider()
+    idp = await context.data.createIdentityProvider()
   })
 
   describe("when the request is valid", () => {
     it("should handle custom sign-in URL", async () => {
-      const cookie = context.data.createAuthStateCookie(
-        identityProvider.authSettings!.redirectUrls[0],
-        identityProvider.id,
-      )
+      const cookie = context.data.createAuthStateCookie(idp.authSettings!.redirectUrls[0], idp.id)
 
       const response = await request(context.server)
         .get("/auth/external/sign-out-callback")
@@ -25,7 +22,7 @@ describe("[POST] /auth/external/sign-out-callback (ProcessSignOutResponse)", () 
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(identityProvider.authSettings!.redirectUrls[0])
+      expect(response.headers.location).toBe(idp.authSettings!.redirectUrls[0])
     })
   })
 

@@ -7,11 +7,11 @@ import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () => {
   let context: TestContext
-  let identityProvider: IdentityProvider
+  let idp: IdentityProvider
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider()
+    idp = await context.data.createIdentityProvider()
   })
 
   beforeEach(() => {
@@ -22,10 +22,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
   describe("when the external sign-in response is valid", () => {
     it("should auto-create new user after successful sign-in", async () => {
-      const cookie = context.data.createAuthStateCookie(
-        identityProvider.authSettings!.redirectUrls[0],
-        identityProvider.id,
-      )
+      const cookie = context.data.createAuthStateCookie(idp.authSettings!.redirectUrls[0], idp.id)
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -48,7 +45,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )
@@ -56,10 +53,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
     it("should auto-link existing user after successful sign-in", async () => {
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com` })
-      const cookie = context.data.createAuthStateCookie(
-        identityProvider.authSettings!.redirectUrls[0],
-        identityProvider.id,
-      )
+      const cookie = context.data.createAuthStateCookie(idp.authSettings!.redirectUrls[0], idp.id)
       const identifierClaimValue = randomUUID()
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
@@ -83,14 +77,14 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )
 
       const updatedUser = await context.data.getUser(user.id)
       expect(updatedUser.identities).toHaveLength(1)
-      expect(updatedUser.identities[0].identityProviderId).toBe(identityProvider.id)
+      expect(updatedUser.identities[0].identityProviderId).toBe(idp.id)
       expect(updatedUser.identities[0].identifierClaimValue).toBe(identifierClaimValue)
     })
   })
@@ -98,10 +92,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
   describe("when the user is disabled", () => {
     it("should return error when user is disabled", async () => {
       const user = await context.data.createUser({ email: `${randomUUID()}@example.com`, isEnabled: false })
-      const cookie = context.data.createAuthStateCookie(
-        identityProvider.authSettings!.redirectUrls[0],
-        identityProvider.id,
-      )
+      const cookie = context.data.createAuthStateCookie(idp.authSettings!.redirectUrls[0], idp.id)
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -136,14 +127,11 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
 
       // Add identity to the user by getting it from the database and updating it
       const userToUpdate = await context.data.getUser(user.id)
-      userToUpdate.addIdentity(identityProvider.id, identifierClaimValue)
+      userToUpdate.addIdentity(idp.id, identifierClaimValue)
       const userRepository = context.container.resolve("userRepository")
       await userRepository.update(userToUpdate)
 
-      const cookie = context.data.createAuthStateCookie(
-        identityProvider.authSettings!.redirectUrls[0],
-        identityProvider.id,
-      )
+      const cookie = context.data.createAuthStateCookie(idp.authSettings!.redirectUrls[0], idp.id)
 
       mockAuthClient.processSignInResponse = vi.fn().mockImplementation(() =>
         Promise.resolve({
@@ -166,7 +154,7 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(identityProvider.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )

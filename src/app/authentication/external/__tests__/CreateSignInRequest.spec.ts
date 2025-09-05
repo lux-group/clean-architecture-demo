@@ -6,11 +6,11 @@ import { IdentityProvider } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
   let context: TestContext
-  let identityProvider: IdentityProvider
+  let idp: IdentityProvider
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider()
+    idp = await context.data.createIdentityProvider()
   })
 
   beforeEach(() => {
@@ -35,9 +35,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
       )
 
       const response = await request(context.server)
-        .get(
-          `/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=${identityProvider.name}`,
-        )
+        .get(`/auth/external/sign-in?redirect_uri=${idp.authSettings?.redirectUrls[0]}&provider=${idp.name}`)
         .send()
 
       expect(response.status).toBe(302)
@@ -50,9 +48,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
 
   describe("when redirect_uri is missing", () => {
     it("should return 400", async () => {
-      const response = await request(context.server)
-        .get(`/auth/external/sign-in?provider=${identityProvider.name}`)
-        .send()
+      const response = await request(context.server).get(`/auth/external/sign-in?provider=${idp.name}`).send()
 
       expect(response.status).toBe(400)
     })
@@ -61,7 +57,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
   describe("when redirect_uri is not allowed", () => {
     it("should return 400", async () => {
       const response = await request(context.server)
-        .get(`/auth/external/sign-in?redirect_uri=https://host.com/not-allowed&provider=${identityProvider.name}`)
+        .get(`/auth/external/sign-in?redirect_uri=https://host.com/not-allowed&provider=${idp.name}`)
         .send()
 
       expect(response.status).toBe(400)
@@ -71,7 +67,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
   describe("when provider is not provided", () => {
     it("should return 400", async () => {
       const response = await request(context.server)
-        .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
+        .get(`/auth/external/sign-in?redirect_uri=${idp.authSettings?.redirectUrls[0]}`)
         .send()
 
       expect(response.status).toBe(400)
@@ -81,7 +77,7 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
   describe("when provider does not exist", () => {
     it("should return 400", async () => {
       const response = await request(context.server)
-        .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=invalid`)
+        .get(`/auth/external/sign-in?redirect_uri=${idp.authSettings?.redirectUrls[0]}&provider=invalid`)
         .send()
 
       expect(response.status).toBe(400)
@@ -90,10 +86,10 @@ describe("[POST] /auth/external/sign-in (CreateSignInRequest)", () => {
 
   describe("when provider has no auth settings", () => {
     it("should return 400", async () => {
-      const identityProvider = await context.data.createIdentityProvider({ authSettings: null })
+      const idp = await context.data.createIdentityProvider({ authSettings: null })
 
       const response = await request(context.server)
-        .get(`/auth/external/sign-in?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}&provider=invalid`)
+        .get(`/auth/external/sign-in?redirect_uri=${idp.authSettings?.redirectUrls[0]}&provider=invalid`)
         .send()
 
       expect(response.status).toBe(400)

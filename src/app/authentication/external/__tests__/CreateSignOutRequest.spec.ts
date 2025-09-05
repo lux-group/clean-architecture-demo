@@ -6,11 +6,11 @@ import { IdentityProvider, SessionStatus } from "~/domain/entities"
 
 describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
   let context: TestContext
-  let identityProvider: IdentityProvider
+  let idp: IdentityProvider
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider()
+    idp = await context.data.createIdentityProvider()
   })
 
   beforeEach(() => {
@@ -32,11 +32,11 @@ describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
       )
 
       const user = await context.data.createUser()
-      let session = await context.data.createSession({ userId: user.id, identityProviderId: identityProvider.id }, 1)
+      let session = await context.data.createSession({ userId: user.id, identityProviderId: idp.id }, 1)
       const cookie = context.data.createAuthSessionCookie(session)
 
       const response = await request(context.server)
-        .get(`/auth/external/sign-out?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
+        .get(`/auth/external/sign-out?redirect_uri=${idp.authSettings?.redirectUrls[0]}`)
         .set("Cookie", [`auth-session=${cookie}`])
         .send()
 
@@ -54,7 +54,7 @@ describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
   describe("when the user does not have an active session", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
-        .get(`/auth/external/sign-out?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
+        .get(`/auth/external/sign-out?redirect_uri=${idp.authSettings?.redirectUrls[0]}`)
         .send()
 
       expect(response.status).toBe(401)
@@ -72,7 +72,7 @@ describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
   describe("when redirect_uri is not allowed", () => {
     it("should return 400", async () => {
       const user = await context.data.createUser()
-      const session = await context.data.createSession({ userId: user.id, identityProviderId: identityProvider.id }, 1)
+      const session = await context.data.createSession({ userId: user.id, identityProviderId: idp.id }, 1)
       const cookie = context.data.createAuthSessionCookie(session)
 
       const response = await request(context.server)
@@ -87,7 +87,7 @@ describe("[POST] /auth/external/sign-out (CreateSignOutRequest)", () => {
   describe("when session cookie is missing", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
-        .get(`/auth/external/sign-out?redirect_uri=${identityProvider.authSettings?.redirectUrls[0]}`)
+        .get(`/auth/external/sign-out?redirect_uri=${idp.authSettings?.redirectUrls[0]}`)
         .send()
 
       expect(response.status).toBe(401)

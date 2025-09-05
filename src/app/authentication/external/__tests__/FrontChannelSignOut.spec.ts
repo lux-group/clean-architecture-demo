@@ -6,11 +6,11 @@ import { IdentityProvider, SessionStatus } from "~/domain/entities"
 
 describe("[POST] /auth/external/frontchannel-sign-out (FrontChannelSignOut)", () => {
   let context: TestContext
-  let identityProvider: IdentityProvider
+  let idp: IdentityProvider
 
   beforeAll(async () => {
     context = await getTestContext()
-    identityProvider = await context.data.createIdentityProvider()
+    idp = await context.data.createIdentityProvider()
   })
 
   describe("when the request has a valid session ID", () => {
@@ -19,7 +19,7 @@ describe("[POST] /auth/external/frontchannel-sign-out (FrontChannelSignOut)", ()
       let session = await context.data.createSession(
         {
           userId: user.id,
-          identityProviderId: identityProvider.id,
+          identityProviderId: idp.id,
           identityProviderSessionId: randomUUID(),
         },
         1,
