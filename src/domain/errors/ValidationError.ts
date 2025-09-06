@@ -11,5 +11,6 @@ export class ValidationError extends Error {
   ) {
     super(message)
     this.name = "ValidationError"
+    Error.captureStackTrace(this, this.constructor)
   }
 }
