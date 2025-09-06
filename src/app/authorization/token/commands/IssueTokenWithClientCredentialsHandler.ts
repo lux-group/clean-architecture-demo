@@ -1,4 +1,8 @@
-import { AuthenticationService, AuthorizationService } from "~/domain/services"
+import { EventPublisher, PasswordVerifier } from "~/domain/adapters"
+import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationEvent } from "~/domain/events"
+import { UserRepository } from "~/domain/repositories"
+import { AuthorizationService } from "./AuthorizationService"
 
 export interface IssueTokenWithClientCredentialsInput {
   clientId: string
@@ -14,24 +18,32 @@ export interface IssueTokenWithClientCredentialsResult {
 
 export class IssueTokenWithClientCredentialsHandler {
   constructor(
-    private readonly authenticationService: AuthenticationService,
     private readonly authorizationService: AuthorizationService,
+    private readonly userRepository: UserRepository,
+    private readonly eventPublisher: EventPublisher,
+    private readonly passwordVerifier: PasswordVerifier,
   ) {}
 
   async execute(command: IssueTokenWithClientCredentialsInput): Promise<IssueTokenWithClientCredentialsResult> {
-    const user = await this.authenticationService.authenticateWithClientCredentials(
-      command.clientId,
-      command.clientSecret,
-    )
+    const user = await this.userRepository.tryGetById(command.clientId)
+    if (!user) {
+      this.eventPublisher.publishEvent(AuthenticationEvent.clientCredentialsFailed(command.clientId))
+      throw new AuthenticationError(commonErrors.authenticationFailed)
+    }
 
-    const accessToken = await this.authorizationService.issueAccessToken(
-      user,
-      undefined,
-      undefined,
-      command.audience,
-      command.scope,
-    )
+    if (!user.canSignInWithClientSecret()) {
+      this.eventPublisher.publishEvent(AuthenticationEvent.clientCredentialsMethodNotAllowed(command.clientId))
+      throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
+    }
 
-    return accessToken
+    if (!user.passwordHash || !this.passwordVerifier.verifyPassword(command.clientSecret, user.passwordHash)) {
+      user.handleFailedSignInAttempt()
+      this.eventPublisher.publishEvent(AuthenticationEvent.clientCredentialsFailed(command.clientId))
+      throw new AuthenticationError(commonErrors.authenticationFailed)
+    }
+
+    this.eventPublisher.publishEvent(AuthenticationEvent.clientCredentialsSuccess(user))
+
+    return await this.authorizationService.issueAccessToken(user, undefined, undefined, command.audience, command.scope)
   }
 }

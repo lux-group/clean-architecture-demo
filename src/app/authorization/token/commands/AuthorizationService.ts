@@ -1,6 +1,6 @@
 import { EventPublisher, TokenIssuer, TokenResponse } from "~/domain/adapters"
 import { Session, User } from "~/domain/entities"
-import { AuthorizationError, commonErrors } from "~/domain/errors"
+import { AuthorizationError } from "~/domain/errors"
 import { AuthorizationEvent } from "~/domain/events"
 import { SigningKeyRepository } from "~/domain/repositories"
 
@@ -29,12 +29,6 @@ export class AuthorizationService {
 
     if (scope) {
       throw new AuthorizationError("OAuth2 parameter 'scope' is not supported.")
-    }
-
-    // Handle user impersonation.
-    if (impersonatedByUser && !impersonatedByUser.canImpersonateUser(user)) {
-      this.eventPublisher.publishEvent(AuthorizationEvent.impersonationFailed(impersonatedByUser, user, session))
-      throw new AuthorizationError(commonErrors.impersonationNotAllowed)
     }
 
     const claims = {

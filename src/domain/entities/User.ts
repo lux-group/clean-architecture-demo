@@ -145,20 +145,20 @@ export class User extends Entity<UserProps> {
     }
   }
 
+  canSignInWithIdentityProvider() {
+    return this.isServiceAccount ? this.isEnabled && this.identities.length > 0 : this.isEnabled
+  }
+
   canSignInWithActiveSession() {
     return this.isEnabled && !this.isServiceAccount
   }
 
-  canSignInWithIdentityProvider() {
-    return this.isEnabled && this.identities.length > 0
-  }
-
   canSignInWithPassword() {
-    return this.isEnabled && this.identities.length === 0 && !this.isServiceAccount
+    return this.isEnabled && this.identities.length === 0 && !!this.passwordHash && !this.isServiceAccount
   }
 
   canSignInWithClientSecret() {
-    return this.isEnabled && this.identities.length === 0 && this.isServiceAccount
+    return this.isEnabled && this.identities.length === 0 && !!this.passwordHash && this.isServiceAccount
   }
 
   canImpersonateUser(userToImpersonate: User) {

@@ -1,6 +1,6 @@
 import { AwilixContainer, asValue } from "awilix"
+import { Config, schema } from "."
 import { config as devConfig } from "./dev"
-import { Config, schema } from "./schema"
 import { config as testConfig } from "./test"
 
 function readConfig(environment: string): Config {

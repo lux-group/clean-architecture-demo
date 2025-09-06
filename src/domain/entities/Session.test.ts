@@ -1,6 +1,6 @@
 import { fail } from "node:assert"
 import { describe, expect, it } from "vitest"
-import { AuthenticationError, commonErrors, InvalidOperationError } from "~/domain/errors"
+import { commonErrors, InvalidOperationError } from "~/domain/errors"
 import { CreateSessionProps, Session } from "./Session"
 
 describe("Session", () => {
@@ -85,62 +85,6 @@ describe("Session", () => {
       session.terminateSessionByAdmin()
 
       expect(session.isActive).toBe(false)
-    })
-  })
-
-  describe("verifyActiveSession", () => {
-    it("should pass verification for active session with correct nonce", () => {
-      const session = Session.createNew(mockCreateProps, 1)
-
-      expect(() => {
-        session.verifyActiveSession(session.nonce)
-      }).not.toThrow()
-    })
-
-    it("should throw AuthenticationError for invalid nonce", () => {
-      const session = Session.createNew(mockCreateProps, 1)
-
-      expect(() => {
-        session.verifyActiveSession("wrong-nonce")
-      }).toThrow(AuthenticationError)
-
-      expect(() => {
-        session.verifyActiveSession("wrong-nonce")
-      }).toThrow(commonErrors.sessionInvalid)
-    })
-
-    it("should throw AuthenticationError for expired session", () => {
-      const session = Session.createNew(mockCreateProps, -1) // Expired
-
-      expect(() => {
-        session.verifyActiveSession(session.nonce)
-      }).toThrow(AuthenticationError)
-
-      expect(() => {
-        session.verifyActiveSession(session.nonce)
-      }).toThrow(commonErrors.sessionExpired)
-    })
-  })
-
-  describe("ensureIsActive", () => {
-    it("should not throw for active session", () => {
-      const session = Session.createNew(mockCreateProps, 1)
-
-      expect(() => {
-        session.ensureIsActive()
-      }).not.toThrow()
-    })
-
-    it("should throw AuthenticationError for inactive session", () => {
-      const session = Session.createNew(mockCreateProps, -1)
-
-      expect(() => {
-        session.ensureIsActive()
-      }).toThrow(AuthenticationError)
-
-      expect(() => {
-        session.ensureIsActive()
-      }).toThrow(commonErrors.sessionExpired)
     })
   })
 

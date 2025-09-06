@@ -2,7 +2,6 @@ import { AwilixContainer, createContainer, InjectionMode } from "awilix"
 import { Application } from "express"
 import createServer from "~/app/server"
 import registerApp from "~/app/module"
-import registerDomainServices from "~/domain/services/module"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
@@ -25,7 +24,6 @@ const createTestContainer = async () => {
 
   await registerConfig(container, "test")
   await registerApp(container)
-  await registerDomainServices(container)
   await registerInfrastructureServices(container)
   await registerPrismaRepositories(container)
   await registerRedisDecoratorRepositories(container)

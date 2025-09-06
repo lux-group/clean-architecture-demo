@@ -222,8 +222,6 @@ describe("User", () => {
     describe("canSignInWithIdentityProvider", () => {
       it("should return true for enabled user with identities", () => {
         const user = User.createNew(mockCreateProps)
-        user.addIdentity("2ffa7325-4515-4859-a9dd-66902495ea5a", "user-identifier")
-
         expect(user.canSignInWithIdentityProvider()).toBe(true)
       })
 
@@ -231,13 +229,6 @@ describe("User", () => {
         const user = User.createNew(mockCreateProps)
         user.addIdentity("2ffa7325-4515-4859-a9dd-66902495ea5a", "user-identifier")
         user.update({ ...mockCreateProps, isEnabled: false })
-
-        expect(user.canSignInWithIdentityProvider()).toBe(false)
-      })
-
-      it("should return false for enabled user without identities", () => {
-        const user = User.createNew(mockCreateProps)
-
         expect(user.canSignInWithIdentityProvider()).toBe(false)
       })
     })
@@ -304,7 +295,7 @@ describe("User", () => {
       // Start with password-based user
       const user = User.createNew(mockCreateProps)
       expect(user.canSignInWithPassword()).toBe(true)
-      expect(user.canSignInWithIdentityProvider()).toBe(false)
+      expect(user.canSignInWithIdentityProvider()).toBe(true)
 
       // Add identity (should clear password)
       user.addIdentity("idp-123", "user-identifier")

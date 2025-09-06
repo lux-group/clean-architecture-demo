@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto"
 import z from "zod"
-import { AuthenticationError, commonErrors, InvalidOperationError } from "../errors"
+import { commonErrors, InvalidOperationError } from "../errors"
 import { Entity, validateProps } from "./Entity"
 
 export const SessionStatus = {
@@ -66,7 +66,6 @@ export class Session extends Entity<SessionProps> {
   get refreshToken() {
     return this.props.refreshToken
   }
-
   get isActive() {
     return this.status === SessionStatus.Active && this.expiresAt > new Date()
   }
@@ -87,22 +86,6 @@ export class Session extends Entity<SessionProps> {
 
     validateProps(sessionSchema, allProps)
     return new Session(allProps)
-  }
-
-  ensureIsActive() {
-    if (!this.isActive) {
-      throw new AuthenticationError(commonErrors.sessionExpired)
-    }
-  }
-
-  verifyActiveSession(nonce: string) {
-    if (nonce !== this.nonce) {
-      throw new AuthenticationError(commonErrors.sessionInvalid)
-    }
-
-    if (!this.isActive) {
-      throw new AuthenticationError(commonErrors.sessionExpired)
-    }
   }
 
   ensureIsLocalSession() {

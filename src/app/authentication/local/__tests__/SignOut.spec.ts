@@ -25,7 +25,7 @@ describe("[POST] /auth/local/sign-out (SignOut)", () => {
   })
 
   describe("when session is already terminated", () => {
-    it("should return 401", async () => {
+    it("should return 204", async () => {
       const user = await context.data.createUser()
       const session = await context.data.createSession({ userId: user.id }, 1)
       const cookie = context.data.createAuthSessionCookie(session)
@@ -40,7 +40,7 @@ describe("[POST] /auth/local/sign-out (SignOut)", () => {
         .set("Cookie", [`auth-session=${cookie}`])
         .send()
 
-      expect(response.status).toBe(401)
+      expect(response.status).toBe(204)
     })
   })
 

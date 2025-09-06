@@ -30,17 +30,17 @@ export class JsonWebTokenValidator implements TokenValidator {
       headerClaims = decodedJwt.header
       bodyClaims = decodedJwt.payload as JwtPayload
     } catch {
-      throw new AuthenticationError(commonErrors.invalidJwt)
+      return { isValid: false, error: commonErrors.invalidJwt }
     }
 
     const { iss, aud, sub } = bodyClaims
     if (!iss || !aud || !sub) {
-      throw new AuthenticationError(commonErrors.invalidJwt)
+      return { isValid: false, error: commonErrors.invalidJwt }
     }
 
     const identityProvider = await this.identityProviderRepository.tryGetByIssuerUrlAndAudience(iss, aud as string)
     if (!identityProvider) {
-      throw new AuthenticationError(`${iss} with audience ${aud} is not a trusted identity provider.`)
+      return { isValid: false, error: `${iss} with audience ${aud} is not a trusted identity provider.` }
     }
 
     let signingKey: SigningKey
@@ -48,13 +48,13 @@ export class JsonWebTokenValidator implements TokenValidator {
       const client = await jwksClientCache.get(identityProvider)
       signingKey = await client.getSigningKey(headerClaims.kid)
     } catch {
-      throw new AuthenticationError("Unable to fetch JWKS document.")
+      return { isValid: false, error: "Unable to fetch JWKS document." }
     }
 
     try {
       jwt.verify(token, signingKey.getPublicKey())
     } catch {
-      throw new AuthenticationError(commonErrors.invalidJwt)
+      return { isValid: false, error: commonErrors.invalidJwt }
     }
 
     const profile = {
@@ -64,6 +64,6 @@ export class JsonWebTokenValidator implements TokenValidator {
       identifierClaimValue: bodyClaims[identityProvider.identifierClaimName] as string,
     }
 
-    return { identityProvider, profile }
+    return { isValid: true, identityProvider, profile }
   }
 }

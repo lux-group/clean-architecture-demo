@@ -1,4 +1,6 @@
-import { SessionService } from "~/domain/services"
+import { EventPublisher } from "~/domain/adapters"
+import { SessionEvent } from "~/domain/events"
+import { SessionRepository } from "~/domain/repositories"
 
 export interface SignOutCommand {
   sessionId: string
@@ -6,10 +8,19 @@ export interface SignOutCommand {
 }
 
 export class SignOutHandler {
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(
+    private readonly sessionRepository: SessionRepository,
+    private readonly eventPublisher: EventPublisher,
+  ) {}
 
   async execute(command: SignOutCommand): Promise<void> {
-    const session = await this.sessionService.getActiveSessionById(command.sessionId, command.nonce)
-    await this.sessionService.terminateLocalSessionByUser(session)
+    const session = await this.sessionRepository.tryGetById(command.sessionId)
+    if (!session || !session.isActive) {
+      return
+    }
+
+    session.terminateLocalSessionByUser()
+    await this.sessionRepository.update(session)
+    this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(session))
   }
 }
