@@ -26,6 +26,9 @@ export class IssueTokenWithClientCredentialsHandler {
     try {
       const user = await this.authenticate(command.clientId, command.clientSecret)
 
+      // This is where we would do authorization,
+      // e.g. check requested audience and scopes.
+
       const response = await this.tokenIssuer.createAccessToken({
         userId: user.id,
         customClaims: {

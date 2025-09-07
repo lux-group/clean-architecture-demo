@@ -2,6 +2,10 @@ import { Request, Response } from "express"
 import { Controller, Post } from "~/app/decorators"
 import { User } from "~/domain/entities"
 
+// This controller demonstrates how we can make API endpoints available for an IDP
+// like Entra ID to call to perform functions like performing additional checks or
+// providing user attributes during sign-up or sign-in.
+
 @Controller("/integration/entra")
 export class EntraExtensionController {
   /**

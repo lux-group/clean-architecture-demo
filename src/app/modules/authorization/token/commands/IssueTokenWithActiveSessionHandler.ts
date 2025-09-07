@@ -31,7 +31,7 @@ export class IssueTokenWithActiveSessionHandler {
   async execute(command: IssueTokenWithActiveSessionInput): Promise<IssueTokenWithActiveSessionResult> {
     try {
       const session = await this.getSession(command.sessionId, command.nonce)
-      let user = await this.authenticat(session)
+      let user = await this.authenticate(session)
 
       let impersonatedByUser: User | undefined
       if (command.userToImpersonateId) {
@@ -41,6 +41,9 @@ export class IssueTokenWithActiveSessionHandler {
         impersonatedByUser = user
         user = userToImpersonate
       }
+
+      // This is where we would do authorization,
+      // e.g. check requested audience and scopes.
 
       const response = await this.tokenIssuer.createAccessToken({
         userId: user.id,
@@ -65,7 +68,7 @@ export class IssueTokenWithActiveSessionHandler {
     }
   }
 
-  private async authenticat(session: Session) {
+  private async authenticate(session: Session) {
     const user = await this.userRepository.tryGetById(session.userId)
     return this.authenticationService.authenticateWithActiveSession(user, session)
   }
