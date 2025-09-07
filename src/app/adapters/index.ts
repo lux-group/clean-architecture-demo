@@ -1,6 +1,6 @@
 export * from "./auth"
 export * from "./config"
 export * from "./crypto"
-export * from "./evebting"
+export * from "./eventing"
 export * from "./logging"
 export * from "./tokens"
