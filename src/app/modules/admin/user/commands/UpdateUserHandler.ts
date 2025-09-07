@@ -1,4 +1,4 @@
-import { EventPublisher } from "~/app/adapters"
+import { EventPublisher } from "~/app/ports"
 import { UpdateUserProps, User } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"

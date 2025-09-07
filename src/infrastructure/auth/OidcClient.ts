@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 import * as client from "openid-client"
-import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/app/adapters"
+import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/app/ports"
 import { IdentityProvider } from "~/domain/entities"
 import { ClientCache } from "~/lib/ClientCache"
 

@@ -1,6 +1,6 @@
 import * as prisma from "@prisma/client"
 import { readReplicas } from "@prisma/extension-read-replicas"
-import { Logger } from "~/app/adapters"
+import { Logger } from "~/app/ports"
 import { convertKnownErrors } from "./extensions/convertKnownErrors"
 import { logFailedQueryDetails } from "./extensions/logFailedQueryDetails"
 

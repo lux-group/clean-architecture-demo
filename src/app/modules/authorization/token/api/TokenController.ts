@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { TokenResponse } from "~/app/adapters"
 import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
+import { TokenResponse } from "~/app/ports"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { InvalidOperationError } from "~/domain/errors"
 import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"

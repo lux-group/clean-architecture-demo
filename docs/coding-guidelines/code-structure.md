@@ -3,7 +3,7 @@
 | Folder | Responsibility |
 | --- | --- |
 | 📁 [app](/src/app) | Application use case implementations and triggers (API, scheduled tasks, event subscribers) |
-| &nbsp;&nbsp; 📁 [adapters](/src/app/adapters) | Interfaces for infrastructure services used by app services.<br/>Their implementations can be found in the [infrastructure](/src/infrastructure/adapters) folder. |
+| &nbsp;&nbsp; 📁 [ports](/src/app/ports) | Interfaces for infrastructure services used by app services.<br/>Their implementations can be found in the [infrastructure](/src/infrastructure/adapters) folder. |
 | &nbsp;&nbsp; 📁 [modules](/src/app/modules) | The app folder is segregated into feature modules.<br/>In most cases, there are two levels. |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 api | API controllers, routes, presenters, and middleware |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 events | Event handlers |
@@ -36,7 +36,7 @@ The code is organised into logical modules. Every module has an individual `modu
 
 - The `/lib` folder must not import any artifacts from another folder.
 - The `/domain` layer must not import any artifacts from another layer, except from the `/lib` folder.
-- The `/app` layer imports artifacts from the `/domain` layer. It must not import artifacts from `/infrastructure` directly. Instead, it defines interfaces in `/app/adapters` that the infrastructure layer implements and injects.
+- The `/app` layer imports artifacts from the `/domain` layer. It must not import artifacts from `/infrastructure` directly. Instead, it defines interfaces in `/app/ports` that the infrastructure layer implements and injects.
 - The `/infrastructure` layer may import artifacts from all other layers.
 
 ## Path aliases

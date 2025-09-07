@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import jwt, { JwtPayload } from "jsonwebtoken"
-import { Logger, TokenIssuerConfig } from "~/app/adapters"
+import { Logger, TokenIssuerConfig } from "~/app/ports"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { shortToUUID } from "~/lib/ShortUUID"
 

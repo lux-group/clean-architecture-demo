@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 import request from "supertest"
 import { beforeAll, describe, expect, it, vi } from "vitest"
-import { EventPublisher } from "~/app/adapters"
+import { EventPublisher } from "~/app/ports"
 
 describe("[DELETE] /admin/v1/identity-providers/:id (DeleteIdentityProvider)", () => {
   let context: TestContext

@@ -1,4 +1,4 @@
-import { EventPublisher, PasswordVerifier, SessionConfig } from "~/app/adapters"
+import { EventPublisher, PasswordVerifier, SessionConfig } from "~/app/ports"
 import { CreateSessionProps, Session } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, SessionEvent } from "~/domain/events"

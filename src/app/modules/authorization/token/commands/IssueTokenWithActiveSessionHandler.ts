@@ -1,4 +1,4 @@
-import { AuthClientFactory, EventPublisher, SessionConfig, TokenIssuer, TokenResponse } from "~/app/adapters"
+import { AuthClientFactory, EventPublisher, SessionConfig, TokenIssuer, TokenResponse } from "~/app/ports"
 import { Session, User } from "~/domain/entities"
 import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"

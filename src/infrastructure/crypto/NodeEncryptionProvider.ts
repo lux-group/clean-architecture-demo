@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto"
-import { EncryptionProvider } from "~/app/adapters"
+import { EncryptionProvider } from "~/app/ports"
 
 export class NodeEncryptionProvider implements EncryptionProvider {
   private readonly encryptionKeys: Buffer[]

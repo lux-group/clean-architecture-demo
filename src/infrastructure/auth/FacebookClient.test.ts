@@ -1,6 +1,6 @@
 import * as factories from "@test/factories"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/app/adapters"
+import { SignInState } from "~/app/ports"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { FacebookClient } from "./FacebookClient"

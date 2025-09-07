@@ -1,4 +1,4 @@
-import { EventPublisher, TokenIssuer, TokenResponse, TokenValidator } from "~/app/adapters"
+import { EventPublisher, TokenIssuer, TokenResponse, TokenValidator } from "~/app/ports"
 import { AuthenticationError, AuthorizationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"

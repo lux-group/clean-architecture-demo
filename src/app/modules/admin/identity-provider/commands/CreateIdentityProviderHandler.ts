@@ -1,4 +1,4 @@
-import { EventPublisher } from "~/app/adapters"
+import { EventPublisher } from "~/app/ports"
 import { CreateIdentityProviderProps, IdentityProvider } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
 import { IdentityProviderRepository } from "~/domain/repositories"

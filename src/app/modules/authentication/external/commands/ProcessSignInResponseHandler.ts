@@ -1,4 +1,4 @@
-import { AuthClientFactory, EventPublisher, SessionConfig, SignInState } from "~/app/adapters"
+import { AuthClientFactory, EventPublisher, SessionConfig, SignInState } from "~/app/ports"
 import { CreateSessionProps, Session, User } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, EntityChangeEvent, SessionEvent } from "~/domain/events"

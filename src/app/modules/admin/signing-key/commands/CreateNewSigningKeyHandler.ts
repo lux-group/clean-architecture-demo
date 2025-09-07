@@ -1,4 +1,4 @@
-import { EventPublisher, KeyPairGenerator } from "~/app/adapters"
+import { EventPublisher, KeyPairGenerator } from "~/app/ports"
 import { SigningKey } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
 import { SigningKeyRepository } from "~/domain/repositories"

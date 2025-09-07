@@ -2,7 +2,7 @@ import { generateKeyPairSync } from "node:crypto"
 import { mockSigningKeyRepository } from "@test/mocks"
 import jwt from "jsonwebtoken"
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
-import { TokenIssuer, TokenRequest } from "~/app/adapters"
+import { TokenIssuer, TokenRequest } from "~/app/ports"
 import { SigningKey } from "~/domain/entities"
 import { JsonWebTokenIssuer } from "./JsonWebTokenIssuer"
 

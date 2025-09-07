@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/app/adapters"
+import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/app/ports"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { UUIDToShort } from "~/lib/ShortUUID"
 

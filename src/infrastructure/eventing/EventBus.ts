@@ -1,4 +1,4 @@
-import { EventCallback, EventPublisher } from "~/app/adapters"
+import { EventCallback, EventPublisher } from "~/app/ports"
 import { Event } from "~/domain/events"
 
 export class EventBus implements EventPublisher {

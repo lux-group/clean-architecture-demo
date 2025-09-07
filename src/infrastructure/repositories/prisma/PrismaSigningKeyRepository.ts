@@ -1,5 +1,5 @@
 import { Prisma, SigningKey as PrismaSigningKey } from "@prisma/client"
-import { EncryptionProvider } from "~/app/adapters"
+import { EncryptionProvider } from "~/app/ports"
 import { SigningKey } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { SigningKeyRepository } from "~/domain/repositories"

@@ -1,5 +1,5 @@
 import { Prisma, IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
-import { EncryptionProvider } from "~/app/adapters"
+import { EncryptionProvider } from "~/app/ports"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"

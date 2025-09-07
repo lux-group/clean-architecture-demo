@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Logger } from "~/app/adapters"
+import { Logger } from "~/app/ports"
 import {
   AuthenticationError,
   AuthorizationError,

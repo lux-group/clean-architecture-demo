@@ -1,4 +1,4 @@
-import { EventPublisher } from "~/app/adapters"
+import { EventPublisher } from "~/app/ports"
 import { AuthenticationError } from "~/domain/errors"
 import { SessionEvent } from "~/domain/events"
 import { SessionRepository } from "~/domain/repositories"

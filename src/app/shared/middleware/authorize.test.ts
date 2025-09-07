@@ -2,7 +2,7 @@ import { mockLogger, mockSigningKeyRepository } from "@test/mocks"
 import { NextFunction, Request, Response } from "express"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { TokenIssuerConfig } from "~/app/adapters"
+import { TokenIssuerConfig } from "~/app/ports"
 import { UUIDToShort } from "~/lib/ShortUUID"
 import { authorize } from "./authorize"
 

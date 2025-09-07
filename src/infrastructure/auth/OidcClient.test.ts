@@ -2,7 +2,7 @@ import * as factories from "@test/factories"
 import jwt from "jsonwebtoken"
 import * as client from "openid-client"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/app/adapters"
+import { SignInState } from "~/app/ports"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { OidcClient } from "./OidcClient"
 

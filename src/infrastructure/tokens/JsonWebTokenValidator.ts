@@ -1,6 +1,6 @@
 import jwt, { JwtHeader, JwtPayload } from "jsonwebtoken"
 import { JwksClient, SigningKey } from "jwks-rsa"
-import { TokenValidationResult, TokenValidator } from "~/app/adapters"
+import { TokenValidationResult, TokenValidator } from "~/app/ports"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"

@@ -1,4 +1,4 @@
-import { EventPublisher, PasswordVerifier } from "~/app/adapters"
+import { EventPublisher, PasswordVerifier } from "~/app/ports"
 import { CreateUserProps, User } from "~/domain/entities"
 import { EntityChangeEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"
