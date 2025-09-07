@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { Logger } from "~/app/shared/adapters"
+import { Logger } from "~/app/adapters"
 import { logFailedQueryDetails } from "../logFailedQueryDetails"
 
 describe("clients/prisma/extensions.ts", () => {

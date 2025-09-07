@@ -2,7 +2,7 @@ import * as factories from "@test/factories"
 import jwt from "jsonwebtoken"
 import * as client from "openid-client"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/app/shared/adapters"
+import { SignInState } from "~/app/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { OidcClient } from "./OidcClient"
 
@@ -40,7 +40,7 @@ describe("OidcClient", () => {
         brand: "google",
         clientId: "google-client-id",
         clientSecret: "google-client-secret",
-        redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
+        redirectUrls: ["https://auth.example.com/auth/v2/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
       },
@@ -56,7 +56,7 @@ describe("OidcClient", () => {
         brand: "microsoft",
         clientId: "entra-client-id",
         clientSecret: "entra-client-secret",
-        redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
+        redirectUrls: ["https://auth.example.com/auth/v2/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
       },
@@ -128,7 +128,7 @@ describe("OidcClient", () => {
       const callArgs = mockClient.buildAuthorizationUrl.mock.calls[0]
       const urlParams = callArgs[1] as URLSearchParams
       expect(urlParams.get("scope")).toBe("email openid profile")
-      expect(urlParams.get("redirect_uri")).toBe(`${baseUrl}/auth/external/sign-in-callback`)
+      expect(urlParams.get("redirect_uri")).toBe(`${baseUrl}/auth/v2/external/sign-in-callback`)
       expect(urlParams.get("code_challenge")).toBe("mock-code-challenge")
       expect(urlParams.get("code_challenge_method")).toBe("S256")
       expect(urlParams.get("nonce")).toBe("mock-nonce")
@@ -186,7 +186,7 @@ describe("OidcClient", () => {
     })
 
     it("should process successful sign-in response", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state&session_state=session-123"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state&session_state=session-123"
 
       const result = await oidcClient.processSignInResponse(signInState, urlPath)
 
@@ -223,7 +223,7 @@ describe("OidcClient", () => {
       }
       mockClient.authorizationCodeGrant.mockResolvedValue(mockTokenResultWithoutOptionals as any)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await oidcClient.processSignInResponse(signInState, urlPath)
 
@@ -236,11 +236,11 @@ describe("OidcClient", () => {
       mockClaims.iss = "https://wrong-issuer.com"
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(Error)
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(`Expected issuer ${identityProvider.issuerUrl} but received https://wrong-issuer.com.`)
     })
 
@@ -248,11 +248,11 @@ describe("OidcClient", () => {
       mockClaims.aud = "wrong-audience"
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(Error)
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(`Expected audience ${identityProvider.audience} but received wrong-audience.`)
     })
 
@@ -260,11 +260,11 @@ describe("OidcClient", () => {
       mockClaims.aud = ["wrong-audience", "another-wrong-audience"]
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(Error)
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(
         `Expected audience ${identityProvider.audience} but received wrong-audience, another-wrong-audience.`,
       )
@@ -274,7 +274,7 @@ describe("OidcClient", () => {
       mockClaims.aud = [identityProvider.audience, "another-audience"]
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).resolves.toBeDefined()
     })
 
@@ -282,7 +282,7 @@ describe("OidcClient", () => {
       delete mockClaims.email
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(
         "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
       )
@@ -292,7 +292,7 @@ describe("OidcClient", () => {
       delete mockClaims.sub
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow(
         "Expected ID token claims not received. Check request scopes or token configuration in app registration.",
       )
@@ -310,7 +310,7 @@ describe("OidcClient", () => {
 
       const result = await entraClient.processSignInResponse(
         entraSignInState,
-        "/auth/external/sign-in-callback?code=auth-code",
+        "/auth/v2/external/sign-in-callback?code=auth-code",
       )
 
       expect(result.profile.identifierClaimValue).toBe("entra-user-123")
@@ -348,7 +348,7 @@ describe("OidcClient", () => {
 
       const callArgs = mockClient.buildEndSessionUrl.mock.calls[0]
       const urlParams = callArgs[1] as URLSearchParams
-      expect(urlParams.get("post_logout_redirect_uri")).toBe(`${baseUrl}/auth/external/sign-out-callback`)
+      expect(urlParams.get("post_logout_redirect_uri")).toBe(`${baseUrl}/auth/v2/external/sign-out-callback`)
       expect(urlParams.get("logout_hint")).toBe("test@example.com")
       expect(urlParams.get("id_token_hint")).toBeNull()
 
@@ -497,7 +497,7 @@ describe("OidcClient", () => {
       mockClient.authorizationCodeGrant.mockRejectedValue(grantError)
 
       await expect(
-        oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
+        oidcClient.processSignInResponse(signInState, "/auth/v2/external/sign-in-callback?code=auth-code"),
       ).rejects.toThrow("Token exchange failed")
     })
   })

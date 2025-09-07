@@ -1,5 +1,5 @@
 import { Prisma, Session as PrismaSession } from "@prisma/client"
-import { EncryptionProvider } from "~/app/shared/adapters"
+import { EncryptionProvider } from "~/app/adapters"
 import { Session, SessionStatus } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { SessionRepository } from "~/domain/repositories"

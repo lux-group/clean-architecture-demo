@@ -3,7 +3,7 @@ import { Application } from "express"
 import registerApp from "~/app/module"
 import createServer from "~/app/server"
 import registerDomainServices from "~/domain/services/module"
-import { TokenIssuer, TokenRequest } from "~/app/shared/adapters"
+import { TokenIssuer, TokenRequest } from "~/app/adapters"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
@@ -36,6 +36,9 @@ export const getTestContext = async (): Promise<TestContext> => {
   const container = await createTestContainer()
   const server = createServer(container)
   const data = new TestDataContext(container)
+
+  // Ensure we have a signing key.
+  await data.getActiveSigningKey()
 
   const createAccessToken = async (userId: string, scopes: string[]) => {
     const tokenIssuer = container.resolve<TokenIssuer>("tokenIssuer")

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs"
-import { PasswordVerifier } from "~/app/shared/adapters"
+import { PasswordVerifier } from "~/app/adapters"
 
 export class BCryptPasswordVerifier implements PasswordVerifier {
   verifyPassword(plainTextPassword: string, storedPasswordHash: string): boolean {

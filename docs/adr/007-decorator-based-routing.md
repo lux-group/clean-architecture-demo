@@ -29,7 +29,7 @@ We will use decorator-based routing with metadata reflection for API controllers
 ## Implementation Architecture
 
 ```typescript
-@Controller("/admin/users")
+@Controller("/admin/v1/users")
 export class UserController {
   @Get("/:id")
   @Authorize({ scopes: ["user:read"] })

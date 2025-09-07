@@ -18,12 +18,12 @@
       const signIn = () => {
         const provider = providerSelect.value // Use selected provider
         const redirectUri = encodeURIComponent(window.location.origin)
-        window.location.href = `/auth/external/sign-in?redirect_uri=${redirectUri}&provider=${provider}`
+        window.location.href = `/auth/v2/external/sign-in?redirect_uri=${redirectUri}&provider=${provider}`
       }
 
       const signOut = () => {
         const redirectUri = encodeURIComponent(window.location.origin)
-        window.location.href = `/auth/external/sign-out?redirect_uri=${redirectUri}`
+        window.location.href = `/auth/v2/external/sign-out?redirect_uri=${redirectUri}`
       }
 
       const getToken = () => {

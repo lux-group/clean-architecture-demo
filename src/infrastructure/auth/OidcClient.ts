@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
 import * as client from "openid-client"
-import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/app/shared/adapters"
+import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/app/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { ClientCache } from "~/lib/ClientCache"
 
@@ -49,7 +49,7 @@ export class OidcClient implements AuthClient {
     // Additional scopes offline_access and User.Read/User.ReadWrite should be granted in Entra by admin consent.
     const params = new URLSearchParams({
       scope,
-      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
       nonce,
@@ -125,7 +125,7 @@ export class OidcClient implements AuthClient {
     }
 
     const params = new URLSearchParams({
-      post_logout_redirect_uri: `${this.baseUrl}/auth/external/sign-out-callback`,
+      post_logout_redirect_uri: `${this.baseUrl}/auth/v2/external/sign-out-callback`,
     })
 
     if (this.isEntra) {

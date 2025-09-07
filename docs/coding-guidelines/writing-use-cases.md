@@ -6,7 +6,7 @@ Related ADRs:
 - [ADR-006](/docs/adr/006-cqrs-pattern-for-application-services.md) - CQRS Pattern for Application Services
 
 ## Structure
-- Location: `src/app/<feature>/{commands,queries}/<Name>Handler.ts`
+- Location: `src/app/modules/<feature>/{commands,queries}/<Name>Handler.ts`
 - Naming: `Create<Name>Handler`, `Get<Name>ByIdHandler`
 - Public API: `constructor(dependencies)` and `execute(dto): Promise<Result>`
 
@@ -30,7 +30,7 @@ export class CreateUserHandler {
 
 ## DI registration
 
-Register handlers in the module under `src/app/<feature>/module.ts` using Awilix. Use lowerCamelCase keys that end with `Handler`.
+Register handlers in the module under `src/app/modules/<feature>/module.ts` using Awilix. Use lowerCamelCase keys that end with `Handler`.
 
 ```ts
 container.register({

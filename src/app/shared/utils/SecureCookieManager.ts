@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 import { CookieOptions, Request, Response } from "express"
-import { EncryptionProvider } from "~/app/shared/adapters"
+import { EncryptionProvider } from "~/app/adapters"
 import { Session } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 

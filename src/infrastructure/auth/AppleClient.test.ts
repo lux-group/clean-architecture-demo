@@ -1,7 +1,7 @@
 import * as factories from "@test/factories"
 import jwt from "jsonwebtoken"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/app/shared/adapters"
+import { SignInState } from "~/app/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AppleClient } from "./AppleClient"
@@ -31,7 +31,7 @@ describe("AppleClient", () => {
         brand: "apple",
         clientId: "apple-client-id",
         clientSecret: "apple-client-secret",
-        redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
+        redirectUrls: ["https://auth.example.com/auth/v2/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
       },
@@ -55,7 +55,9 @@ describe("AppleClient", () => {
       expect(result.url).toContain("https://appleid.apple.com/auth/authorize")
       expect(result.url).toContain("response_type=code")
       expect(result.url).toContain("client_id=apple-client-id")
-      expect(result.url).toContain("redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback")
+      expect(result.url).toContain(
+        "redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fv2%2Fexternal%2Fsign-in-callback",
+      )
       expect(result.url).toContain("scope=name+email")
       expect(result.url).toContain("response_mode=form_post")
 
@@ -139,7 +141,7 @@ describe("AppleClient", () => {
     })
 
     it("should process successful sign-in response", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await appleClient.processSignInResponse(signInState, urlPath)
 
@@ -170,7 +172,7 @@ describe("AppleClient", () => {
         },
         email: "john.doe@example.com",
       })
-      const urlPath = `/auth/external/sign-in-callback?code=auth-code&state=test-state&user=${encodeURIComponent(userData)}`
+      const urlPath = `/auth/v2/external/sign-in-callback?code=auth-code&state=test-state&user=${encodeURIComponent(userData)}`
 
       const result = await appleClient.processSignInResponse(signInState, urlPath)
 
@@ -183,7 +185,7 @@ describe("AppleClient", () => {
     })
 
     it("should throw error when authorization code is missing", async () => {
-      const urlPath = "/auth/external/sign-in-callback?state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
@@ -193,7 +195,7 @@ describe("AppleClient", () => {
     })
 
     it("should throw error for invalid state", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=wrong-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=wrong-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
@@ -207,7 +209,7 @@ describe("AppleClient", () => {
         statusText: "Bad Request",
       } as any)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -230,7 +232,7 @@ describe("AppleClient", () => {
         signature: "signature",
       } as jwt.Jwt)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -251,7 +253,7 @@ describe("AppleClient", () => {
         signature: "signature",
       } as jwt.Jwt)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -274,7 +276,7 @@ describe("AppleClient", () => {
         signature: "signature",
       } as jwt.Jwt)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -297,7 +299,7 @@ describe("AppleClient", () => {
         signature: "signature",
       } as jwt.Jwt)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -307,7 +309,7 @@ describe("AppleClient", () => {
     })
 
     it("should handle malformed user data gracefully", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state&user=invalid-json"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state&user=invalid-json"
 
       const result = await appleClient.processSignInResponse(signInState, urlPath)
 
@@ -323,7 +325,7 @@ describe("AppleClient", () => {
     it("should handle invalid ID token format", async () => {
       vi.spyOn(jwt, "decode").mockReturnValue(null)
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -367,7 +369,7 @@ describe("AppleClient", () => {
 
       mockFetch.mockRejectedValue(new Error("Network error"))
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Network error")
     })
@@ -392,7 +394,7 @@ describe("AppleClient", () => {
         throw new Error("JWT decode error")
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("JWT decode error")

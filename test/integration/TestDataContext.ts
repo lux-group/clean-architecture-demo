@@ -3,7 +3,7 @@ import { DeepPartial } from "~/lib/types"
 
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
 import { CreateIdentityProviderProps, CreateSessionProps, CreateSigningKeyProps, CreateUserProps, Session } from "~/domain/entities"
-import { PasswordVerifier } from "~/app/shared/adapters"
+import { PasswordVerifier } from "~/app/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import * as factories from "../factories"
 

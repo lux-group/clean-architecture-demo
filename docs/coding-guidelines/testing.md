@@ -14,11 +14,10 @@ Some unit tests are solitary unit tests that only test a single function or clas
 
 
 This project contains unit tests for:
-- [API Middleware](/src/app/shared/middleware) (solitary)
-- [Domain Entities](/src/domain/entities) (solitary)
-- [Domain Services](/src/domain/services) (sociable)
-- [Infrastructure Services](/src/infrastructure) (solitary)
-- [Utility Libraries](/src/lib) (solitary)
+- [API Middleware](/src/app/shared/middleware)
+- [Domain Entities](/src/domain/entities)
+- [Infrastructure Services](/src/infrastructure)
+- [Utility Libraries](/src/lib)
 
 ## Internal Integration Tests
 
@@ -26,11 +25,11 @@ The application does not utilise unit testing for areas that only contain orches
 
 The application contains internal integration tests for all its modules.
 
-- [identity-provider](/src/app/admin/identity-provider/__tests__) Admin Controller
-- [session](/src/app/admin/session/__tests__) Admin Controller
-- [signing-key](/src/app/admin/signing-key/__tests__) Admin Controller
-- [user](/src/app/admin/user/__tests__) Admin Controller
-- [external](/src/app/authentication/external/__tests__) Authentication Controller
-- [local](/src/app/authentication/local/__tests__) Authentication Controller
-- [token](/src/app/authorization/token/__tests__) Authorization Controller
-- [well-known](/src/app/authorization/well-known/__tests__) Controller
+- [identity-provider](/src/app/modules/admin/identity-provider/__tests__) Admin Controller
+- [session](/src/app/modules/admin/session/__tests__) Admin Controller
+- [signing-key](/src/app/modules/admin/signing-key/__tests__) Admin Controller
+- [user](/src/app/modules/admin/user/__tests__) Admin Controller
+- [external](/src/app/modules/authentication/external/__tests__) Authentication Controller
+- [local](/src/app/modules/authentication/local/__tests__) Authentication Controller
+- [token](/src/app/modules/authorization/token/__tests__) Authorization Controller
+- [well-known](/src/app/modules/authorization/well-known/__tests__) Controller

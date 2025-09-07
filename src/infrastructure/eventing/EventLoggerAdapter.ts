@@ -1,4 +1,4 @@
-import { Logger } from "~/app/shared/adapters"
+import { Logger } from "~/app/adapters"
 import { AuthenticationEvent, AuthorizationEvent, Event, SessionEvent } from "~/domain/events"
 import { EntityChangeEvent } from "~/domain/events/EntityChangeEvent"
 import { EventBus } from "./EventBus"

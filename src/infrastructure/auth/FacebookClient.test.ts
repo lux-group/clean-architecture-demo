@@ -1,6 +1,6 @@
 import * as factories from "@test/factories"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/app/shared/adapters"
+import { SignInState } from "~/app/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { FacebookClient } from "./FacebookClient"
@@ -30,7 +30,7 @@ describe("FacebookClient", () => {
         brand: "facebook",
         clientId: "facebook-client-id",
         clientSecret: "facebook-client-secret",
-        redirectUrls: ["https://auth.example.com/auth/external/sign-in-callback"],
+        redirectUrls: ["https://auth.example.com/auth/v2/external/sign-in-callback"],
         autoLinkUsers: false,
         autoCreateUsers: true,
       },
@@ -53,7 +53,9 @@ describe("FacebookClient", () => {
 
       expect(result.url).toContain("https://www.facebook.com/v18.0/dialog/oauth")
       expect(result.url).toContain("client_id=facebook-client-id")
-      expect(result.url).toContain("redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback")
+      expect(result.url).toContain(
+        "redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fv2%2Fexternal%2Fsign-in-callback",
+      )
       expect(result.url).toContain("scope=email+public_profile")
       expect(result.url).toContain("response_type=code")
 
@@ -128,7 +130,7 @@ describe("FacebookClient", () => {
     })
 
     it("should process successful sign-in response", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await facebookClient.processSignInResponse(signInState, urlPath)
 
@@ -178,7 +180,7 @@ describe("FacebookClient", () => {
         identityProviderId: customIdentityProvider.id,
       }
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await customFacebookClient.processSignInResponse(customSignInState, urlPath)
 
@@ -198,7 +200,7 @@ describe("FacebookClient", () => {
         identityProviderId: customIdentityProvider.id,
       }
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await customFacebookClient.processSignInResponse(customSignInState, urlPath)
 
@@ -206,7 +208,7 @@ describe("FacebookClient", () => {
     })
 
     it("should throw error when Facebook returns OAuth error", async () => {
-      const urlPath = "/auth/external/sign-in-callback?error=access_denied&error_description=User+denied+access"
+      const urlPath = "/auth/v2/external/sign-in-callback?error=access_denied&error_description=User+denied+access"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
@@ -216,7 +218,7 @@ describe("FacebookClient", () => {
     })
 
     it("should throw error when authorization code is missing", async () => {
-      const urlPath = "/auth/external/sign-in-callback?state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
@@ -226,7 +228,7 @@ describe("FacebookClient", () => {
     })
 
     it("should throw error for invalid state", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=wrong-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=wrong-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
 
@@ -247,7 +249,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -274,7 +276,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -305,7 +307,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -336,7 +338,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
@@ -366,7 +368,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       const result = await facebookClient.processSignInResponse(signInState, urlPath)
 
@@ -379,7 +381,7 @@ describe("FacebookClient", () => {
     })
 
     it("should include correct parameters in token exchange request", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await facebookClient.processSignInResponse(signInState, urlPath)
 
@@ -388,13 +390,13 @@ describe("FacebookClient", () => {
       expect(tokenCall![0]).toContain("client_id=facebook-client-id")
       expect(tokenCall![0]).toContain("client_secret=facebook-client-secret")
       expect(tokenCall![0]).toContain(
-        "redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fexternal%2Fsign-in-callback",
+        "redirect_uri=https%3A%2F%2Fauth.example.com%2Fauth%2Fv2%2Fexternal%2Fsign-in-callback",
       )
       expect(tokenCall![0]).toContain("code=auth-code")
     })
 
     it("should include correct parameters in profile request", async () => {
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await facebookClient.processSignInResponse(signInState, urlPath)
 
@@ -441,7 +443,7 @@ describe("FacebookClient", () => {
 
       mockFetch.mockRejectedValue(new Error("Network error"))
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Network error")
     })
@@ -468,7 +470,7 @@ describe("FacebookClient", () => {
         return Promise.reject(new Error("Unexpected URL"))
       })
 
-      const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
+      const urlPath = "/auth/v2/external/sign-in-callback?code=auth-code&state=test-state"
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Network error")
     })

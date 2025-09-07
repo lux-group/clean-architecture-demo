@@ -1,6 +1,6 @@
 import { vi } from "vitest"
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
-import { AuthClient, AuthClientFactory, EventPublisher, Logger, PasswordVerifier, TokenIssuer, TokenValidator } from "~/app/shared/adapters"
+import { AuthClient, AuthClientFactory, EventPublisher, Logger, PasswordVerifier, TokenIssuer, TokenValidator } from "~/app/adapters"
 
 export const mockAuthClientFactory = vi.mocked({
   createClient: vi.fn(),

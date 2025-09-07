@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from "~/app/shared/adapters"
+import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from "~/app/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 
@@ -33,7 +33,7 @@ export class AppleClient implements AuthClient {
     const params = new URLSearchParams({
       response_type: "code",
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
       scope: "name email",
       state,
       nonce,
@@ -92,7 +92,7 @@ export class AppleClient implements AuthClient {
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
       client_id: this.identityProvider.authSettings!.clientId,
       client_secret: this.identityProvider.authSettings!.clientSecret,
     })

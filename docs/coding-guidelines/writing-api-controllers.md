@@ -6,12 +6,12 @@ Related ADRs:
 - [ADR-007](/docs/adr/007-decorator-based-routing.md) - Decorator-based Routing
 
 ## Structure
-- Location: `src/app/<feature>/api/<Name>Controller.ts`
+- Location: `src/app/modules/<feature>/api/<Name>Controller.ts`
 - Decorators: `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, `@Authorize`
 - DI: Register with a key ending in `Controller` (router discovery depends on it)
 
 ```ts
-@Controller("/admin/users")
+@Controller("/admin/v1/users")
 export class UserController {
   constructor(private readonly baseUrl: string, private readonly createUserHandler: CreateUserHandler) {}
 
@@ -20,7 +20,7 @@ export class UserController {
   async create(req: Request, res: Response) {
     const command: CreateUserCommand = { /* parse */ }
     const item = await this.createUserHandler.execute(command)
-    res.status(201).header("Location", `${this.baseUrl}/admin/users/${item.id}`).json(this.present(item))
+    res.status(201).header("Location", `${this.baseUrl}/admin/v1/users/${item.id}`).json(this.present(item))
   }
 }
 ```
@@ -44,7 +44,7 @@ The admin APIs support advanced query options.
 
 ## Testing
 
-- Write API integration tests under `src/app/<module>/__tests__/` using Supertest against the Express app.
+- Write API integration tests under `src/app/modules/<module>/__tests__/` using Supertest against the Express app.
 - Handlers are exercised through controllers in these tests.
 - Each use case (query or command handler) should have a corresponding test. The file must use the extension `.spec.ts` to indicate to the test framework that a containerized environment is required.
 - A custom matcher function `bodyToMatchEntity` from `@test/matchers/supertest` can be used to compare API payloads to domain entities.
@@ -59,7 +59,7 @@ import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
 import { getTestContext, TestContext } from "@test/integration/TestContext"
 
-describe("[POST] /admin/users (CreateUser)", () => {
+describe("[POST] /admin/v1/users (CreateUser)", () => {
   let context: TestContext
 
   beforeAll(async () => {
@@ -69,13 +69,13 @@ describe("[POST] /admin/users (CreateUser)", () => {
   describe("when the creation was successful", () => {
     it("returns 201 with the created resource", async () => {
       const response = await request(context.server)
-        .post("/admin/users")
+        .post("/admin/v1/users")
         .send({ /* payload */ })
       expect(response.status).toBe(201)
     })
 
     it("persists the entity", async () => {
-      const res = await request(context.server).post("/admin/users").send({ /* payload */ })
+      const res = await request(context.server).post("/admin/v1/users").send({ /* payload */ })
       const created = await context.data.getUser(res.body.id)
       expect(res).bodyToMatchEntity(created)
     })
@@ -83,7 +83,7 @@ describe("[POST] /admin/users (CreateUser)", () => {
 
   describe("when input is invalid", () => {
     it("returns 400 with validation details", async () => {
-      const response = await request(context.server).post("/admin/users").send({})
+      const response = await request(context.server).post("/admin/v1/users").send({})
       expect(response.status).toBe(400)
     })
   })

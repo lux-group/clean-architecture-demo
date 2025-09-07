@@ -41,13 +41,15 @@ The project uses [Biome](https://biomejs.dev/) for lintig and formatting. Check 
 - **No silent catches**: Do not catch and ignore errors; handle or propagate them.
 
 ## Domain Layer
-- **Purity**: Keep the domain layer free of framework dependencies.
-- **Entities**:
+- **Purity**: Keep the domain layer free of dependencies on infrastructure, app, and frameworks.
+- **Domain Entities**:
   - Provide static factory methods (e.g., `createNew`) for creation.
   - Validate invariants with `zod` (`validateProps`) and use immutable updates via object spreads; prefer getters for access.
 - **Domain events**:
   - Use dedicated event classes with clear `topic`, `id`, `timestamp`, `result`, and `details` fields.
   - Provide event-specific static factory methods for common scenarios (e.g., `passwordSuccess`, `entityCreated`).
+- **Domain services**:
+  - Keep functions pure and without dependencies on infrastructure services.
 
 ## Application Layer (Controllers & Use Cases)
 - **Decorators**: Use decorator-based routing with `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, etc.
@@ -60,7 +62,7 @@ The project uses [Biome](https://biomejs.dev/) for lintig and formatting. Check 
   - Implement repositories per backing store (e.g., Prisma, Redis, Memory) with clear mapping helpers (`mapToDomain`, `mapToPrisma`).
   - Keep mapping logic in private methods. Do not leak persistence types into the domain.
   - Use optimistic concurrency where applicable (e.g., `updatedAt` checks).
-- **Adapters**: Keep external integrations behind adapter interfaces in `domain/adapters` and provide concrete implementations in `infrastructure`.
+- **Adapters**: Keep external integrations behind adapter interfaces defined in the apps layer and provide concrete implementations in `infrastructure`.
 
 ## Miscellaneous
 - **Node built-ins**: Import via the `node:` scheme (e.g., `node:crypto`).

@@ -1,12 +1,5 @@
 import { randomBytes } from "node:crypto"
-import {
-  AuthClient,
-  CheckSessionResponse,
-  Profile,
-  SignInRequest,
-  SignInState,
-  SignOutRequest,
-} from "~/app/shared/adapters"
+import { AuthClient, CheckSessionResponse, Profile, SignInRequest, SignInState, SignOutRequest } from "~/app/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 
@@ -38,7 +31,7 @@ export class FacebookClient implements AuthClient {
 
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
       scope: "email public_profile",
       response_type: "code",
       state,
@@ -104,7 +97,7 @@ export class FacebookClient implements AuthClient {
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
       client_secret: this.identityProvider.authSettings!.clientSecret,
-      redirect_uri: `${this.baseUrl}/auth/external/sign-in-callback`,
+      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
       code,
     })
 
