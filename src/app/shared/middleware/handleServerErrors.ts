@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { Logger } from "~/infrastructure/logging"
+import { Logger } from "~/app/shared/adapters"
 
 export function handleServerErrors(logger: Logger) {
   return (err: unknown, _req: Request, res: Response, _next: NextFunction) => {

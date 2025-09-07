@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jwt, { JwtPayload } from "jsonwebtoken"
+import { Logger, TokenIssuerConfig } from "~/app/shared/adapters"
 import { SigningKeyRepository } from "~/domain/repositories"
-import { TokenIssuerConfig } from "~/infrastructure/config"
-import { Logger } from "~/infrastructure/logging"
 import { shortToUUID } from "~/lib/ShortUUID"
 
 export interface AuthorizeOptions {

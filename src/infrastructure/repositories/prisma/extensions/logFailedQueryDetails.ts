@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client"
-import { Logger } from "~/infrastructure/logging"
+import { Logger } from "~/app/shared/adapters"
 
 // We have to use any because even Prisma internally uses any for extensions.
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,10 +1,9 @@
-import { AuthClientFactory, EventPublisher, SignInState } from "~/domain/adapters"
+import { AuthClientFactory, EventPublisher, SessionConfig, SignInState } from "~/app/shared/adapters"
 import { CreateSessionProps, Session, User } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, EntityChangeEvent, SessionEvent } from "~/domain/events"
 import { IdentityProviderRepository, SessionRepository, UserRepository } from "~/domain/repositories"
 import { AuthenticationService } from "~/domain/services"
-import { SessionConfig } from "~/infrastructure/config"
 
 export interface ProcessSignInResponseCommand {
   state: SignInState

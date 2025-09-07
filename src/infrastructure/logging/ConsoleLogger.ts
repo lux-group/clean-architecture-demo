@@ -1,4 +1,4 @@
-import { Logger } from "."
+import { Logger } from "~/app/shared/adapters"
 
 export class ConsoleLogger implements Logger {
   error(message: string | unknown, ...meta: unknown[]): void {

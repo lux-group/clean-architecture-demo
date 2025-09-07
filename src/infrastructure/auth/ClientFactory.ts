@@ -1,4 +1,4 @@
-import { AuthClient, AuthClientFactory } from "~/domain/adapters"
+import { AuthClient, AuthClientFactory } from "~/app/shared/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { InvalidOperationError } from "~/domain/errors"
 import { AppleClient } from "./AppleClient"

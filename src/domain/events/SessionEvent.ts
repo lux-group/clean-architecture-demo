@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
-import { Event } from "../adapters"
 import { Session } from "../entities"
+import { Event } from "./Event"
 
 export interface SessionEventDetails {
   activity: string

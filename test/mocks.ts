@@ -1,13 +1,43 @@
 import { vi } from "vitest"
-import { Logger } from "~/infrastructure/logging"
 import { IdentityProviderRepository, SessionRepository, SigningKeyRepository, UserRepository } from "~/domain/repositories"
-import { AuthClient, AuthClientFactory, EventPublisher, PasswordVerifier, TokenIssuer, TokenValidator } from "~/domain/adapters"
+import { AuthClient, AuthClientFactory, EventPublisher, Logger, PasswordVerifier, TokenIssuer, TokenValidator } from "~/app/shared/adapters"
+
+export const mockAuthClientFactory = vi.mocked({
+  createClient: vi.fn(),
+} satisfies AuthClientFactory)
+
+export const mockAuthClient = vi.mocked({
+  supportsSignOut: true,
+  supportsEditProfile: false,
+  createSignInRequest: vi.fn(),
+  createSignOutRequest: vi.fn(),
+  processSignInResponse: vi.fn(),
+  checkSessionWithRefreshToken: vi.fn(),
+  editProfile: vi.fn(),
+} satisfies AuthClient)
 
 export const mockLogger = vi.mocked({
   error: vi.fn(),
   warn: vi.fn(),
   info: vi.fn(),
 } satisfies Logger)
+
+export const mockEventPublisher = vi.mocked({
+  publishEvent: vi.fn(),
+} satisfies EventPublisher)
+
+export const mockPasswordVerifier = vi.mocked({
+  verifyPassword: vi.fn(),
+  createPasswordHash: vi.fn(),
+} satisfies PasswordVerifier)
+
+export const mockTokenIssuer = vi.mocked({
+  createAccessToken: vi.fn(),
+} satisfies TokenIssuer)
+
+export const mockTokenValidator = vi.mocked({
+  decodeAndValidateToken: vi.fn(),
+} satisfies TokenValidator)
 
 export const mockIdentityProviderRepository = vi.mocked({
   query: vi.fn(),
@@ -50,34 +80,3 @@ export const mockUserRepository = vi.mocked({
   insert: vi.fn(),
   delete: vi.fn(),
 } satisfies UserRepository)
-
-export const mockEventPublisher = vi.mocked({
-  publishEvent: vi.fn(),
-} satisfies EventPublisher)
-
-export const mockPasswordVerifier = vi.mocked({
-  verifyPassword: vi.fn(),
-  createPasswordHash: vi.fn(),
-} satisfies PasswordVerifier)
-
-export const mockTokenIssuer = vi.mocked({
-  createAccessToken: vi.fn(),
-} satisfies TokenIssuer)
-
-export const mockTokenValidator = vi.mocked({
-  decodeAndValidateToken: vi.fn(),
-} satisfies TokenValidator)
-
-export const mockAuthClientFactory = vi.mocked({
-  createClient: vi.fn(),
-} satisfies AuthClientFactory)
-
-export const mockAuthClient = vi.mocked({
-  supportsSignOut: true,
-  supportsEditProfile: false,
-  createSignInRequest: vi.fn(),
-  createSignOutRequest: vi.fn(),
-  processSignInResponse: vi.fn(),
-  checkSessionWithRefreshToken: vi.fn(),
-  editProfile: vi.fn(),
-} satisfies AuthClient)

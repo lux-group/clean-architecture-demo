@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { TokenIssuer, TokenRequest, TokenResponse } from "~/domain/adapters"
-import { SigningKey } from "~/domain/entities"
+import { TokenIssuer, TokenRequest, TokenResponse } from "~/app/shared/adapters"
+import { SigningKeyRepository } from "~/domain/repositories"
 import { UUIDToShort } from "~/lib/ShortUUID"
 import { TokenIssuerConfig } from "../config"
 
@@ -9,9 +9,15 @@ export class JsonWebTokenIssuer implements TokenIssuer {
   constructor(
     private readonly baseUrl: string,
     private readonly tokenIssuerConfig: TokenIssuerConfig,
+    private readonly signingKeyRepository: SigningKeyRepository,
   ) {}
 
-  createAccessToken(signingKey: SigningKey, request: TokenRequest): TokenResponse {
+  async createAccessToken(request: TokenRequest): Promise<TokenResponse> {
+    const signingKey = await this.signingKeyRepository.tryGetActiveSigningKey()
+    if (!signingKey || !signingKey.privateKey) {
+      throw new Error("No active signing key found.")
+    }
+
     const now = Math.round(Date.now() / 1000)
     const claims: Record<string, unknown> = {
       ver: "2.0",

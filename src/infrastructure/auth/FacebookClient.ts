@@ -6,7 +6,7 @@ import {
   SignInRequest,
   SignInState,
   SignOutRequest,
-} from "~/domain/adapters"
+} from "~/app/shared/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 

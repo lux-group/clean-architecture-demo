@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from "~/domain/adapters"
+import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from "~/app/shared/adapters"
 import { IdentityProvider } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 

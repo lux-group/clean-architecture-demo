@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
+import { TokenResponse } from "~/app/shared/adapters"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
-import { TokenResponse } from "~/domain/adapters"
 import { InvalidOperationError } from "~/domain/errors"
 import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"
 import { IssueTokenWithClientCredentialsHandler } from "../commands/IssueTokenWithClientCredentialsHandler"

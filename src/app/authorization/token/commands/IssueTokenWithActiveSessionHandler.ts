@@ -1,10 +1,9 @@
-import { AuthClientFactory, EventPublisher, TokenResponse } from "~/domain/adapters"
+import { AuthClientFactory, EventPublisher, SessionConfig, TokenIssuer, TokenResponse } from "~/app/shared/adapters"
 import { Session, User } from "~/domain/entities"
 import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
 import { IdentityProviderRepository, SessionRepository, UserRepository } from "~/domain/repositories"
 import { AuthenticationService, AuthorizationService } from "~/domain/services"
-import { SessionConfig } from "~/infrastructure/config"
 
 export interface IssueTokenWithActiveSessionInput {
   sessionId: string
@@ -25,6 +24,7 @@ export class IssueTokenWithActiveSessionHandler {
     private readonly identityProviderRepository: IdentityProviderRepository,
     private readonly sessionConfig: SessionConfig,
     private readonly sessionRepository: SessionRepository,
+    private readonly tokenIssuer: TokenIssuer,
     private readonly userRepository: UserRepository,
   ) {}
 
@@ -42,13 +42,15 @@ export class IssueTokenWithActiveSessionHandler {
         user = userToImpersonate
       }
 
-      const response = await this.authorizationService.issueAccessToken(
-        user,
-        impersonatedByUser,
-        session,
-        command.audience,
-        command.scope,
-      )
+      const response = await this.tokenIssuer.createAccessToken({
+        userId: user.id,
+        sessionId: session?.id,
+        customClaims: {
+          brand: user.brand,
+          roles: user.roles,
+          impersonated_by_sub: impersonatedByUser?.id,
+        },
+      })
 
       this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionVerified(session.userId, session.id))
       this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(response.claims, session.userId, session.id))

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express"
+import { Logger } from "~/app/shared/adapters"
 import {
   AuthenticationError,
   AuthorizationError,
@@ -7,7 +8,6 @@ import {
   NotFoundError,
   ValidationError,
 } from "~/domain/errors"
-import { Logger } from "~/infrastructure/logging"
 
 export function handleClientErrors(logger: Logger) {
   return (err: unknown, _req: Request, res: Response, next: NextFunction) => {

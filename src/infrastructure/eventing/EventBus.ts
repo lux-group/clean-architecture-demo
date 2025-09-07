@@ -1,4 +1,5 @@
-import { Event, EventCallback, EventPublisher } from "~/domain/adapters"
+import { EventCallback, EventPublisher } from "~/app/shared/adapters"
+import { Event } from "~/domain/events"
 
 export class EventBus implements EventPublisher {
   private subscribers: Map<string, Set<EventCallback<any>>> = new Map()

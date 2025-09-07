@@ -1,14 +1,14 @@
 import { AwilixContainer, createContainer, InjectionMode } from "awilix"
 import { Application } from "express"
-import createServer from "~/app/server"
 import registerApp from "~/app/module"
+import createServer from "~/app/server"
+import registerDomainServices from "~/domain/services/module"
+import { TokenIssuer, TokenRequest } from "~/app/shared/adapters"
 import registerInfrastructureServices from "~/infrastructure/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
 import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
-import { TokenIssuer, TokenRequest } from "~/domain/adapters/TokenIssuer"
-import registerDomainServices from "~/domain/services/module"
 
 export interface TestContext {
   container: AwilixContainer
@@ -39,9 +39,8 @@ export const getTestContext = async (): Promise<TestContext> => {
 
   const createAccessToken = async (userId: string, scopes: string[]) => {
     const tokenIssuer = container.resolve<TokenIssuer>("tokenIssuer")
-    const signingKey = await data.getActiveSigningKey()
     const request: TokenRequest = { userId, scopes, customClaims: {} }
-    return tokenIssuer.createAccessToken(signingKey, request).accessToken
+    return (await tokenIssuer.createAccessToken(request)).accessToken
   }
 
   return { container, server, data, createAccessToken }

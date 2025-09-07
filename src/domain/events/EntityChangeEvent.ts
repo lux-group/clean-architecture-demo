@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
-import { Event } from "../adapters"
 import { Entity, EntityProps } from "../entities"
+import { Event } from "./Event"
 
 export type EntityType = "Identity Provider" | "Session" | "Signing Key" | "User"
 

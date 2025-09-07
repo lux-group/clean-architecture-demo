@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
+import { Logger } from "~/app/shared/adapters"
 import { AuthenticationError, AuthorizationError, InvalidOperationError, ValidationError } from "~/domain/errors"
-import { Logger } from "~/infrastructure/logging"
 
 const ErrorCode = {
   AccessDenied: "access_denied",

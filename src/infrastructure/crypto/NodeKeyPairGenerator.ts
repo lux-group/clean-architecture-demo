@@ -1,6 +1,6 @@
 import { generateKeyPair } from "node:crypto"
 import { promisify } from "node:util"
-import { KeyPairGenerator } from "."
+import { KeyPairGenerator } from "~/app/shared/adapters"
 
 const generateKeyPairAsync = promisify(generateKeyPair)
 

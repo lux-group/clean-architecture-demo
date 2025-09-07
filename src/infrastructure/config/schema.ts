@@ -19,5 +19,3 @@ export const schema = z.object({
 })
 
 export type Config = z.input<typeof schema>
-export type SessionConfig = z.infer<typeof schema>["sessions"]
-export type TokenIssuerConfig = z.infer<typeof schema>["tokenIssuer"]

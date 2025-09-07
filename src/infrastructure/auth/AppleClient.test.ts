@@ -1,7 +1,7 @@
 import * as factories from "@test/factories"
 import jwt from "jsonwebtoken"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { SignInState } from "~/domain/adapters"
+import { SignInState } from "~/app/shared/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AppleClient } from "./AppleClient"

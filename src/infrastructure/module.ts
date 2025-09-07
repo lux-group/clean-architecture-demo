@@ -1,25 +1,25 @@
 import { AwilixContainer, aliasTo, asClass } from "awilix"
-import { BCryptPasswordVerifier } from "./adapters/BCryptPasswordVerifier"
-import { EventBus } from "./adapters/EventBus"
-import { EventLoggerAdapter } from "./adapters/EventLoggerAdapter"
-import { JsonWebTokenIssuer } from "./adapters/JsonWebTokenIssuer"
-import { JsonWebTokenValidator } from "./adapters/JsonWebTokenValidator"
 import { ClientFactory } from "./auth/ClientFactory"
+import { BCryptPasswordVerifier } from "./crypto/BCryptPasswordVerifier"
 import { NodeEncryptionProvider } from "./crypto/NodeEncryptionProvider"
 import { NodeKeyPairGenerator } from "./crypto/NodeKeyPairGenerator"
+import { EventBus } from "./eventing/EventBus"
+import { EventLoggerAdapter } from "./eventing/EventLoggerAdapter"
 import { ConsoleLogger } from "./logging/ConsoleLogger"
+import { JsonWebTokenIssuer } from "./tokens/JsonWebTokenIssuer"
+import { JsonWebTokenValidator } from "./tokens/JsonWebTokenValidator"
 
 export default async function registerInfrastructureServices(container: AwilixContainer) {
   container.register({
-    eventPublisher: aliasTo("eventBus"),
-    eventBus: asClass(EventBus).singleton(),
-    passwordVerifier: asClass(BCryptPasswordVerifier).singleton(),
-    tokenIssuer: asClass(JsonWebTokenIssuer).singleton(),
-    tokenValidator: asClass(JsonWebTokenValidator).singleton(),
     authClientFactory: asClass(ClientFactory).singleton(),
-    logger: asClass(ConsoleLogger).singleton(),
+    eventBus: asClass(EventBus).singleton(),
+    eventPublisher: aliasTo("eventBus"),
     encryptionProvider: asClass(NodeEncryptionProvider).singleton(),
     keyPairGenerator: asClass(NodeKeyPairGenerator).singleton(),
+    passwordVerifier: asClass(BCryptPasswordVerifier).singleton(),
+    logger: asClass(ConsoleLogger).singleton(),
+    tokenIssuer: asClass(JsonWebTokenIssuer).singleton(),
+    tokenValidator: asClass(JsonWebTokenValidator).singleton(),
   })
 
   // Instantiate and start the EventLoggerAdapter

@@ -1,7 +1,8 @@
 import { generateKeyPairSync } from "node:crypto"
+import { mockSigningKeyRepository } from "@test/mocks"
 import jwt from "jsonwebtoken"
-import { beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { TokenIssuer, TokenRequest } from "~/domain/adapters"
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
+import { TokenIssuer, TokenRequest } from "~/app/shared/adapters"
 import { SigningKey } from "~/domain/entities"
 import { JsonWebTokenIssuer } from "./JsonWebTokenIssuer"
 
@@ -28,7 +29,11 @@ describe("JsonWebTokenIssuer", () => {
   })
 
   beforeEach(() => {
-    tokenIssuer = new JsonWebTokenIssuer(baseUrl, { path: "/oauth2", lifetimeSeconds, audience })
+    tokenIssuer = new JsonWebTokenIssuer(
+      baseUrl,
+      { path: "/oauth2", lifetimeSeconds, audience },
+      mockSigningKeyRepository,
+    )
 
     baseTokenRequest = {
       userId: "user123",
@@ -36,6 +41,10 @@ describe("JsonWebTokenIssuer", () => {
       scopes: ["read", "write"],
       customClaims: { customClaim: "customValue" },
     }
+
+    ;(mockSigningKeyRepository.tryGetActiveSigningKey as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      signingKey,
+    )
   })
 
   describe("createAccessToken", () => {
@@ -43,8 +52,8 @@ describe("JsonWebTokenIssuer", () => {
       return jwt.verify(token, signingKey.publicKey, { algorithms: ["RS256"] }) as jwt.JwtPayload
     }
 
-    it("should create a valid access token with correct structure", () => {
-      const result = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
+    it("should create a valid access token with correct structure", async () => {
+      const result = await tokenIssuer.createAccessToken(baseTokenRequest)
 
       expect(result.expiresIn).toBe(lifetimeSeconds)
       expect(typeof result.accessToken).toBe("string")
@@ -63,44 +72,44 @@ describe("JsonWebTokenIssuer", () => {
       expect(decoded.exp! - decoded.iat!).toBe(lifetimeSeconds)
     })
 
-    it("should use custom audience when provided in request", () => {
+    it("should use custom audience when provided in request", async () => {
       const customAudience = "custom-audience"
       const request = { ...baseTokenRequest, audience: customAudience }
 
-      const result = tokenIssuer.createAccessToken(signingKey, request)
+      const result = await tokenIssuer.createAccessToken(request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.aud).toBe(customAudience)
     })
 
-    it("should handle request without scopes", () => {
+    it("should handle request without scopes", async () => {
       const request = { ...baseTokenRequest, scopes: undefined }
 
-      const result = tokenIssuer.createAccessToken(signingKey, request)
+      const result = await tokenIssuer.createAccessToken(request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.scope).toBeUndefined()
     })
 
-    it("should handle empty scopes array", () => {
+    it("should handle empty scopes array", async () => {
       const request = { ...baseTokenRequest, scopes: [] }
 
-      const result = tokenIssuer.createAccessToken(signingKey, request)
+      const result = await tokenIssuer.createAccessToken(request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.scope).toBe("")
     })
 
-    it("should handle request without sessionId", () => {
+    it("should handle request without sessionId", async () => {
       const request = { ...baseTokenRequest, sessionId: undefined }
 
-      const result = tokenIssuer.createAccessToken(signingKey, request)
+      const result = await tokenIssuer.createAccessToken(request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.sid).toBeUndefined()
     })
 
-    it("should include all custom claims in the token payload", () => {
+    it("should include all custom claims in the token payload", async () => {
       const request = {
         ...baseTokenRequest,
         customClaims: {
@@ -111,7 +120,7 @@ describe("JsonWebTokenIssuer", () => {
         },
       }
 
-      const result = tokenIssuer.createAccessToken(signingKey, request)
+      const result = await tokenIssuer.createAccessToken(request)
       const decoded = decodeToken(result.accessToken)
 
       expect(decoded.stringClaim).toBe("value1")
@@ -120,9 +129,9 @@ describe("JsonWebTokenIssuer", () => {
       expect(decoded.nestedClaim).toEqual({ nested: "value" })
     })
 
-    it("should have expiration time greater than issued time", () => {
+    it("should have expiration time greater than issued time", async () => {
       const before = Math.floor(Date.now() / 1000)
-      const result = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
+      const result = await tokenIssuer.createAccessToken(baseTokenRequest)
       const after = Math.floor(Date.now() / 1000) + 1 // Add 1 second buffer for timing
 
       const decoded = decodeToken(result.accessToken)
@@ -132,9 +141,9 @@ describe("JsonWebTokenIssuer", () => {
       expect(decoded.exp).toBe(decoded.iat! + lifetimeSeconds)
     })
 
-    it("should generate unique JTI for each token", () => {
-      const result1 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
-      const result2 = tokenIssuer.createAccessToken(signingKey, baseTokenRequest)
+    it("should generate unique JTI for each token", async () => {
+      const result1 = await tokenIssuer.createAccessToken(baseTokenRequest)
+      const result2 = await tokenIssuer.createAccessToken(baseTokenRequest)
 
       const decoded1 = decodeToken(result1.accessToken)
       const decoded2 = decodeToken(result2.accessToken)

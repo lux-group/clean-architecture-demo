@@ -1,4 +1,4 @@
-import { EventPublisher } from "~/domain/adapters"
+import { EventPublisher } from "~/app/shared/adapters"
 import { EntityChangeEvent } from "~/domain/events"
 import { SigningKeyRepository } from "~/domain/repositories"
 

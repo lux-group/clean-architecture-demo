@@ -1,4 +1,4 @@
-import { AuthClientFactory, EventPublisher, SignOutState } from "~/domain/adapters"
+import { AuthClientFactory, EventPublisher, SignOutState } from "~/app/shared/adapters"
 import { AuthenticationError } from "~/domain/errors"
 import { SessionEvent } from "~/domain/events"
 import { IdentityProviderRepository, SessionRepository } from "~/domain/repositories"

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import { Event } from "../adapters"
+import { Event } from "./Event"
 
 export interface AuthorizationEventDetails {
   userId?: string

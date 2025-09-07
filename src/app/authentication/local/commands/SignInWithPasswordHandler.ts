@@ -1,10 +1,9 @@
-import { EventPublisher } from "~/domain/adapters"
+import { EventPublisher, PasswordVerifier, SessionConfig } from "~/app/shared/adapters"
 import { CreateSessionProps, Session } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, SessionEvent } from "~/domain/events"
 import { SessionRepository, UserRepository } from "~/domain/repositories"
 import { AuthenticationService } from "~/domain/services"
-import { SessionConfig } from "~/infrastructure/config"
 
 export interface SignInWithPasswordCommand {
   brand: string
@@ -16,6 +15,7 @@ export class SignInWithPasswordHandler {
   constructor(
     private readonly authenticationService: AuthenticationService,
     private readonly eventPublisher: EventPublisher,
+    private readonly passwordVerifier: PasswordVerifier,
     private readonly sessionConfig: SessionConfig,
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
@@ -24,7 +24,12 @@ export class SignInWithPasswordHandler {
   async execute(command: SignInWithPasswordCommand): Promise<Session> {
     try {
       let user = await this.userRepository.tryGetByBrandAndEmail(command.brand, command.email)
-      user = this.authenticationService.authenticateWithPassword(user, command.password)
+
+      user = this.authenticationService.authenticateWithPassword(
+        user,
+        command.password,
+        this.passwordVerifier.verifyPassword,
+      )
 
       const props: CreateSessionProps = {
         userId: user.id,

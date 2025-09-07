@@ -1,4 +1,4 @@
-import { AuthClientFactory, SignInState } from "~/domain/adapters"
+import { AuthClientFactory, SignInState } from "~/app/shared/adapters"
 import { InvalidOperationError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"
 
