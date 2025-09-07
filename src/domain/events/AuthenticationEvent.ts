@@ -1,14 +1,12 @@
 import { randomUUID } from "node:crypto"
-import { commonErrors } from "~/domain/errors"
 import { Event } from "../adapters"
-import { Session, User } from "../entities"
 
 export interface AuthenticationEventDetails {
   userId?: string
   sessionId?: string
   identityProviderId?: string
   identifierClaimValue?: string
-  method: "Active Session" | "Password" | "Client Credentials" | "Identity Provider"
+  method: "Active Session" | "Password" | "Client Credentials" | "Token Exchange" | "Identity Provider"
 }
 
 export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
@@ -19,7 +17,7 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
   readonly reason?: string
   readonly details: AuthenticationEventDetails
 
-  private constructor(
+  constructor(
     id: string,
     timestamp: Date,
     result: "Success" | "Failed",
@@ -33,115 +31,47 @@ export class AuthenticationEvent implements Event<AuthenticationEventDetails> {
     this.reason = reason
   }
 
-  static activeSessionSuccess(session: Session) {
+  static activeSessionVerified(userId: string, sessionId: string) {
     return AuthenticationEvent.success({
       method: "Active Session",
-      userId: session.userId,
-      sessionId: session.id,
+      userId,
+      sessionId,
     })
   }
 
-  static activeSessionExpired(session: Session) {
-    return AuthenticationEvent.failed(commonErrors.sessionExpired, {
-      method: "Active Session",
-      userId: session.userId,
-      sessionId: session.id,
-    })
-  }
-
-  static activeSessionFailed(session: Session) {
-    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
-      method: "Active Session",
-      userId: session.userId,
-      sessionId: session.id,
-    })
-  }
-
-  static activeSessionMethodNotAllowed(session: Session) {
-    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
-      method: "Active Session",
-      userId: session.userId,
-      sessionId: session.id,
-    })
-  }
-
-  static passwordSuccess(user: User) {
+  static passwordVerified(userId: string) {
     return AuthenticationEvent.success({
       method: "Password",
-      userId: user.id,
+      userId,
     })
   }
 
-  static passwordFailed(user?: User) {
-    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
-      method: "Password",
-      userId: user?.id,
-    })
-  }
-
-  static passwordMethodNotAllowed(user: User) {
-    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
-      method: "Password",
-      userId: user.id,
-    })
-  }
-
-  static clientCredentialsSuccess(user: User) {
+  static clientCredentialsVerified(userId: string) {
     return AuthenticationEvent.success({
       method: "Client Credentials",
-      userId: user.id,
+      userId,
     })
   }
 
-  static clientCredentialsFailed(clientId: string) {
-    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
-      method: "Client Credentials",
-      userId: clientId,
-    })
-  }
-
-  static clientCredentialsMethodNotAllowed(clientId: string) {
-    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
-      method: "Client Credentials",
-      userId: clientId,
-    })
-  }
-
-  static identityProviderSuccess(user: User, identityProviderId: string, identifierClaimValue: string) {
+  static externalTokenVerified(userId: string, identityProviderId: string, identifierClaimValue: string) {
     return AuthenticationEvent.success({
-      method: "Identity Provider",
-      userId: user.id,
+      method: "Token Exchange",
+      userId,
       identityProviderId,
       identifierClaimValue,
     })
   }
 
-  static identityProviderFailed(identityProviderId: string, identifierClaimValue: string) {
-    return AuthenticationEvent.failed(commonErrors.authenticationFailed, {
+  static identityProviderCodeVerified(userId: string, identityProviderId: string, identifierClaimValue: string) {
+    return AuthenticationEvent.success({
       method: "Identity Provider",
+      userId,
       identityProviderId,
       identifierClaimValue,
     })
-  }
-
-  static identityProviderMethodNotAllowed(user: User, identityProviderId: string, identifierClaimValue: string) {
-    return AuthenticationEvent.failed(commonErrors.authenticationMethodNotAllowed, {
-      method: "Identity Provider",
-      userId: user.id,
-      identityProviderId,
-      identifierClaimValue,
-    })
-  }
-
-  static identityProviderTokenFailed() {
-    return AuthenticationEvent.failed(commonErrors.authenticationFailed, { method: "Identity Provider" })
   }
 
   private static success(details: AuthenticationEventDetails): AuthenticationEvent {
     return new AuthenticationEvent(randomUUID(), new Date(), "Success", details)
-  }
-
-  private static failed(reason: string, details: AuthenticationEventDetails): AuthenticationEvent {
-    return new AuthenticationEvent(randomUUID(), new Date(), "Failed", details, reason)
   }
 }

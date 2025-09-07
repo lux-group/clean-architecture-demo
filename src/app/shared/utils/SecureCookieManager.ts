@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
 import { CookieOptions, Request, Response } from "express"
 import { Session } from "~/domain/entities"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationError } from "~/domain/errors"
 import { EncryptionProvider } from "~/infrastructure/crypto"
 
 interface SessionCookie {
@@ -53,7 +53,7 @@ export class SecureCookieManager {
   private getCookie<T extends object>(req: Request, res: Response, name: string): T {
     const encrypted = req.cookies[name]
     if (!encrypted) {
-      throw new AuthenticationError(commonErrors.cookieNotFound)
+      throw AuthenticationError.activeSessionCookieNotFound()
     }
 
     let payload: T
@@ -62,12 +62,12 @@ export class SecureCookieManager {
       payload = JSON.parse(decrypted)
     } catch {
       res.clearCookie(name)
-      throw new AuthenticationError(commonErrors.cookieInvalid)
+      throw AuthenticationError.activeSessionCookieInvalid()
     }
 
     if ((payload as Record<string, string>).device !== this.extractFingerprint(req.headers)) {
       res.clearCookie(name)
-      throw new AuthenticationError(commonErrors.cookieInvalid)
+      throw AuthenticationError.activeSessionCookieInvalid()
     }
 
     return payload

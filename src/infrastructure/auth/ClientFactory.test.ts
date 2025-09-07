@@ -92,9 +92,7 @@ describe("ClientFactory", () => {
       })
 
       expect(() => clientFactory.createClient(identityProvider)).toThrow(InvalidOperationError)
-      expect(() => clientFactory.createClient(identityProvider)).toThrow(
-        "The identity provider is not configured for authentication.",
-      )
+      expect(() => clientFactory.createClient(identityProvider)).toThrow(/not configured for authentication/)
     })
   })
 })

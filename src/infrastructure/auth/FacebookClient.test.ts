@@ -249,7 +249,7 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Token exchange failed: 400 Bad Request",
@@ -276,7 +276,7 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Failed to fetch user profile: 403 Forbidden",
@@ -307,7 +307,7 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Facebook API error: Invalid access token",
@@ -338,7 +338,7 @@ describe("FacebookClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(facebookClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Required profile information not available from Facebook",

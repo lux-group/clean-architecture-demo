@@ -10,7 +10,7 @@ export class ClientFactory implements AuthClientFactory {
 
   createClient(identityProvider: IdentityProvider): AuthClient {
     if (!identityProvider.authSettings) {
-      throw new InvalidOperationError("The identity provider is not configured for authentication.")
+      throw InvalidOperationError.identityProviderHasNoAuthSettings(identityProvider.id)
     }
 
     switch (identityProvider.authSettings.type) {
@@ -23,7 +23,7 @@ export class ClientFactory implements AuthClientFactory {
       case IdentityProviderType.Facebook:
         return new FacebookClient(this.baseUrl, identityProvider)
       default:
-        throw new InvalidOperationError("Unsupported identity provider type")
+        throw new Error("Unsupported identity provider type")
     }
   }
 }

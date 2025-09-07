@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken"
 import * as client from "openid-client"
 import { AuthClient, SignInResponse, SignInState, SignOutState } from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
-import { AuthenticationError } from "~/domain/errors"
 import { ClientCache } from "~/lib/ClientCache"
 
 const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(async idp =>
@@ -75,14 +74,12 @@ export class OidcClient implements AuthClient {
     const claims = result.claims()!
 
     if (claims.iss !== this.identityProvider.issuerUrl) {
-      throw new AuthenticationError(`Expected issuer ${this.identityProvider.issuerUrl} but received ${claims.iss}.`)
+      throw new Error(`Expected issuer ${this.identityProvider.issuerUrl} but received ${claims.iss}.`)
     }
 
     const audienceList = Array.isArray(claims.aud) ? claims.aud : [claims.aud]
     if (!audienceList.includes(this.identityProvider.audience)) {
-      throw new AuthenticationError(
-        `Expected audience ${this.identityProvider.audience} but received ${audienceList.join(", ")}.`,
-      )
+      throw new Error(`Expected audience ${this.identityProvider.audience} but received ${audienceList.join(", ")}.`)
     }
 
     const sessionId = url.searchParams.get("session_state") as string

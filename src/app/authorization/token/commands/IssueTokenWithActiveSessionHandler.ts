@@ -1,10 +1,10 @@
-import { AuthClientFactory, EventPublisher } from "~/domain/adapters"
+import { AuthClientFactory, EventPublisher, TokenResponse } from "~/domain/adapters"
 import { Session, User } from "~/domain/entities"
-import { AuthenticationError, AuthorizationError, commonErrors, InvalidOperationError } from "~/domain/errors"
+import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
 import { IdentityProviderRepository, SessionRepository, UserRepository } from "~/domain/repositories"
+import { AuthenticationService, AuthorizationService } from "~/domain/services"
 import { SessionConfig } from "~/infrastructure/config"
-import { AuthorizationService } from "./AuthorizationService"
 
 export interface IssueTokenWithActiveSessionInput {
   sessionId: string
@@ -14,66 +14,64 @@ export interface IssueTokenWithActiveSessionInput {
   scope?: string
 }
 
-export interface IssueTokenWithActiveSessionResult {
-  accessToken: string
-  expiresIn: number
-}
+export type IssueTokenWithActiveSessionResult = TokenResponse
 
 export class IssueTokenWithActiveSessionHandler {
   constructor(
     private readonly authClientFactory: AuthClientFactory,
+    private readonly authenticationService: AuthenticationService,
     private readonly authorizationService: AuthorizationService,
-    private readonly identityProviderRepository: IdentityProviderRepository,
-    private readonly sessionRepository: SessionRepository,
-    private readonly sessionConfig: SessionConfig,
-    private readonly userRepository: UserRepository,
     private readonly eventPublisher: EventPublisher,
+    private readonly identityProviderRepository: IdentityProviderRepository,
+    private readonly sessionConfig: SessionConfig,
+    private readonly sessionRepository: SessionRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async execute(command: IssueTokenWithActiveSessionInput): Promise<IssueTokenWithActiveSessionResult> {
-    const session = await this.getSession(command.sessionId, command.nonce)
-    let user = await this.authenticateUser(session)
+    try {
+      const session = await this.getSession(command.sessionId, command.nonce)
+      let user = await this.authenticat(session)
 
-    let impersonatedByUser: User | undefined
-    if (command.userToImpersonateId) {
-      impersonatedByUser = user
-      user = await this.getUserToImpersonate(command.userToImpersonateId)
+      let impersonatedByUser: User | undefined
+      if (command.userToImpersonateId) {
+        const userToImpersonate = await this.getUserToImpersonate(command.userToImpersonateId)
+        this.authorizationService.authorizeImpersonation(user, userToImpersonate)
 
-      if (!impersonatedByUser.canImpersonateUser(user)) {
-        this.eventPublisher.publishEvent(AuthorizationEvent.impersonationFailed(impersonatedByUser, user, session))
-        throw new AuthorizationError(commonErrors.impersonationNotAllowed)
+        impersonatedByUser = user
+        user = userToImpersonate
       }
-    }
 
-    return await this.authorizationService.issueAccessToken(
-      user,
-      impersonatedByUser,
-      session,
-      command.audience,
-      command.scope,
-    )
+      const response = await this.authorizationService.issueAccessToken(
+        user,
+        impersonatedByUser,
+        session,
+        command.audience,
+        command.scope,
+      )
+
+      this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionVerified(session.userId, session.id))
+      this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(response.claims, session.userId, session.id))
+
+      return response
+    } catch (error: unknown) {
+      if (error instanceof AuthenticationError || error instanceof AuthorizationError) {
+        this.eventPublisher.publishEvent(error.toEvent())
+      }
+
+      throw error
+    }
   }
 
-  private async authenticateUser(session: Session) {
+  private async authenticat(session: Session) {
     const user = await this.userRepository.tryGetById(session.userId)
-    if (!user) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionFailed(session))
-      throw new AuthenticationError(commonErrors.authenticationFailed)
-    }
-
-    if (!user.canSignInWithActiveSession()) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionMethodNotAllowed(session))
-      throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
-    }
-
-    this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionSuccess(session))
-    return user
+    return this.authenticationService.authenticateWithActiveSession(user, session)
   }
 
   private async getUserToImpersonate(userToImpersonateId: string) {
     const userToImpersonate = await this.userRepository.tryGetById(userToImpersonateId)
     if (!userToImpersonate) {
-      throw new InvalidOperationError(`User with id ${userToImpersonateId} not found`)
+      throw InvalidOperationError.userNotFound(userToImpersonateId)
     }
 
     return userToImpersonate
@@ -82,29 +80,19 @@ export class IssueTokenWithActiveSessionHandler {
   private async getSession(sessionId: string, nonce: string) {
     const session = await this.sessionRepository.tryGetById(sessionId)
     if (!session) {
-      throw new AuthenticationError(commonErrors.sessionExpired)
+      throw InvalidOperationError.sessionNotFound(sessionId)
     }
 
-    if (!session.isActive) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionExpired(session))
-      throw new AuthenticationError(commonErrors.sessionExpired)
-    }
-
-    if (session.nonce !== nonce) {
-      this.eventPublisher.publishEvent(SessionEvent.nonceMismatchDetected(session))
-      throw new AuthenticationError(commonErrors.sessionInvalid)
-    }
+    session.ensureIsActive()
+    session.verifyNonce(nonce)
 
     await this.refreshSession(session)
+    session.ensureIsActive()
+
     return session
   }
 
   private async refreshSession(session: Session) {
-    if (!session.isActive) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.activeSessionExpired(session))
-      throw new AuthenticationError(commonErrors.sessionExpired)
-    }
-
     // To avoid calling the IDP unnecessarily, we configure a minimum period between refreshes.
     // However, note that the longer this period is, the longer a user can use access tokens
     // after a session has been terminated (e.g. revoked by IDP).

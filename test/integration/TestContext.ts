@@ -8,6 +8,7 @@ import registerRedisDecoratorRepositories from "~/infrastructure/repositories/re
 import registerConfig from "~/infrastructure/config/module"
 import { TestDataContext } from "./TestDataContext"
 import { TokenIssuer, TokenRequest } from "~/domain/adapters/TokenIssuer"
+import registerDomainServices from "~/domain/services/module"
 
 export interface TestContext {
   container: AwilixContainer
@@ -24,6 +25,7 @@ const createTestContainer = async () => {
 
   await registerConfig(container, "test")
   await registerApp(container)
+  await registerDomainServices(container)
   await registerInfrastructureServices(container)
   await registerPrismaRepositories(container)
   await registerRedisDecoratorRepositories(container)
@@ -38,7 +40,7 @@ export const getTestContext = async (): Promise<TestContext> => {
   const createAccessToken = async (userId: string, scopes: string[]) => {
     const tokenIssuer = container.resolve<TokenIssuer>("tokenIssuer")
     const signingKey = await data.getActiveSigningKey()
-    const request: TokenRequest = { userId, scopes, claims: {} }
+    const request: TokenRequest = { userId, scopes, customClaims: {} }
     return tokenIssuer.createAccessToken(signingKey, request).accessToken
   }
 

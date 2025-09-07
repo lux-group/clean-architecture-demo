@@ -115,7 +115,9 @@ describe("[POST] /auth/external/sign-in-callback (ProcessSignInResponse)", () =>
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toMatch(/error=Authentication%20method%20is%20not%20allowed/)
+      expect(response.headers.location).toMatch(
+        /error=Identity%20provider%20authentication%20failed.%20Account%20not%20enabled/,
+      )
       expect(response.headers["set-cookie"]).toEqual(expect.arrayContaining([expect.stringMatching(/auth-state=;/)]))
     })
   })

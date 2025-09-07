@@ -34,7 +34,7 @@ describe("JsonWebTokenIssuer", () => {
       userId: "user123",
       sessionId: "session123",
       scopes: ["read", "write"],
-      claims: { customClaim: "customValue" },
+      customClaims: { customClaim: "customValue" },
     }
   })
 
@@ -103,7 +103,7 @@ describe("JsonWebTokenIssuer", () => {
     it("should include all custom claims in the token payload", () => {
       const request = {
         ...baseTokenRequest,
-        claims: {
+        customClaims: {
           stringClaim: "value1",
           numberClaim: 42,
           booleanClaim: true,

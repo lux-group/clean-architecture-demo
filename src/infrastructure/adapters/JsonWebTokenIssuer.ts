@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/domain/adapters"
+import { TokenIssuer, TokenRequest, TokenResponse } from "~/domain/adapters"
 import { SigningKey } from "~/domain/entities"
 import { UUIDToShort } from "~/lib/ShortUUID"
+import { TokenIssuerConfig } from "../config"
 
 export class JsonWebTokenIssuer implements TokenIssuer {
   constructor(
@@ -22,7 +23,7 @@ export class JsonWebTokenIssuer implements TokenIssuer {
       iat: now,
       exp: now + this.tokenIssuerConfig.lifetimeSeconds,
       scope: request.scopes?.join(" "),
-      ...request.claims,
+      ...request.customClaims,
     }
 
     // We shorten the key ID to save size.
@@ -31,6 +32,6 @@ export class JsonWebTokenIssuer implements TokenIssuer {
 
     const accessToken = jwt.sign(claims, signingKey.privateKey!, { algorithm: "RS256", keyid: kid })
 
-    return { accessToken, expiresIn: this.tokenIssuerConfig.lifetimeSeconds }
+    return { accessToken, expiresIn: this.tokenIssuerConfig.lifetimeSeconds, claims }
   }
 }

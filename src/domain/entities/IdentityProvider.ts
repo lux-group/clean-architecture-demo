@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import z from "zod"
-import { commonErrors, InvalidOperationError } from "../errors"
+import { InvalidOperationError } from "../errors"
 import { Entity, validateProps } from "./Entity"
 
 export const IdentityProviderType = {
@@ -79,13 +79,19 @@ export class IdentityProvider extends Entity<IdentityProviderProps> {
     this.props = allProps
   }
 
+  ensureAuthSettings() {
+    if (!this.authSettings) {
+      throw InvalidOperationError.identityProviderHasNoAuthSettings(this.id)
+    }
+  }
+
   verifyRedirectUrl(redirectUrl: string) {
     if (!this.authSettings) {
-      throw new InvalidOperationError(commonErrors.missingAuthSettings)
+      throw InvalidOperationError.identityProviderHasNoAuthSettings(this.id)
     }
 
     if (!this.authSettings.redirectUrls.some(url => redirectUrl.startsWith(url))) {
-      throw new InvalidOperationError(commonErrors.invalidRedirectUrl)
+      throw InvalidOperationError.invalidRedirectUrl(this.id, redirectUrl)
     }
   }
 }

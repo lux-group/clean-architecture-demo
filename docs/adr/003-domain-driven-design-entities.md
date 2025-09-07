@@ -43,7 +43,7 @@ export class User extends Entity<UserProps> {
   // Business logic methods
   changePassword(newPassword: string, passwordVerifier: PasswordVerifier): void {
     if (!this.isEnabled) {
-      throw new InvalidOperationError("Cannot change password for disabled user")
+      throw InvalidOperationError.userIsNotEnabled(this.id)
     }
     
     const hashedPassword = passwordVerifier.createPasswordHash(newPassword)
@@ -52,7 +52,7 @@ export class User extends Entity<UserProps> {
 
   disable(): void {
     if (!this.isEnabled) {
-      throw new InvalidOperationError("User is already disabled")
+      throw InvalidOperationError.userIsNotEnabled(this.id)
     }
     
     this.updateProps({ isEnabled: false })

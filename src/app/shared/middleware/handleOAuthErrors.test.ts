@@ -22,7 +22,7 @@ describe("Handle OAuth Errors Middleware", () => {
   })
 
   it("should handle AuthenticationError", () => {
-    const error = new AuthenticationError("Authentication error")
+    const error = new AuthenticationError("Authentication error", { method: "Password" })
     const expectedResponse = {
       error: "unauthorized_client",
       error_description: "Authentication error",
@@ -37,7 +37,7 @@ describe("Handle OAuth Errors Middleware", () => {
   })
 
   it("should handle AuthorizationError", () => {
-    const error = new AuthorizationError("Authorization error")
+    const error = new AuthorizationError("Authorization error", {})
     const expectedResponse = {
       error: "access_denied",
       error_description: "Authorization error",

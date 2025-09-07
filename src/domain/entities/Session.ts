@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto"
 import z from "zod"
-import { commonErrors, InvalidOperationError } from "../errors"
+import { AuthenticationError, InvalidOperationError } from "../errors"
 import { Entity, validateProps } from "./Entity"
 
 export const SessionStatus = {
@@ -88,15 +88,27 @@ export class Session extends Entity<SessionProps> {
     return new Session(allProps)
   }
 
+  ensureIsActive() {
+    if (!this.isActive) {
+      throw AuthenticationError.sessionExpired(this.id, this.userId)
+    }
+  }
+
   ensureIsLocalSession() {
     if (this.identityProviderId) {
-      throw new InvalidOperationError(commonErrors.mustBeLocalSession)
+      throw InvalidOperationError.sessionMustBeLocal(this.id)
     }
   }
 
   ensureIsIdentityProviderSession() {
     if (!this.identityProviderId) {
-      throw new InvalidOperationError(commonErrors.mustBeIdentityProviderSession)
+      throw InvalidOperationError.sessionMustBeExternal(this.id)
+    }
+  }
+
+  verifyNonce(nonce: string) {
+    if (this.nonce !== nonce) {
+      throw Error("Nonce mismatch indicating potential session hijacking attempt detected.")
     }
   }
 
@@ -148,7 +160,7 @@ export class Session extends Entity<SessionProps> {
     }
 
     if (newStatus === SessionStatus.Active) {
-      throw new InvalidOperationError(commonErrors.sessionExpired)
+      throw InvalidOperationError.sessionExpired(this.id)
     }
 
     if (this.expiresAt < new Date()) {

@@ -209,7 +209,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Token exchange failed: 400 Bad Request",
@@ -232,7 +232,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid nonce in ID token")
     })
@@ -253,7 +253,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Invalid issuer in ID token",
@@ -276,7 +276,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Invalid audience in ID token",
@@ -299,7 +299,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
         "Required profile information not available",
@@ -325,7 +325,7 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
 
       await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("Invalid ID token format")
     })
@@ -394,11 +394,8 @@ describe("AppleClient", () => {
 
       const urlPath = "/auth/external/sign-in-callback?code=auth-code&state=test-state"
 
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(AuthenticationError)
-
-      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(
-        "Failed to process ID token",
-      )
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow(Error)
+      await expect(appleClient.processSignInResponse(signInState, urlPath)).rejects.toThrow("JWT decode error")
     })
   })
 })

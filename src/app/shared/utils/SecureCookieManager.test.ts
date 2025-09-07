@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Session } from "~/domain/entities"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationError } from "~/domain/errors"
 import { NodeEncryptionProvider } from "~/infrastructure/crypto/NodeEncryptionProvider"
 import { SecureCookieManager } from "./SecureCookieManager"
 
@@ -74,7 +74,7 @@ describe("SecureCookieManager", () => {
     it("should throw AuthenticationError when state cookie not found", () => {
       expect(() => {
         cookieManager.getStateCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieNotFound))
+      }).toThrow(AuthenticationError.activeSessionCookieNotFound())
     })
 
     it("should throw AuthenticationError and clear cookie when state cookie is invalid", () => {
@@ -82,7 +82,7 @@ describe("SecureCookieManager", () => {
 
       expect(() => {
         cookieManager.getStateCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieInvalid))
+      }).toThrow(AuthenticationError.activeSessionCookieInvalid())
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-state")
     })
@@ -98,7 +98,7 @@ describe("SecureCookieManager", () => {
 
       expect(() => {
         cookieManager.getStateCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieInvalid))
+      }).toThrow(AuthenticationError.activeSessionCookieInvalid())
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-state")
     })
@@ -159,7 +159,7 @@ describe("SecureCookieManager", () => {
     it("should throw AuthenticationError when session cookie not found", () => {
       expect(() => {
         cookieManager.getSessionCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieNotFound))
+      }).toThrow(AuthenticationError.activeSessionCookieNotFound())
     })
 
     it("should throw AuthenticationError and clear cookie when session cookie is invalid", () => {
@@ -167,7 +167,7 @@ describe("SecureCookieManager", () => {
 
       expect(() => {
         cookieManager.getSessionCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieInvalid))
+      }).toThrow(AuthenticationError.activeSessionCookieInvalid())
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-session")
     })
@@ -181,7 +181,7 @@ describe("SecureCookieManager", () => {
 
       expect(() => {
         cookieManager.getSessionCookie(mockRequest as Request, mockResponse as Response)
-      }).toThrow(new AuthenticationError(commonErrors.cookieInvalid))
+      }).toThrow(AuthenticationError.activeSessionCookieInvalid())
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith("auth-session")
     })

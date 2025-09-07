@@ -57,15 +57,15 @@ export class FacebookClient implements AuthClient {
     const error = url.searchParams.get("error")
 
     if (error) {
-      throw new AuthenticationError(`Facebook OAuth error: ${error}`)
+      throw AuthenticationError.invalidIdentityProviderResponse(`Facebook OAuth error: ${error}`)
     }
 
     if (!code) {
-      throw new AuthenticationError("Authorization code not received from Facebook")
+      throw AuthenticationError.invalidIdentityProviderResponse("Authorization code not received from Facebook")
     }
 
     if (state !== signInState.state) {
-      throw new AuthenticationError("Invalid state parameter")
+      throw AuthenticationError.invalidIdentityProviderResponse("Invalid state parameter")
     }
 
     // Exchange authorization code for access token
@@ -114,7 +114,7 @@ export class FacebookClient implements AuthClient {
     })
 
     if (!response.ok) {
-      throw new AuthenticationError(`Token exchange failed: ${response.status} ${response.statusText}`)
+      throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`)
     }
 
     return await response.json()
@@ -134,13 +134,13 @@ export class FacebookClient implements AuthClient {
     })
 
     if (!response.ok) {
-      throw new AuthenticationError(`Failed to fetch user profile: ${response.status} ${response.statusText}`)
+      throw new Error(`Failed to fetch user profile: ${response.status} ${response.statusText}`)
     }
 
     const userData = await response.json()
 
     if (userData.error) {
-      throw new AuthenticationError(`Facebook API error: ${userData.error.message}`)
+      throw Error(`Facebook API error: ${userData.error.message}`)
     }
 
     const identifierClaimValue = userData[this.identityProvider.identifierClaimName] || userData.id
@@ -149,7 +149,7 @@ export class FacebookClient implements AuthClient {
     const surname = userData.last_name || ""
 
     if (!email || !identifierClaimValue) {
-      throw new AuthenticationError("Required profile information not available from Facebook")
+      throw new Error("Required profile information not available from Facebook")
     }
 
     return {

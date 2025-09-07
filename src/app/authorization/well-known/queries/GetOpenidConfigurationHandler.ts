@@ -1,4 +1,4 @@
-import { TokenIssuerConfig } from "~/domain/adapters/TokenIssuer"
+import { TokenIssuerConfig } from "~/infrastructure/config"
 
 export class GetOpenidConfigurationHandler {
   constructor(

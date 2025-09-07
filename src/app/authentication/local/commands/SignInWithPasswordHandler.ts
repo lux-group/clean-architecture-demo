@@ -1,8 +1,9 @@
-import { EventPublisher, PasswordVerifier } from "~/domain/adapters"
+import { EventPublisher } from "~/domain/adapters"
 import { CreateSessionProps, Session } from "~/domain/entities"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, SessionEvent } from "~/domain/events"
 import { SessionRepository, UserRepository } from "~/domain/repositories"
+import { AuthenticationService } from "~/domain/services"
 import { SessionConfig } from "~/infrastructure/config"
 
 export interface SignInWithPasswordCommand {
@@ -13,54 +14,39 @@ export interface SignInWithPasswordCommand {
 
 export class SignInWithPasswordHandler {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly sessionRepository: SessionRepository,
-    private readonly sessionConfig: SessionConfig,
-    private readonly passwordVerifier: PasswordVerifier,
+    private readonly authenticationService: AuthenticationService,
     private readonly eventPublisher: EventPublisher,
+    private readonly sessionConfig: SessionConfig,
+    private readonly sessionRepository: SessionRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async execute(command: SignInWithPasswordCommand): Promise<Session> {
-    const user = await this.authenticateUser(command.brand, command.email, command.password)
-    return await this.createSession(user.id)
-  }
+    try {
+      let user = await this.userRepository.tryGetByBrandAndEmail(command.brand, command.email)
+      user = this.authenticationService.authenticateWithPassword(user, command.password)
 
-  private async authenticateUser(brand: string, email: string, password: string) {
-    const user = await this.userRepository.tryGetByBrandAndEmail(brand, email)
+      const props: CreateSessionProps = {
+        userId: user.id,
+        identityProviderId: null,
+        identityProviderSessionId: null,
+        idToken: null,
+        refreshToken: null,
+      }
 
-    if (!user) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.passwordFailed())
-      throw new AuthenticationError(commonErrors.authenticationFailed)
+      const session = Session.createNew(props, this.sessionConfig.localSessionLifetimeHours)
+      await this.sessionRepository.insert(session)
+
+      this.eventPublisher.publishEvent(AuthenticationEvent.passwordVerified(user.id))
+      this.eventPublisher.publishEvent(SessionEvent.sessionCreated(session))
+
+      return session
+    } catch (error: unknown) {
+      if (error instanceof AuthenticationError) {
+        this.eventPublisher.publishEvent(error.toEvent())
+      }
+
+      throw error
     }
-
-    if (!user.canSignInWithPassword()) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.passwordMethodNotAllowed(user))
-      throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
-    }
-
-    if (!user.passwordHash || !this.passwordVerifier.verifyPassword(password, user.passwordHash)) {
-      user.handleFailedSignInAttempt()
-      this.eventPublisher.publishEvent(AuthenticationEvent.passwordFailed(user))
-      throw new AuthenticationError(commonErrors.authenticationFailed)
-    }
-
-    this.eventPublisher.publishEvent(AuthenticationEvent.passwordSuccess(user))
-    return user
-  }
-
-  private async createSession(userId: string) {
-    const props: CreateSessionProps = {
-      userId: userId,
-      identityProviderId: null,
-      identityProviderSessionId: null,
-      idToken: null,
-      refreshToken: null,
-    }
-
-    const session = Session.createNew(props, this.sessionConfig.localSessionLifetimeHours)
-    await this.sessionRepository.insert(session)
-
-    this.eventPublisher.publishEvent(SessionEvent.sessionCreated(session))
-    return session
   }
 }

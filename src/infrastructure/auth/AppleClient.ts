@@ -52,11 +52,11 @@ export class AppleClient implements AuthClient {
     const userParam = url.searchParams.get("user")
 
     if (!code) {
-      throw new AuthenticationError("Authorization code not received from Apple")
+      throw AuthenticationError.invalidIdentityProviderResponse("Authorization code not received from Apple")
     }
 
     if (state !== signInState.state) {
-      throw new AuthenticationError("Invalid state parameter")
+      throw AuthenticationError.invalidIdentityProviderResponse("Invalid state parameter")
     }
 
     const tokenResponse = await this.exchangeCodeForTokens(code, signInState)
@@ -104,74 +104,67 @@ export class AppleClient implements AuthClient {
     })
 
     if (!response.ok) {
-      throw new AuthenticationError(`Token exchange failed: ${response.status} ${response.statusText}`)
+      throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`)
     }
 
     return await response.json()
   }
 
   private extractProfileFromIdToken(idToken: string, userParam: string | null, expectedNonce: string): Profile {
-    try {
-      // Decode JWT without verification (Apple's public keys would need to be fetched for full verification)
-      const decodedToken = jwt.decode(idToken, { complete: true }) as any
+    // Decode JWT without verification (Apple's public keys would need to be fetched for full verification)
+    const decodedToken = jwt.decode(idToken, { complete: true }) as any
 
-      if (!decodedToken || !decodedToken.payload) {
-        throw new AuthenticationError("Invalid ID token format")
-      }
+    if (!decodedToken || !decodedToken.payload) {
+      throw new Error("Invalid ID token format")
+    }
 
-      const payload = decodedToken.payload
+    const payload = decodedToken.payload
 
-      // Verify nonce
-      if (payload.nonce !== expectedNonce) {
-        throw new AuthenticationError("Invalid nonce in ID token")
-      }
+    // Verify nonce
+    if (payload.nonce !== expectedNonce) {
+      throw new Error("Invalid nonce in ID token")
+    }
 
-      // Verify issuer and audience
-      if (payload.iss !== "https://appleid.apple.com") {
-        throw new AuthenticationError("Invalid issuer in ID token")
-      }
+    // Verify issuer and audience
+    if (payload.iss !== "https://appleid.apple.com") {
+      throw new Error("Invalid issuer in ID token")
+    }
 
-      if (payload.aud !== this.identityProvider.authSettings!.clientId) {
-        throw new AuthenticationError("Invalid audience in ID token")
-      }
+    if (payload.aud !== this.identityProvider.authSettings!.clientId) {
+      throw new Error("Invalid audience in ID token")
+    }
 
-      let givenName = ""
-      let surname = ""
-      let email = payload.email || ""
+    let givenName = ""
+    let surname = ""
+    let email = payload.email || ""
 
-      // Parse user data if provided (only on first sign-in)
-      if (userParam) {
-        try {
-          const userData = JSON.parse(userParam)
-          if (userData.name) {
-            givenName = userData.name.firstName || ""
-            surname = userData.name.lastName || ""
-          }
-          if (userData.email) {
-            email = userData.email
-          }
-        } catch {
-          // Ignore parsing errors for user data
+    // Parse user data if provided (only on first sign-in)
+    if (userParam) {
+      try {
+        const userData = JSON.parse(userParam)
+        if (userData.name) {
+          givenName = userData.name.firstName || ""
+          surname = userData.name.lastName || ""
         }
+        if (userData.email) {
+          email = userData.email
+        }
+      } catch {
+        // Ignore parsing errors for user data
       }
+    }
 
-      const identifierClaimValue = payload[this.identityProvider.identifierClaimName] || payload.sub
+    const identifierClaimValue = payload[this.identityProvider.identifierClaimName] || payload.sub
 
-      if (!email || !identifierClaimValue) {
-        throw new AuthenticationError("Required profile information not available")
-      }
+    if (!email || !identifierClaimValue) {
+      throw new Error("Required profile information not available")
+    }
 
-      return {
-        email,
-        givenName,
-        surname,
-        identifierClaimValue,
-      }
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        throw error
-      }
-      throw new AuthenticationError("Failed to process ID token")
+    return {
+      email,
+      givenName,
+      surname,
+      identifierClaimValue,
     }
   }
 }

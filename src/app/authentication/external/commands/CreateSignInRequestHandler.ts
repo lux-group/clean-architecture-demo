@@ -21,7 +21,7 @@ export class CreateSignInRequestHandler {
   async execute(command: CreateSignInRequestCommand): Promise<CreateSignInRequestResult> {
     const idp = await this.identityProviderRepository.tryGetByName(command.identityProviderName)
     if (!idp) {
-      throw new InvalidOperationError(`Identity provider with name ${command.identityProviderName} not found`)
+      throw InvalidOperationError.identityProviderNotFound(command.identityProviderName)
     }
 
     idp.verifyRedirectUrl(command.redirectUrl)

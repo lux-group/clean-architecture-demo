@@ -2,7 +2,7 @@ import jwt, { JwtHeader, JwtPayload } from "jsonwebtoken"
 import { JwksClient, SigningKey } from "jwks-rsa"
 import { TokenValidationResult, TokenValidator } from "~/domain/adapters"
 import { IdentityProvider } from "~/domain/entities"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
+import { AuthenticationError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"
 import { ClientCache } from "~/lib/ClientCache"
 
@@ -11,7 +11,7 @@ const jwksClientCache = new ClientCache<IdentityProvider, JwksClient>(async idp 
   const url = `${idp.issuerUrl}/.well-known/openid-configuration`
   const response = await fetch(url)
   if (!response.ok) {
-    throw new AuthenticationError(`Failed to retrieve OIDC metadata from ${url}. HTTP error ${response.status}`)
+    throw new Error(`Failed to retrieve OIDC metadata from ${url}. HTTP error ${response.status}`)
   }
 
   const metadata = await response.json()
@@ -30,17 +30,17 @@ export class JsonWebTokenValidator implements TokenValidator {
       headerClaims = decodedJwt.header
       bodyClaims = decodedJwt.payload as JwtPayload
     } catch {
-      return { isValid: false, error: commonErrors.invalidJwt }
+      throw AuthenticationError.tokenExchangeFailed(undefined, undefined, "Failed to decode JWT")
     }
 
     const { iss, aud, sub } = bodyClaims
     if (!iss || !aud || !sub) {
-      return { isValid: false, error: commonErrors.invalidJwt }
+      throw AuthenticationError.tokenExchangeFailed(undefined, undefined, "JWT missing required claims")
     }
 
     const identityProvider = await this.identityProviderRepository.tryGetByIssuerUrlAndAudience(iss, aud as string)
     if (!identityProvider) {
-      return { isValid: false, error: `${iss} with audience ${aud} is not a trusted identity provider.` }
+      throw AuthenticationError.tokenExchangeFailed(undefined, undefined, "Identitiy provider not found")
     }
 
     let signingKey: SigningKey
@@ -48,13 +48,13 @@ export class JsonWebTokenValidator implements TokenValidator {
       const client = await jwksClientCache.get(identityProvider)
       signingKey = await client.getSigningKey(headerClaims.kid)
     } catch {
-      return { isValid: false, error: "Unable to fetch JWKS document." }
+      throw new Error("Unable to fetch JWKS document.")
     }
 
     try {
       jwt.verify(token, signingKey.getPublicKey())
     } catch {
-      return { isValid: false, error: commonErrors.invalidJwt }
+      throw AuthenticationError.tokenExchangeFailed(identityProvider.id, undefined, "Failed to validate JWT")
     }
 
     const profile = {
@@ -64,6 +64,6 @@ export class JsonWebTokenValidator implements TokenValidator {
       identifierClaimValue: bodyClaims[identityProvider.identifierClaimName] as string,
     }
 
-    return { isValid: true, identityProvider, profile }
+    return { identityProvider, profile }
   }
 }

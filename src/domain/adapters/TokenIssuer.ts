@@ -5,18 +5,13 @@ export interface TokenRequest {
   readonly sessionId?: string
   readonly audience?: string
   readonly scopes?: string[]
-  readonly claims: Record<string, unknown>
+  readonly customClaims: Record<string, unknown>
 }
 
 export interface TokenResponse {
   readonly accessToken: string
   readonly expiresIn: number
-}
-
-export interface TokenIssuerConfig {
-  readonly path: string
-  readonly lifetimeSeconds: number
-  readonly audience: string
+  readonly claims: Record<string, unknown>
 }
 
 export interface TokenIssuer {

@@ -1,8 +1,8 @@
-import { EventPublisher, TokenValidator } from "~/domain/adapters"
-import { AuthenticationError, commonErrors } from "~/domain/errors"
-import { AuthenticationEvent } from "~/domain/events"
+import { EventPublisher, TokenResponse, TokenValidator } from "~/domain/adapters"
+import { AuthenticationError, AuthorizationError } from "~/domain/errors"
+import { AuthenticationEvent, AuthorizationEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"
-import { AuthorizationService } from "./AuthorizationService"
+import { AuthenticationService, AuthorizationService } from "~/domain/services"
 
 export interface IssueTokenWithTokenExchangeInput {
   token: string
@@ -10,43 +10,52 @@ export interface IssueTokenWithTokenExchangeInput {
   scope?: string
 }
 
-export interface IssueTokenWithTokenExchangeResult {
-  accessToken: string
-  expiresIn: number
-}
+export type IssueTokenWithTokenExchangeResult = TokenResponse
 
 export class IssueTokenWithTokenExchangeHandler {
   constructor(
+    private readonly authenticationService: AuthenticationService,
     private readonly authorizationService: AuthorizationService,
-    private readonly userRepository: UserRepository,
     private readonly eventPublisher: EventPublisher,
     private readonly tokenValidator: TokenValidator,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async execute(command: IssueTokenWithTokenExchangeInput): Promise<IssueTokenWithTokenExchangeResult> {
-    const result = await this.tokenValidator.decodeAndValidateToken(command.token)
-    if (!result.isValid) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderTokenFailed())
-      throw new AuthenticationError(result.error)
-    }
+    try {
+      const { claimValue, idp, user } = await this.authenticate(command.token)
 
+      const response = await this.authorizationService.issueAccessToken(
+        user,
+        undefined,
+        undefined,
+        command.audience,
+        command.scope,
+      )
+
+      this.eventPublisher.publishEvent(AuthenticationEvent.externalTokenVerified(user.id, idp.id, claimValue))
+      this.eventPublisher.publishEvent(AuthorizationEvent.tokenIssued(response.claims, user.id))
+
+      return response
+    } catch (error: unknown) {
+      if (error instanceof AuthenticationError || error instanceof AuthorizationError) {
+        this.eventPublisher.publishEvent(error.toEvent())
+      }
+
+      throw error
+    }
+  }
+
+  private async authenticate(token: string) {
+    const result = await this.tokenValidator.decodeAndValidateToken(token)
     const { identityProvider: idp, profile } = result
     const claimValue = profile.identifierClaimValue
-
     const user = await this.userRepository.tryGetByExternalIdentity(idp.id, claimValue)
 
-    if (!user) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderFailed(idp.id, claimValue))
-      throw new AuthenticationError(commonErrors.authenticationFailed)
+    return {
+      claimValue,
+      idp,
+      user: this.authenticationService.authenticateWithExternalToken(user, idp, claimValue),
     }
-
-    if (!user.canSignInWithIdentityProvider()) {
-      this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderMethodNotAllowed(user, idp.id, claimValue))
-      throw new AuthenticationError(commonErrors.authenticationMethodNotAllowed)
-    }
-
-    this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderSuccess(user, idp.id, claimValue))
-
-    return await this.authorizationService.issueAccessToken(user, undefined, undefined, command.audience, command.scope)
   }
 }

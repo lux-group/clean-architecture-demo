@@ -29,7 +29,7 @@ describe("Handle Client Errors Middleware", () => {
   })
 
   it("should handle AuthenticationError", () => {
-    const error = new AuthenticationError("Authentication error")
+    const error = new AuthenticationError("Authentication error", { method: "Password" })
     const expectedResponse = {
       message: "Authentication error",
       status: 401,
@@ -44,7 +44,7 @@ describe("Handle Client Errors Middleware", () => {
   })
 
   it("should handle AuthorizationError", () => {
-    const error = new AuthorizationError("Authorization error")
+    const error = new AuthorizationError("Authorization error", {})
     const expectedResponse = {
       message: "Authorization error",
       status: 403,

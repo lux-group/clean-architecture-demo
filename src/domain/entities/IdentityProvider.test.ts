@@ -1,6 +1,6 @@
 import { fail } from "node:assert"
 import { describe, expect, it } from "vitest"
-import { commonErrors, InvalidOperationError } from "~/domain/errors"
+import { InvalidOperationError } from "~/domain/errors"
 import {
   CreateIdentityProviderProps,
   IdentityProvider,
@@ -152,7 +152,7 @@ describe("IdentityProvider", () => {
 
       expect(() => {
         identityProvider.verifyRedirectUrl("https://app.example.com/callback")
-      }).toThrow(commonErrors.missingAuthSettings)
+      }).toThrow(/not configured for authentication/)
     })
 
     it("should throw InvalidOperationError for invalid redirect URL", () => {
@@ -164,7 +164,7 @@ describe("IdentityProvider", () => {
 
       expect(() => {
         identityProvider.verifyRedirectUrl("https://malicious.example.com/callback")
-      }).toThrow(commonErrors.invalidRedirectUrl)
+      }).toThrow(/does not allow redirectig to/)
     })
 
     it("should throw InvalidOperationError for URL that doesn't start with allowed URL", () => {

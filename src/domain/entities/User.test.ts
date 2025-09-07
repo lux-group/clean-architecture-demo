@@ -1,6 +1,6 @@
 import { fail } from "node:assert"
 import { describe, expect, it } from "vitest"
-import { commonErrors, InvalidOperationError } from "~/domain/errors"
+import { InvalidOperationError } from "~/domain/errors"
 import { CreateUserProps, UpdateUserProps, User } from "./User"
 
 describe("User", () => {
@@ -164,7 +164,7 @@ describe("User", () => {
 
       expect(() => {
         user.addIdentity("2ffa7325-4515-4859-a9dd-66902495ea5a", "different-identifier")
-      }).toThrow(commonErrors.duplicateIdentity)
+      }).toThrow(/already has an identity from/)
     })
 
     it("should allow multiple identities from different providers", () => {
@@ -199,123 +199,7 @@ describe("User", () => {
 
       expect(() => {
         user.changePassword("new-password-hash")
-      }).toThrow(commonErrors.passwordChangeNotAllowed)
-    })
-  })
-
-  describe("authentication method checks", () => {
-    describe("canSignInWithActiveSession", () => {
-      it("should return true for enabled user", () => {
-        const user = User.createNew(mockCreateProps)
-
-        expect(user.canSignInWithActiveSession()).toBe(true)
-      })
-
-      it("should return false for disabled user", () => {
-        const user = User.createNew(mockCreateProps)
-        user.update({ ...mockCreateProps, isEnabled: false })
-
-        expect(user.canSignInWithActiveSession()).toBe(false)
-      })
-    })
-
-    describe("canSignInWithIdentityProvider", () => {
-      it("should return true for enabled user with identities", () => {
-        const user = User.createNew(mockCreateProps)
-        expect(user.canSignInWithIdentityProvider()).toBe(true)
-      })
-
-      it("should return false for disabled user with identities", () => {
-        const user = User.createNew(mockCreateProps)
-        user.addIdentity("2ffa7325-4515-4859-a9dd-66902495ea5a", "user-identifier")
-        user.update({ ...mockCreateProps, isEnabled: false })
-        expect(user.canSignInWithIdentityProvider()).toBe(false)
-      })
-    })
-
-    describe("canSignInWithPassword", () => {
-      it("should return true for enabled non-service user without identities", () => {
-        const user = User.createNew(mockCreateProps)
-
-        expect(user.canSignInWithPassword()).toBe(true)
-      })
-
-      it("should return false for disabled user", () => {
-        const user = User.createNew(mockCreateProps)
-        user.update({ ...mockCreateProps, isEnabled: false })
-
-        expect(user.canSignInWithPassword()).toBe(false)
-      })
-
-      it("should return false for user with identities", () => {
-        const user = User.createNew(mockCreateProps)
-        user.addIdentity("2ffa7325-4515-4859-a9dd-66902495ea5a", "user-identifier")
-
-        expect(user.canSignInWithPassword()).toBe(false)
-      })
-
-      it("should return false for service account", () => {
-        const user = User.createNew(mockServiceAccountProps)
-
-        expect(user.canSignInWithPassword()).toBe(false)
-      })
-    })
-
-    describe("canSignInWithClientSecret", () => {
-      it("should return true for enabled service account without identities", () => {
-        const user = User.createNew(mockServiceAccountProps)
-
-        expect(user.canSignInWithClientSecret()).toBe(true)
-      })
-
-      it("should return false for disabled service account", () => {
-        const user = User.createNew(mockServiceAccountProps)
-        user.update({ ...mockServiceAccountProps, isEnabled: false })
-
-        expect(user.canSignInWithClientSecret()).toBe(false)
-      })
-
-      it("should return false for service account with identities", () => {
-        const user = User.createNew(mockServiceAccountProps)
-        user.addIdentity("idp-123", "service-identifier")
-
-        expect(user.canSignInWithClientSecret()).toBe(false)
-      })
-
-      it("should return false for non-service user", () => {
-        const user = User.createNew(mockCreateProps)
-
-        expect(user.canSignInWithClientSecret()).toBe(false)
-      })
-    })
-  })
-
-  describe("complex scenarios", () => {
-    it("should handle user lifecycle: password -> identity provider", () => {
-      // Start with password-based user
-      const user = User.createNew(mockCreateProps)
-      expect(user.canSignInWithPassword()).toBe(true)
-      expect(user.canSignInWithIdentityProvider()).toBe(true)
-
-      // Add identity (should clear password)
-      user.addIdentity("idp-123", "user-identifier")
-      expect(user.canSignInWithPassword()).toBe(false)
-      expect(user.canSignInWithIdentityProvider()).toBe(true)
-      expect(user.passwordHash).toBeNull()
-
-      // Should not be able to change password
-      expect(() => {
-        user.changePassword("new-password")
-      }).toThrow(InvalidOperationError)
-    })
-
-    it("should handle service account authentication", () => {
-      const user = User.createNew(mockServiceAccountProps)
-
-      expect(user.isServiceAccount).toBe(true)
-      expect(user.canSignInWithClientSecret()).toBe(true)
-      expect(user.canSignInWithPassword()).toBe(false)
-      expect(user.canSignInWithIdentityProvider()).toBe(false)
+      }).toThrow(/Changing password is not allowed/)
     })
   })
 })

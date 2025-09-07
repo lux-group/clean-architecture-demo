@@ -4,7 +4,6 @@ import * as client from "openid-client"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { SignInState } from "~/domain/adapters"
 import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
-import { AuthenticationError } from "~/domain/errors"
 import { OidcClient } from "./OidcClient"
 
 // Mock the openid-client module using manual mock
@@ -238,7 +237,7 @@ describe("OidcClient", () => {
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
-      ).rejects.toThrow(AuthenticationError)
+      ).rejects.toThrow(Error)
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
@@ -250,7 +249,7 @@ describe("OidcClient", () => {
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
-      ).rejects.toThrow(AuthenticationError)
+      ).rejects.toThrow(Error)
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
@@ -262,7 +261,7 @@ describe("OidcClient", () => {
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),
-      ).rejects.toThrow(AuthenticationError)
+      ).rejects.toThrow(Error)
 
       await expect(
         oidcClient.processSignInResponse(signInState, "/auth/external/sign-in-callback?code=auth-code"),

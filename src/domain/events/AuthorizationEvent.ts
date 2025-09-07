@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto"
 import { Event } from "../adapters"
-import { Session, User } from "../entities"
 
 export interface AuthorizationEventDetails {
   userId?: string
@@ -13,14 +12,14 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
   readonly topic = "Authorization" as const
   readonly id: string
   readonly timestamp: Date
-  readonly result: "Success" | "Failed" | "Warning"
+  readonly result: "Success" | "Failed"
   readonly reason?: string
   readonly details: AuthorizationEventDetails
 
-  private constructor(
+  constructor(
     id: string,
     timestamp: Date,
-    result: "Success" | "Failed" | "Warning",
+    result: "Success" | "Failed",
     details: AuthorizationEventDetails,
     reason?: string,
   ) {
@@ -31,27 +30,15 @@ export class AuthorizationEvent implements Event<AuthorizationEventDetails> {
     this.reason = reason
   }
 
-  static tokenIssued(session?: Session, claims?: Record<string, unknown>) {
+  static tokenIssued(claims: Record<string, unknown>, userId: string, sessionId?: string) {
     return AuthorizationEvent.success({
-      sessionId: session?.id,
-      userId: session?.userId,
+      sessionId,
+      userId,
       claims,
-    })
-  }
-
-  static impersonationFailed(impersonatingUser: User, userToImpersonate: User, session?: Session) {
-    return AuthorizationEvent.failed("Impersonation not allowed", {
-      sessionId: session?.id,
-      userId: impersonatingUser.id,
-      userToImpersonateId: userToImpersonate.id,
     })
   }
 
   private static success(details: AuthorizationEventDetails): AuthorizationEvent {
     return new AuthorizationEvent(randomUUID(), new Date(), "Success", details)
-  }
-
-  private static failed(reason: string, details: AuthorizationEventDetails): AuthorizationEvent {
-    return new AuthorizationEvent(randomUUID(), new Date(), "Failed", details, reason)
   }
 }

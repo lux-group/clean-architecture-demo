@@ -1,6 +1,6 @@
 import { fail } from "node:assert"
 import { describe, expect, it } from "vitest"
-import { commonErrors, InvalidOperationError } from "~/domain/errors"
+import { InvalidOperationError } from "~/domain/errors"
 import { CreateSessionProps, Session } from "./Session"
 
 describe("Session", () => {
@@ -106,7 +106,7 @@ describe("Session", () => {
 
       expect(() => {
         session.ensureIsLocalSession()
-      }).toThrow(commonErrors.mustBeLocalSession)
+      }).toThrow(/is not a local session/)
     })
   })
 
@@ -128,7 +128,7 @@ describe("Session", () => {
 
       expect(() => {
         session.ensureIsIdentityProviderSession()
-      }).toThrow(commonErrors.mustBeIdentityProviderSession)
+      }).toThrow(/is not an identity provider session/)
     })
   })
 

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import z from "zod"
-import { commonErrors, InvalidOperationError } from "../errors"
+import { InvalidOperationError } from "../errors"
 import { Entity, validateProps } from "./Entity"
 
 const userIdentitySchema = z.object({
@@ -76,7 +76,6 @@ export class User extends Entity<UserProps> {
   get identities() {
     return this.props.identities
   }
-
   get isServiceAccount() {
     return this.roles.includes("service")
   }
@@ -114,7 +113,7 @@ export class User extends Entity<UserProps> {
 
   addIdentity(identityProviderId: string, identifierClaimValue: string) {
     if (this.identities.some(i => i.identityProviderId === identityProviderId)) {
-      throw new InvalidOperationError(commonErrors.duplicateIdentity)
+      throw InvalidOperationError.duplicateIdentity(this.id, identityProviderId)
     }
 
     const newIdentity: UserIdentity = {
@@ -135,7 +134,7 @@ export class User extends Entity<UserProps> {
 
   changePassword(passwordHash: string) {
     if (this.identities.length > 0) {
-      throw new InvalidOperationError(commonErrors.passwordChangeNotAllowed)
+      throw InvalidOperationError.passwordChangeNotAllowed(this.id, "Account has external identitied.")
     }
 
     this.props = {
@@ -145,27 +144,7 @@ export class User extends Entity<UserProps> {
     }
   }
 
-  canSignInWithIdentityProvider() {
-    return this.isServiceAccount ? this.isEnabled && this.identities.length > 0 : this.isEnabled
-  }
-
-  canSignInWithActiveSession() {
-    return this.isEnabled && !this.isServiceAccount
-  }
-
-  canSignInWithPassword() {
-    return this.isEnabled && this.identities.length === 0 && !!this.passwordHash && !this.isServiceAccount
-  }
-
-  canSignInWithClientSecret() {
-    return this.isEnabled && this.identities.length === 0 && !!this.passwordHash && this.isServiceAccount
-  }
-
-  canImpersonateUser(userToImpersonate: User) {
-    return this.roles.includes("employee") && userToImpersonate.roles.length === 0 && userToImpersonate.id !== this.id
-  }
-
-  handleFailedSignInAttempt() {
+  public handleFailedSignInAttempt() {
     // Logic for handling failed sign-in attempts can be added here
   }
 }

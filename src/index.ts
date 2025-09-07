@@ -8,6 +8,7 @@ import registerInfrastructureServices from "~/infrastructure/module"
 import registerMemoryRepositories from "~/infrastructure/repositories/memory/module"
 import registerPrismaRepositories from "~/infrastructure/repositories/prisma/module"
 import registerRedisDecoratorRepositories from "~/infrastructure/repositories/redis/module"
+import registerDomainServices from "./domain/services/module"
 
 const environment = process.env.NODE_ENV || "dev"
 const port = process.env.PORT || 3000
@@ -40,6 +41,7 @@ async function start(): Promise<void> {
 
   await registerConfig(container, environment)
   await registerApp(container)
+  await registerDomainServices(container)
   await registerInfrastructureServices(container)
 
   if (environment === "dev") {
