@@ -97,7 +97,7 @@
                 "patterns": [
                   {
                     "group": ["~/infrastructure/**/*"],
-                    "message": "Application layer cannot import from infrastrcuture layer - this violates clean architecture principles"
+                    "message": "Application layer cannot import from infrastructure layer - this violates clean architecture principles"
                   }
                 ]
               }
