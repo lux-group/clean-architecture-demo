@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Controller, Get } from "~/app/decorators"
+import { Controller, Get, HandleDomainErrors } from "~/app/routing"
 import { Logger, SignInState, SignOutState } from "~/app/ports"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
@@ -9,6 +9,7 @@ import { FrontChannelSignOutCommand, FrontChannelSignOutHandler } from "../comma
 import { ProcessSignInResponseCommand, ProcessSignInResponseHandler } from "../commands/ProcessSignInResponseHandler"
 
 @Controller("/auth/v2/external")
+@HandleDomainErrors({ format: "Standard" })
 export class ExternalAuthenticationController {
   constructor(
     private readonly logger: Logger,

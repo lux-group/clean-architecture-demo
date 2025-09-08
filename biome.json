@@ -44,5 +44,87 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["../../**/*"],
+                    "message": "Use ~/ instead of ../.."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["~/app/**/*", "~/domain/**/*", "~/infrastructure/**/*"],
+                    "message": "Library folder cannot import from other folders - this violates clean architecture principles"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/app/**/*.ts", "!src/app/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["~/infrastructure/**/*"],
+                    "message": "Application layer cannot import from infrastrcuture layer - this violates clean architecture principles"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/domain/**/*.ts", "!src/domain/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["~/app/**/*", "~/infrastructure/**/*"],
+                    "message": "Domain layer cannot import from application or infrastructure layer - this violates clean architecture principles"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -1,10 +1,11 @@
 import { Request, Response } from "express"
-import { Controller, Post } from "~/app/decorators"
+import { Controller, HandleDomainErrors, Post } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { SignInWithPasswordCommand, SignInWithPasswordHandler } from "../commands/SignInWithPasswordHandler"
 import { SignOutCommand, SignOutHandler } from "../commands/SignOutHandler"
 
 @Controller("/auth/v2/local")
+@HandleDomainErrors({ format: "Standard" })
 export class LocalAuthenticationController {
   constructor(
     private readonly secureCookieManager: SecureCookieManager,

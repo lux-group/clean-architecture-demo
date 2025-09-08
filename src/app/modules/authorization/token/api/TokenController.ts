@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Controller, HandleOAuthErrors, Post } from "~/app/decorators"
+import { Controller, HandleDomainErrors, Post } from "~/app/routing"
 import { TokenResponse } from "~/app/ports"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { InvalidOperationError } from "~/domain/errors"
@@ -40,6 +40,7 @@ type TokenRequest = (
 }
 
 @Controller("/oauth2/token")
+@HandleDomainErrors({ format: "OAuth2" })
 export class TokenController {
   constructor(
     private readonly secureCookieManager: SecureCookieManager,
@@ -49,7 +50,6 @@ export class TokenController {
   ) {}
 
   @Post("/")
-  @HandleOAuthErrors()
   async getAccessToken(req: Request, res: Response) {
     const body = req.body as TokenRequest
 

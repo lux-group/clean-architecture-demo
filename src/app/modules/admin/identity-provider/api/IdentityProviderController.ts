@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Authorize, Controller, Delete, Get, Post, Put } from "~/app/decorators"
+import { Authorize, Controller, Delete, Get, HandleDomainErrors, Post, Put } from "~/app/routing"
 import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { IdentityProvider, IdentityProviderAuthSettings } from "~/domain/entities"
 import { CreateIdentityProviderCommand, CreateIdentityProviderHandler } from "../commands/CreateIdentityProviderHandler"
@@ -9,6 +9,7 @@ import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "..
 import { SearchIdentityProvidersHandler } from "../queries/SearchIdentityProvidersHandler"
 
 @Controller("/admin/v1/identity-providers")
+@HandleDomainErrors({ format: "Standard" })
 export class IdentityProviderController {
   constructor(
     private readonly baseUrl: string,

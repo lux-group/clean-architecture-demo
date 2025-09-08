@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Controller, Post } from "~/app/decorators"
+import { Controller, Post } from "~/app/routing"
 import { User } from "~/domain/entities"
 
 // This controller demonstrates how we can make API endpoints available for an IDP

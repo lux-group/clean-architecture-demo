@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Authorize, Controller, Delete, Get, Post } from "~/app/decorators"
+import { Authorize, Controller, Delete, Get, HandleDomainErrors, Post } from "~/app/routing"
 import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { SigningKey } from "~/domain/entities"
 import { CreateNewSigningKeyHandler } from "../commands/CreateNewSigningKeyHandler"
@@ -8,6 +8,7 @@ import { GetSigningKeyByIdHandler, GetSigningKeyByIdQuery } from "../queries/Get
 import { SearchSigningKeysHandler } from "../queries/SearchSigningKeysHandler"
 
 @Controller("/admin/v1/signing-keys")
+@HandleDomainErrors({ format: "Standard" })
 export class SigningKeyController {
   constructor(
     private readonly baseUrl: string,

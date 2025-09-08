@@ -16,7 +16,7 @@ export function authorize(
   tokenIssuerConfig: TokenIssuerConfig,
   signingKeyRepository: SigningKeyRepository,
 ) {
-  // The second wrapper function is used by the decorator to inject arguments.
+  // The second wrapper function is used to inject arguments into the middleware.
   return (options: AuthorizeOptions) => {
     // This is the actual middleware function.
     return (req: Request, res: Response, next: NextFunction) => {

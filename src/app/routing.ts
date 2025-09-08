@@ -2,6 +2,7 @@ import "reflect-metadata"
 import { AwilixContainer } from "awilix"
 import express, { ErrorRequestHandler, Handler, Router } from "express"
 import { AuthorizeOptions } from "./shared/middleware/authorize"
+import { ErrorHandlerOptions } from "./shared/middleware/handleDomainErrors"
 
 enum MetadataKeys {
   BASE_PATH = "base_path",
@@ -16,10 +17,30 @@ interface Route {
 }
 
 interface Middleware {
-  propertyKey: string
+  propertyKey?: string
   identifier: string
   args: unknown[]
   isErrorHandler: boolean
+}
+
+function getMetadataArray<T>(key: MetadataKeys, target: any): T[] {
+  return (Reflect.getMetadata(key, target) as T[] | undefined) ?? []
+}
+
+function middlewareDecoratorFactory<TArgs extends unknown[] = []>(identifier: string, isErrorHandler: boolean) {
+  return (...args: TArgs) => (target: any, propertyKey?: string | symbol) => {
+    if (propertyKey) {
+      // Route-scoped middleware
+      const info: Middleware = { propertyKey: String(propertyKey), identifier, args, isErrorHandler }
+      const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target.constructor)
+      Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target.constructor)
+    } else {
+      // Controller-scoped middleware
+      const info: Middleware = { identifier, args, isErrorHandler }
+      const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target)
+      Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target)
+    }
+  }
 }
 
 function routeDecoratorFactory(method: string) {
@@ -28,19 +49,6 @@ function routeDecoratorFactory(method: string) {
     const items: Route[] = getMetadataArray<Route>(MetadataKeys.ROUTES, target.constructor)
     Reflect.defineMetadata(MetadataKeys.ROUTES, [...items, info], target.constructor)
   }
-}
-
-function routeMiddlewareDecoratorFactory<TArgs extends unknown[] = []>(identifier: string, isErrorHandler: boolean) {
-  return (...args: TArgs) =>
-    (target: any, propertyKey: string | symbol) => {
-      const info: Middleware = { propertyKey: String(propertyKey), identifier, args, isErrorHandler }
-      const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target.constructor)
-      Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target.constructor)
-    }
-}
-
-function getMetadataArray<T>(key: MetadataKeys, target: any): T[] {
-  return (Reflect.getMetadata(key, target) as T[] | undefined) ?? []
 }
 
 export function Controller(basePath: string) {
@@ -57,8 +65,8 @@ export const Patch = routeDecoratorFactory("patch")
 export const Post = routeDecoratorFactory("post")
 export const Put = routeDecoratorFactory("put")
 
-export const Authorize = routeMiddlewareDecoratorFactory<[AuthorizeOptions]>("authorize", false)
-export const HandleOAuthErrors = routeMiddlewareDecoratorFactory("handleOAuthErrors", true)
+export const Authorize = middlewareDecoratorFactory<[AuthorizeOptions]>("authorize", false)
+export const HandleDomainErrors = middlewareDecoratorFactory<[ErrorHandlerOptions]>("handleDomainErrors", true)
 
 export function createRouterFromDecorators(container: AwilixContainer): Router {
   // Get all the controllers from the container.
@@ -77,20 +85,27 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
     const middlewareInfos: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, controller.constructor)
 
     // Instantiate all middleware and error handlers for the controller.
-    const middleware: Record<string, Handler[]> = {}
-    const errorHandlers: Record<string, ErrorRequestHandler[]> = {}
+    const controllerMiddleware: Handler[] = []
+    const controllerErrorHandlers: ErrorRequestHandler[] = []
+    const routeMiddleware: Record<string, Handler[]> = {}
+    const routeErrorHandlers: Record<string, ErrorRequestHandler[]> = {}
 
     for (const { propertyKey, identifier, args, isErrorHandler } of middlewareInfos) {
-      const collection = isErrorHandler ? errorHandlers : middleware
-      collection[propertyKey] = collection[propertyKey] ?? []
-      collection[propertyKey].push(container.resolve(identifier)(...args))
+      if (propertyKey) {
+        const collection = isErrorHandler ? routeErrorHandlers : routeMiddleware
+        collection[propertyKey] = collection[propertyKey] ?? []
+        collection[propertyKey].push(container.resolve(identifier)(...args))
+      } else {
+        const collection = isErrorHandler ? controllerErrorHandlers : controllerMiddleware
+        collection.push(container.resolve(identifier)(...args))
+      }
     }
 
     // Register all routes for the controller.
     for (const { propertyKey, method, path } of routeInfos) {
-      const routeMiddleware = middleware[propertyKey] || []
-      const routeErrorHandlers = errorHandlers[propertyKey] || []
-      http[method](basePath + path, ...routeMiddleware, controller[propertyKey].bind(controller), ...routeErrorHandlers)
+      const middleware = [...(routeMiddleware[propertyKey] ?? []), ...controllerMiddleware]
+      const errorHandlers = [...(routeErrorHandlers[propertyKey] ?? []),...controllerErrorHandlers]
+      http[method](basePath + path, ...middleware, controller[propertyKey].bind(controller), ...errorHandlers)
     }
   }
 

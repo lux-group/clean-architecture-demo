@@ -2,7 +2,7 @@ import { AwilixContainer } from "awilix"
 import cookieParser from "cookie-parser"
 import express from "express"
 import helmet, { HelmetOptions } from "helmet"
-import { createRouterFromDecorators } from "./decorators"
+import { createRouterFromDecorators } from "./routing"
 
 export default function createServer(container: AwilixContainer) {
   const helmetOptions: HelmetOptions = {
@@ -21,6 +21,5 @@ export default function createServer(container: AwilixContainer) {
     .use(express.urlencoded({ limit: "100kb" }))
     .use("/", express.static(`${__dirname}/public`))
     .use(createRouterFromDecorators(container))
-    .use(container.resolve("handleClientErrors"))
     .use(container.resolve("handleServerErrors"))
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Authorize, Controller, Get, Post } from "~/app/decorators"
+import { Authorize, Controller, Get, HandleDomainErrors, Post } from "~/app/routing"
 import { parseQuery } from "~/app/shared/utils/parseQuery"
 import { Session } from "~/domain/entities"
 import { TerminateSessionCommand, TerminateSessionHandler } from "../commands/TerminateSessionHandler"
@@ -7,6 +7,7 @@ import { GetSessionByIdHandler, GetSessionByIdQuery } from "../queries/GetSessio
 import { SearchSessionsHandler } from "../queries/SearchSessionsHandler"
 
 @Controller("/admin/v1/sessions")
+@HandleDomainErrors({ format: "Standard" })
 export class SessionController {
   constructor(
     private readonly terminateSessionHandler: TerminateSessionHandler,

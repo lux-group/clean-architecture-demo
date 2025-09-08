@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { Controller, Get } from "~/app/decorators"
+import { Controller, Get } from "~/app/routing"
 import { GetJsonWebKeysHandler } from "../queries/GetJsonWebKeysHandler"
 import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
 
