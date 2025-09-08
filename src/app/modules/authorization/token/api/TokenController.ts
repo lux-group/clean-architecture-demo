@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { Controller, HandleDomainErrors, Post } from "~/app/routing"
 import { TokenResponse } from "~/app/ports"
+import { Controller, HandleDomainErrors, Post } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { InvalidOperationError } from "~/domain/errors"
 import { IssueTokenWithActiveSessionHandler } from "../commands/IssueTokenWithActiveSessionHandler"

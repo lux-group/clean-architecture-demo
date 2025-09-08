@@ -1,4 +1,4 @@
-import { asClass, asFunction, AwilixContainer } from "awilix"
+import { AwilixContainer, asClass, asFunction } from "awilix"
 import registerIdentityProviderAdminModule from "./modules/admin/identity-provider/module"
 import registerSessionAdminModule from "./modules/admin/session/module"
 import registerSigningKeyAdminModule from "./modules/admin/signing-key/module"

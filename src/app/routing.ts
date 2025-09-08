@@ -28,19 +28,20 @@ function getMetadataArray<T>(key: MetadataKeys, target: any): T[] {
 }
 
 function middlewareDecoratorFactory<TArgs extends unknown[] = []>(identifier: string, isErrorHandler: boolean) {
-  return (...args: TArgs) => (target: any, propertyKey?: string | symbol) => {
-    if (propertyKey) {
-      // Route-scoped middleware
-      const info: Middleware = { propertyKey: String(propertyKey), identifier, args, isErrorHandler }
-      const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target.constructor)
-      Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target.constructor)
-    } else {
-      // Controller-scoped middleware
-      const info: Middleware = { identifier, args, isErrorHandler }
-      const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target)
-      Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target)
+  return (...args: TArgs) =>
+    (target: any, propertyKey?: string | symbol) => {
+      if (propertyKey) {
+        // Route-scoped middleware
+        const info: Middleware = { propertyKey: String(propertyKey), identifier, args, isErrorHandler }
+        const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target.constructor)
+        Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target.constructor)
+      } else {
+        // Controller-scoped middleware
+        const info: Middleware = { identifier, args, isErrorHandler }
+        const items: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, target)
+        Reflect.defineMetadata(MetadataKeys.MIDDLEWARE, [...items, info], target)
+      }
     }
-  }
 }
 
 function routeDecoratorFactory(method: string) {
@@ -104,7 +105,7 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
     // Register all routes for the controller.
     for (const { propertyKey, method, path } of routeInfos) {
       const middleware = [...(routeMiddleware[propertyKey] ?? []), ...controllerMiddleware]
-      const errorHandlers = [...(routeErrorHandlers[propertyKey] ?? []),...controllerErrorHandlers]
+      const errorHandlers = [...(routeErrorHandlers[propertyKey] ?? []), ...controllerErrorHandlers]
       http[method](basePath + path, ...middleware, controller[propertyKey].bind(controller), ...errorHandlers)
     }
   }

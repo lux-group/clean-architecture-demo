@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { Controller, Get, HandleDomainErrors } from "~/app/routing"
 import { Logger, SignInState, SignOutState } from "~/app/ports"
+import { Controller, Get, HandleDomainErrors } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
 import { CreateSignInRequestCommand, CreateSignInRequestHandler } from "../commands/CreateSignInRequestHandler"

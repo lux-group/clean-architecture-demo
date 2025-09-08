@@ -15,7 +15,7 @@ export default defineConfig({
         "src/**/types.ts",
         "src/**/index.ts",
         "src/data.ts",
-        "src/domain/adapters",
+        "src/app/ports",
         "src/domain/events",
         "src/domain/repositories",
         "src/infrastructure/config",
