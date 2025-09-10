@@ -11,6 +11,7 @@ import registerEntraIntegrationModule from "./modules/integration/entra/module"
 import { authorize } from "./shared/middleware/authorize"
 import { handleDomainErrors } from "./shared/middleware/handleDomainErrors"
 import { handleServerErrors } from "./shared/middleware/handleServerErrors"
+import { setRequestContext } from "./shared/middleware/setRequestContext"
 import { SecureCookieManager } from "./shared/utils/SecureCookieManager"
 
 export default async function registerApp(container: AwilixContainer) {
@@ -19,6 +20,7 @@ export default async function registerApp(container: AwilixContainer) {
     authorize: asFunction(authorize).singleton(),
     handleDomainErrors: asFunction(handleDomainErrors).singleton(),
     handleServerErrors: asFunction(handleServerErrors).singleton(),
+    setRequestContext: asFunction(setRequestContext).singleton(),
     secureCookieManager: asClass(SecureCookieManager).singleton(),
   })
 

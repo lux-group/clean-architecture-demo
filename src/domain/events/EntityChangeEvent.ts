@@ -15,7 +15,7 @@ export interface EntityChangeEventDetails {
 }
 
 export class EntityChangeEvent implements Event<EntityChangeEventDetails> {
-  readonly topic = "Entity Change" as const
+  readonly topic = "Entity Changed" as const
   readonly id: string
   readonly timestamp: Date
   readonly result: EntityChangeResult

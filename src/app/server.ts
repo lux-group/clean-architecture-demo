@@ -20,6 +20,7 @@ export default function createServer(container: AwilixContainer) {
     .use(express.json({ limit: "100kb" }))
     .use(express.urlencoded({ limit: "100kb" }))
     .use("/", express.static(`${__dirname}/public`))
+    .use(container.resolve("setRequestContext"))
     .use(createRouterFromDecorators(container))
     .use(container.resolve("handleServerErrors"))
 }
