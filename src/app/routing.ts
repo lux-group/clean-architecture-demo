@@ -66,7 +66,7 @@ export const Patch = routeDecoratorFactory("patch")
 export const Post = routeDecoratorFactory("post")
 export const Put = routeDecoratorFactory("put")
 
-export const Authorize = middlewareDecoratorFactory<[AuthorizeOptions]>("authorize", false)
+export const Authorize = middlewareDecoratorFactory<[AuthorizeOptions?]>("authorize", false)
 export const HandleDomainErrors = middlewareDecoratorFactory<[ErrorHandlerOptions]>("handleDomainErrors", true)
 
 export function createRouterFromDecorators(container: AwilixContainer): Router {

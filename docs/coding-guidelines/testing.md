@@ -29,7 +29,7 @@ The application contains internal integration tests for all its modules.
 - [session](/src/app/modules/admin/session/__tests__) Admin Controller
 - [signing-key](/src/app/modules/admin/signing-key/__tests__) Admin Controller
 - [user](/src/app/modules/admin/user/__tests__) Admin Controller
-- [external](/src/app/modules/authentication/external/__tests__) Authentication Controller
-- [local](/src/app/modules/authentication/local/__tests__) Authentication Controller
-- [token](/src/app/modules/authorization/token/__tests__) Authorization Controller
-- [well-known](/src/app/modules/authorization/well-known/__tests__) Controller
+- [external](/src/app/modules/public/auth-external/__tests__) Authentication Controller
+- [local](/src/app/modules/public/auth-local/__tests__) Authentication Controller
+- [token](/src/app/modules/public/token/__tests__) Authorization Controller
+- [well-known](/src/app/modules/public/well-known/__tests__) Controller

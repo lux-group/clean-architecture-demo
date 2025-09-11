@@ -17,7 +17,7 @@ export function authorize(
   signingKeyRepository: SigningKeyRepository,
 ) {
   // The second wrapper function is used to inject arguments into the middleware.
-  return (options: AuthorizeOptions) => {
+  return (options?: AuthorizeOptions) => {
     // This is the actual middleware function.
     return (req: Request, res: Response, next: NextFunction) => {
       const authMiddleware = async () => {
@@ -78,7 +78,7 @@ export function authorize(
         // Check if the subject has the required roles.
         const rolesClaim = (decodedJwt.payload as JwtPayload).roles
         const authorizedRoles = Array.isArray(rolesClaim) ? rolesClaim : []
-        if (options.roles && !options.roles.some(role => authorizedRoles.includes(role))) {
+        if (options?.roles && !options.roles.some(role => authorizedRoles.includes(role))) {
           logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the roles: ${options.roles.join(", ")}`)
           res.status(403).send()
           return
@@ -87,7 +87,7 @@ export function authorize(
         // Check if the subject has the required scopes.
         const scopeClaim = (decodedJwt.payload as JwtPayload).scope
         const authorizedScopes = typeof scopeClaim === "string" ? scopeClaim.split(" ") : []
-        if (options.scopes && !options.scopes.some(scope => authorizedScopes.includes(scope))) {
+        if (options?.scopes && !options.scopes.some(scope => authorizedScopes.includes(scope))) {
           logger.info(`Subject ${decodedJwt.payload.sub} does not have any of the scopes: ${options.scopes.join(", ")}`)
           res.status(403).send()
           return

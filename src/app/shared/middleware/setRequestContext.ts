@@ -42,11 +42,18 @@ export function setRequestContext(logger: Logger) {
   }
 
   return (req: Request, _res: Response, next: NextFunction): void => {
+    const claims = extractJWTClaims(req)
+
     const context: RequestContext = {
       requestId: extractRequestId(req),
       ipAddress: extractIPAddress(req),
       userAgent: extractUserAgent(req),
-      jwtClaims: extractJWTClaims(req),
+      user: claims
+        ? {
+            id: claims.sub as string,
+            claims,
+          }
+        : undefined,
     }
 
     contextStorage.run(context, () => {
