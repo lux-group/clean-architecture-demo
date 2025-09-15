@@ -3,7 +3,7 @@ import { DomainError } from "./DomainError"
 export class InvalidOperationError extends DomainError {
   constructor(message: string) {
     super(message)
-    this.name = "InvalidOperationError"
+    this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
   }
 

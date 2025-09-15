@@ -4,6 +4,8 @@
     "entra",
     "frontchannel",
     "PKCE",
+    "Uncapitalize",
+    "Unprefix",
     "valkey"
   ],
   "editor.codeActionsOnSave": {

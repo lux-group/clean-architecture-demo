@@ -40,7 +40,7 @@ export class JsonWebTokenValidator implements TokenValidator {
 
     const identityProvider = await this.identityProviderRepository.tryGetByIssuerUrlAndAudience(iss, aud as string)
     if (!identityProvider) {
-      throw AuthenticationError.tokenExchangeFailed(undefined, undefined, "Identitiy provider not found")
+      throw AuthenticationError.tokenExchangeFailed(undefined, undefined, "Identity provider not found")
     }
 
     let signingKey: SigningKey

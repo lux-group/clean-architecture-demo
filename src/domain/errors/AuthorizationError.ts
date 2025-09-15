@@ -8,7 +8,7 @@ export class AuthorizationError extends DomainError {
     public readonly details: AuthorizationEventDetails,
   ) {
     super(message)
-    this.name = "AuthorizationError"
+    this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
   }
 
