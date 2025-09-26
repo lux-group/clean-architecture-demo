@@ -74,11 +74,7 @@ describe("[PUT] /admin/v1/users/:id (UpdateUser)", () => {
 
   describe("when the user does not exist", () => {
     it("should return 404", async () => {
-      const payload = {
-        is_enabled: false,
-        given_name: "Updated Name",
-        surname: "Updated Surname",
-      }
+      const payload = getPayload()
 
       const response = await request(context.server)
         .put(`/admin/v1/users/${randomUUID()}`)

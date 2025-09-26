@@ -19,7 +19,7 @@ export class InvalidOperationError extends DomainError {
 
   static invalidRedirectUrl(identityProviderId: string, redirectUrl: string) {
     return new InvalidOperationError(
-      `The identity provider ${identityProviderId} does not allow redirectig to ${redirectUrl}.`,
+      `The identity provider ${identityProviderId} does not allow redirecting to ${redirectUrl}.`,
     )
   }
 

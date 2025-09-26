@@ -1,8 +1,10 @@
 import { Request, Response } from "express"
-import { Controller, HandleDomainErrors, Post } from "~/app/routing"
+import { Controller, HandleDomainErrors, Post, Schema } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { SignInWithPasswordCommand, SignInWithPasswordHandler } from "../commands/SignInWithPasswordHandler"
 import { SignOutCommand, SignOutHandler } from "../commands/SignOutHandler"
+import * as models from "./models"
+import * as schemas from "./schemas"
 
 @Controller("/auth/v2/local")
 @HandleDomainErrors({ format: "Standard" })
@@ -17,11 +19,12 @@ export class LocalAuthenticationController {
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
   @Post("/sign-in")
-  async signInWithPassword(req: Request, res: Response) {
+  @Schema({ requestBody: schemas.signInWithPasswordQuery })
+  async signInWithPassword(req: Request<models.SignInWithPasswordQuery>, res: Response) {
     const command: SignInWithPasswordCommand = {
-      brand: req.body?.brand,
-      email: req.body?.email,
-      password: req.body?.password,
+      brand: req.body.brand,
+      email: req.body.email,
+      password: req.body.password,
     }
 
     const session = await this.signInWithPasswordHandler.execute(command)

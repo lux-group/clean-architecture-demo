@@ -3,6 +3,7 @@ import { AwilixContainer } from "awilix"
 import express, { ErrorRequestHandler, Handler, Router } from "express"
 import { AuthorizeOptions } from "./shared/middleware/authorize"
 import { ErrorHandlerOptions } from "./shared/middleware/handleDomainErrors"
+import { SchemaOptions } from "./shared/middleware/schema"
 
 enum MetadataKeys {
   BASE_PATH = "base_path",
@@ -66,6 +67,7 @@ export const Patch = routeDecoratorFactory("patch")
 export const Post = routeDecoratorFactory("post")
 export const Put = routeDecoratorFactory("put")
 
+export const Schema = middlewareDecoratorFactory<[SchemaOptions?]>("schema", false)
 export const Authorize = middlewareDecoratorFactory<[AuthorizeOptions?]>("authorize", false)
 export const HandleDomainErrors = middlewareDecoratorFactory<[ErrorHandlerOptions]>("handleDomainErrors", true)
 

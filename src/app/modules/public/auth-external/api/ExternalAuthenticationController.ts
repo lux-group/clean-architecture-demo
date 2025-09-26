@@ -1,12 +1,14 @@
 import { Request, Response } from "express"
 import { Logger, SignInState, SignOutState } from "~/app/ports"
-import { Controller, Get, HandleDomainErrors } from "~/app/routing"
+import { Controller, Get, HandleDomainErrors, Schema } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { AuthenticationError, InvalidOperationError } from "~/domain/errors"
 import { CreateSignInRequestCommand, CreateSignInRequestHandler } from "../commands/CreateSignInRequestHandler"
 import { CreateSignOutRequestCommand, CreateSignOutRequestHandler } from "../commands/CreateSignOutRequestHandler"
 import { FrontChannelSignOutCommand, FrontChannelSignOutHandler } from "../commands/FrontChannelSignOutHandler"
 import { ProcessSignInResponseCommand, ProcessSignInResponseHandler } from "../commands/ProcessSignInResponseHandler"
+import * as models from "./models"
+import * as schemas from "./schemas"
 
 @Controller("/auth/v2/external")
 @HandleDomainErrors({ format: "Standard" })
@@ -24,13 +26,14 @@ export class ExternalAuthenticationController {
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
   @Get("/sign-in")
-  async createSignInRequest(req: Request, res: Response) {
-    const identityProviderName = req.query.provider as string
+  @Schema({ query: schemas.createSignInRequestQuery })
+  async createSignInRequest(req: Request<any, any, any, models.CreateSignInRequestQuery>, res: Response) {
+    const identityProviderName = req.query.provider
     if (!identityProviderName) {
       throw new InvalidOperationError("Provider parameter is required")
     }
 
-    const redirectUrl = req.query.redirect_uri as string
+    const redirectUrl = req.query.redirect_uri
     if (!redirectUrl) {
       throw new InvalidOperationError("Redirect URI parameter is required")
     }
@@ -64,8 +67,9 @@ export class ExternalAuthenticationController {
   }
 
   @Get("/sign-out")
-  async createSignOutRequest(req: Request, res: Response) {
-    const redirectUrl = req.query.redirect_uri as string
+  @Schema({ query: schemas.createSignOutRequestQuery })
+  async createSignOutRequest(req: Request<any, any, any, models.CreateSignOutRequestQuery>, res: Response) {
+    const redirectUrl = req.query.redirect_uri
     if (!redirectUrl) {
       throw new InvalidOperationError("Redirect URI parameter is required")
     }

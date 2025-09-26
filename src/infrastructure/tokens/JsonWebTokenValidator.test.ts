@@ -165,7 +165,7 @@ describe("JsonWebTokenValidator", () => {
       const payload = createValidPayload()
       const token = createToken(payload)
 
-      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(/Identitiy provider not found/)
+      await expect(validator.decodeAndValidateToken(token)).rejects.toThrow(/Identity provider not found/)
     })
 
     it("should handle OIDC metadata fetch failure", async () => {
