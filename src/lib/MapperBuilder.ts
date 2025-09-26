@@ -1,4 +1,4 @@
-import { toCamelCase, toSnakeCase, transformObject } from "./transformObject"
+import { toCamelCase, toISODateString, toSnakeCase, transformObject } from "./transformObject"
 
 export type CamelCase<S extends string> = S extends `${infer P}_${infer Q}`
   ? `${Uncapitalize<P>}${Capitalize<CamelCase<Q>>}`
@@ -25,6 +25,16 @@ export type SnakeCaseObject<T> = T extends Array<infer U>
         [K in keyof T as SnakeCase<string & K>]: SnakeCaseObject<T[K]>
       }
     : T
+
+export type DatesToIsoStringObject<T> = T extends Date
+  ? string
+  : T extends Array<infer U>
+    ? Array<DatesToIsoStringObject<U>>
+    : T extends object
+      ? {
+          [K in keyof T]: DatesToIsoStringObject<T[K]>
+        }
+      : T
 
 export type Mapper<In extends object, Out extends object> = (input: In) => Out
 
@@ -74,6 +84,10 @@ export class MapperBuilder<Start extends object, Current extends object> {
 
   toSnakeCase(): MapperBuilder<Start, SnakeCaseObject<Current>> {
     return this.append(input => transformObject(input, [toSnakeCase], []))
+  }
+
+  datesToIsoString(): MapperBuilder<Start, DatesToIsoStringObject<Current> & object> {
+    return this.append(input => transformObject(input, [toISODateString], []))
   }
 
   private append<Next extends object>(action: (input: Current) => Next): MapperBuilder<Start, Next> {

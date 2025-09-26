@@ -38,18 +38,30 @@ describe("prisma helpers", () => {
     })
 
     it("maps not-equals", () => {
-      expect(mapWhere<Sample>({ operator: "not-equals", property: "active", value: false })).toEqual({ active: { not: false } })
+      expect(mapWhere<Sample>({ operator: "not-equals", property: "active", value: false })).toEqual({
+        active: { not: false },
+      })
     })
 
     it("maps in and not-in", () => {
-      expect(mapWhere<Sample>({ operator: "in", property: "id", values: ["a", "b"] })).toEqual({ id: { in: ["a", "b"] } })
-      expect(mapWhere<Sample>({ operator: "not-in", property: "id", values: ["a", "b"] })).toEqual({ id: { notIn: ["a", "b"] } })
+      expect(mapWhere<Sample>({ operator: "in", property: "id", values: ["a", "b"] })).toEqual({
+        id: { in: ["a", "b"] },
+      })
+      expect(mapWhere<Sample>({ operator: "not-in", property: "id", values: ["a", "b"] })).toEqual({
+        id: { notIn: ["a", "b"] },
+      })
     })
 
     it("maps contains/starts-with/ends-with", () => {
-      expect(mapWhere<Sample>({ operator: "contains", property: "name", value: "a" })).toEqual({ name: { contains: "a" } })
-      expect(mapWhere<Sample>({ operator: "starts-with", property: "name", value: "A" })).toEqual({ name: { startsWith: "A" } })
-      expect(mapWhere<Sample>({ operator: "ends-with", property: "name", value: "z" })).toEqual({ name: { endsWith: "z" } })
+      expect(mapWhere<Sample>({ operator: "contains", property: "name", value: "a" })).toEqual({
+        name: { contains: "a" },
+      })
+      expect(mapWhere<Sample>({ operator: "starts-with", property: "name", value: "A" })).toEqual({
+        name: { startsWith: "A" },
+      })
+      expect(mapWhere<Sample>({ operator: "ends-with", property: "name", value: "z" })).toEqual({
+        name: { endsWith: "z" },
+      })
     })
 
     it("maps greater-than and less-than", () => {
@@ -58,23 +70,23 @@ describe("prisma helpers", () => {
     })
 
     it("maps and/or/not recursively", () => {
-      const and = mapWhere<Sample>({ operator: "and", filters: [
-        { operator: "equals", property: "active", value: true },
-        { operator: "contains", property: "name", value: "a" },
-      ] })
-      expect(and).toEqual({ AND: [
-        { active: { equals: true } },
-        { name: { contains: "a" } },
-      ] })
+      const and = mapWhere<Sample>({
+        operator: "and",
+        filters: [
+          { operator: "equals", property: "active", value: true },
+          { operator: "contains", property: "name", value: "a" },
+        ],
+      })
+      expect(and).toEqual({ AND: [{ active: { equals: true } }, { name: { contains: "a" } }] })
 
-      const or = mapWhere<Sample>({ operator: "or", filters: [
-        { operator: "equals", property: "active", value: true },
-        { operator: "equals", property: "active", value: false },
-      ] })
-      expect(or).toEqual({ OR: [
-        { active: { equals: true } },
-        { active: { equals: false } },
-      ] })
+      const or = mapWhere<Sample>({
+        operator: "or",
+        filters: [
+          { operator: "equals", property: "active", value: true },
+          { operator: "equals", property: "active", value: false },
+        ],
+      })
+      expect(or).toEqual({ OR: [{ active: { equals: true } }, { active: { equals: false } }] })
 
       const not = mapWhere<Sample>({ operator: "not", filter: { operator: "equals", property: "id", value: "1" } })
       expect(not).toEqual({ NOT: { id: { equals: "1" } } })
@@ -99,26 +111,30 @@ describe("prisma helpers", () => {
     })
 
     it("merges include into select when select exists", () => {
-      const args = mapQuery<Sample>({
-        limit: 5,
-        offset: 0,
-        select: ["id"],
-      }, ["name"]) // include name as well
+      const args = mapQuery<Sample>(
+        {
+          limit: 5,
+          offset: 0,
+          select: ["id"],
+        },
+        ["name"],
+      ) // include name as well
 
       expect(args.select).toEqual({ id: true, name: true })
       expect(args.include).toBeUndefined()
     })
 
     it("sets include when select is not provided", () => {
-      const args = mapQuery<Sample>({
-        limit: 5,
-        offset: 0,
-      }, ["name", "active"])
+      const args = mapQuery<Sample>(
+        {
+          limit: 5,
+          offset: 0,
+        },
+        ["name", "active"],
+      )
 
       expect(args.select).toBeUndefined()
       expect(args.include).toEqual({ name: true, active: true })
     })
   })
 })
-
-

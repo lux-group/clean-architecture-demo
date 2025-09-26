@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto"
-import { describe, expect, it, vi } from "vitest"
-import { AuthenticationService } from "./AuthenticationService"
-import { AuthenticationError } from "../errors"
 import { createIdentityProvider, createLocalSession, createUser } from "@test/factories"
+import { describe, expect, it, vi } from "vitest"
+import { AuthenticationError } from "../errors"
+import { AuthenticationService } from "./AuthenticationService"
 
 describe("AuthenticationService", () => {
   const service = new AuthenticationService()
@@ -64,7 +64,6 @@ describe("AuthenticationService", () => {
 
     it("returns when user is a service account", () => {
       const user = createUser({ roles: ["service"] })
-      const session = createLocalSession({ userId: user.id })
       expect(() => service.authenticateWithPassword(user, "pw", okVerify)).toThrow(AuthenticationError)
     })
 
@@ -137,5 +136,3 @@ describe("AuthenticationService", () => {
     })
   })
 })
-
-

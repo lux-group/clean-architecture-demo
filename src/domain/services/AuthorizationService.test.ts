@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest"
-import { AuthorizationService } from "./AuthorizationService"
-import { AuthorizationError } from "../errors"
 import { createUser } from "@test/factories"
+import { describe, expect, it } from "vitest"
+import { AuthorizationError } from "../errors"
+import { AuthorizationService } from "./AuthorizationService"
 
 describe("AuthorizationService", () => {
   const service = new AuthorizationService()
@@ -42,5 +42,3 @@ describe("AuthorizationService", () => {
     expect(() => service.authorizeImpersonation(employee, target)).toThrow(AuthorizationError)
   })
 })
-
-
