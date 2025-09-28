@@ -3,6 +3,7 @@ import { EncryptionProvider } from "~/app/ports"
 import { Session, SessionStatus } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { SessionRepository } from "~/domain/repositories"
+import { MapperBuilder } from "~/lib/MapperBuilder"
 import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
 import { PrismaClient } from "./PrismaClient"
@@ -23,7 +24,7 @@ export class PrismaSessionRepository implements SessionRepository {
       ])
 
     return {
-      items: sessions.map(s => this.mapToSession(s)),
+      items: sessions.map(s => this.mapFromPrismaSession(s)),
       total,
     }
   }
@@ -42,7 +43,7 @@ export class PrismaSessionRepository implements SessionRepository {
       where: { id },
     })
 
-    return session ? this.mapToSession(session) : undefined
+    return session ? this.mapFromPrismaSession(session) : undefined
   }
 
   async tryGetByIdentityProviderSessionId(identityProviderSessionId: string): Promise<Session | undefined> {
@@ -50,7 +51,7 @@ export class PrismaSessionRepository implements SessionRepository {
       where: { identityProviderSessionId },
     })
 
-    return session ? this.mapToSession(session) : undefined
+    return session ? this.mapFromPrismaSession(session) : undefined
   }
 
   async insert(session: Session): Promise<void> {
@@ -74,39 +75,15 @@ export class PrismaSessionRepository implements SessionRepository {
     })
   }
 
-  private mapToSession(s: PrismaSession): Session {
-    return new Session({
-      id: s.id,
-      createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
-      lastRefreshAt: s.lastRefreshAt,
-      expiresAt: s.expiresAt,
-      terminatedAt: s.terminatedAt,
-      status: s.status as SessionStatus,
-      nonce: s.nonce,
-      userId: s.userId,
-      identityProviderId: s.identityProviderId,
-      identityProviderSessionId: s.identityProviderSessionId,
-      idToken: s.idToken,
-      refreshToken: s.refreshToken ? this.encryptionProvider.decrypt(s.refreshToken) : null,
-    })
-  }
+  private mapFromPrismaSession = MapperBuilder.for<PrismaSession>()
+    .mapProperty("status", status => status as SessionStatus)
+    .mapProperty("refreshToken", refreshToken => (refreshToken ? this.encryptionProvider.decrypt(refreshToken) : null))
+    .map(props => new Session(props))
+    .build<Session>()
 
-  private mapToPrismaSession(session: Session): PrismaSession {
-    return {
-      id: session.id,
-      createdAt: session.createdAt,
-      updatedAt: session.updatedAt,
-      lastRefreshAt: session.lastRefreshAt,
-      expiresAt: session.expiresAt,
-      terminatedAt: session.terminatedAt,
-      status: session.status,
-      nonce: session.nonce,
-      userId: session.userId,
-      identityProviderId: session.identityProviderId,
-      identityProviderSessionId: session.identityProviderSessionId,
-      idToken: session.idToken,
-      refreshToken: session.refreshToken ? this.encryptionProvider.encrypt(session.refreshToken) : null,
-    } as PrismaSession
-  }
+  private mapToPrismaSession = MapperBuilder.for<Session>()
+    .map(props => props.props)
+    .mapProperty("status", status => status as PrismaSession["status"])
+    .mapProperty("refreshToken", refreshToken => (refreshToken ? this.encryptionProvider.encrypt(refreshToken) : null))
+    .build<PrismaSession>()
 }

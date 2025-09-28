@@ -1,12 +1,15 @@
 import { Request, Response } from "express"
-import { Authorize, Controller, Delete, Get, HandleDomainErrors, Post, Put } from "~/app/routing"
+import { Authorize, Controller, Delete, Get, HandleDomainErrors, Post, Put, Schema } from "~/app/routing"
 import { parseQuery } from "~/app/shared/utils/parseQuery"
-import { IdentityProvider, IdentityProviderAuthSettings } from "~/domain/entities"
+import { IdentityProvider } from "~/domain/entities"
 import { CreateIdentityProviderCommand, CreateIdentityProviderHandler } from "../commands/CreateIdentityProviderHandler"
 import { DeleteIdentityProviderCommand, DeleteIdentityProviderHandler } from "../commands/DeleteIdentityProviderHandler"
 import { UpdateIdentityProviderCommand, UpdateIdentityProviderHandler } from "../commands/UpdateIdentityProviderHandler"
 import { GetIdentityProviderByIdHandler, GetIdentityProviderByIdQuery } from "../queries/GetIdentityProviderByIdHandler"
 import { SearchIdentityProvidersHandler } from "../queries/SearchIdentityProvidersHandler"
+import * as map from "./mappers"
+import * as models from "./models"
+import * as schemas from "./schemas"
 
 @Controller("/admin/v1/identity-providers")
 @HandleDomainErrors({ format: "Standard" })
@@ -22,87 +25,52 @@ export class IdentityProviderController {
 
   @Get("/")
   @Authorize({ scopes: ["identity-provider:write", "identity-provider:read"] })
-  async search(req: Request, res: Response) {
+  @Schema({ responseBody: schemas.paginatedResponse })
+  async search(req: Request, res: Response<models.PaginatedResponse>) {
     const query = parseQuery<IdentityProvider>(req.query, ["createdAt", "name"], ["name"])
     const result = await this.searchIdentityProvidersHandler.execute(query)
-    res.json({ ...result, items: result.items.map(this.present) })
+    res.json(map.toPaginatedIdentityProvidersDto(result))
   }
 
   @Get("/:id")
   @Authorize({ scopes: ["identity-provider:write", "identity-provider:read"] })
-  async getById(req: Request, res: Response) {
+  @Schema({ params: schemas.idParam, responseBody: schemas.singleResponse })
+  async getById(req: Request<models.IdParams>, res: Response<models.SingleResponse>) {
     const query: GetIdentityProviderByIdQuery = { id: req.params.id }
     const item = await this.getIdentityProviderByIdHandler.execute(query)
-    res.json(this.present(item))
+    res.json(map.toSingleIdentityProviderDto(item))
   }
 
   @Post("/")
   @Authorize({ scopes: ["identity-provider:write"] })
-  async create(req: Request, res: Response) {
-    const command: CreateIdentityProviderCommand = this.parseBody(req.body)
+  @Schema({ requestBody: schemas.createBody, responseBody: schemas.singleResponse })
+  async create(req: Request<unknown, models.CreateBody>, res: Response<models.SingleResponse>) {
+    const command: CreateIdentityProviderCommand = map.toCreateIdentityProviderCommand(req.body)
     const item = await this.createIdentityProviderHandler.execute(command)
     res
       .status(201)
       .header("Location", `${this.baseUrl}/admin/v1/identity-providers/${item.id}`)
-      .json(this.present(item))
+      .json(map.toSingleIdentityProviderDto(item))
   }
 
   @Put("/:id")
   @Authorize({ scopes: ["identity-provider:write"] })
-  async update(req: Request, res: Response) {
-    const command: UpdateIdentityProviderCommand = { id: req.params.id, ...this.parseBody(req.body) }
+  @Schema({ params: schemas.idParam, requestBody: schemas.updateBody, responseBody: schemas.singleResponse })
+  async update(req: Request<models.IdParams, models.UpdateBody>, res: Response<models.SingleResponse>) {
+    const command: UpdateIdentityProviderCommand = {
+      id: req.params.id,
+      ...map.toUpdateIdentityProviderCommand(req.body),
+    }
     const item = await this.updateIdentityProviderHandler.execute(command)
-    res.json(this.present(item))
+    res.json(map.toSingleIdentityProviderDto(item))
   }
 
   @Delete("/:id")
   @Authorize({ scopes: ["identity-provider:write"] })
-  async delete(req: Request, res: Response) {
+  @Schema({ params: schemas.idParam })
+  async delete(req: Request<models.IdParams>, res: Response) {
     const command: DeleteIdentityProviderCommand = { id: req.params.id }
     await this.deleteIdentityProviderHandler.execute(command)
     res.status(204).send()
-  }
-
-  private parseBody(body: Record<string, any>) {
-    return {
-      name: body.name,
-      issuerUrl: body.issuer_url,
-      audience: body.audience,
-      identifierClaimName: body.identifier_claim_name,
-      authSettings: body.auth_settings
-        ? ({
-            type: body.auth_settings.type,
-            brand: body.auth_settings.brand,
-            clientId: body.auth_settings.client_id,
-            clientSecret: body.auth_settings.client_secret,
-            redirectUrls: body.auth_settings.redirect_urls,
-            autoLinkUsers: body.auth_settings.auto_link_users,
-            autoCreateUsers: body.auth_settings.auto_create_users,
-          } as IdentityProviderAuthSettings)
-        : null,
-    }
-  }
-
-  private present(item: IdentityProvider) {
-    return {
-      id: item.id,
-      created_at: item.createdAt,
-      updated_at: item.updatedAt,
-      name: item.name,
-      issuer_url: item.issuerUrl,
-      audience: item.audience,
-      identifier_claim_name: item.identifierClaimName,
-      auth_settings: item.authSettings
-        ? {
-            type: item.authSettings.type,
-            brand: item.authSettings.brand,
-            client_id: item.authSettings.clientId,
-            client_secret: item.authSettings.clientSecret,
-            redirect_urls: item.authSettings.redirectUrls,
-            auto_link_users: item.authSettings.autoLinkUsers,
-            auto_create_users: item.authSettings.autoCreateUsers,
-          }
-        : null,
-    }
   }
 }

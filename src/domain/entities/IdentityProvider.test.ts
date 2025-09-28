@@ -164,7 +164,7 @@ describe("IdentityProvider", () => {
 
       expect(() => {
         identityProvider.verifyRedirectUrl("https://malicious.example.com/callback")
-      }).toThrow(/does not allow redirectig to/)
+      }).toThrow(/does not allow redirecting to/)
     })
 
     it("should throw InvalidOperationError for URL that doesn't start with allowed URL", () => {

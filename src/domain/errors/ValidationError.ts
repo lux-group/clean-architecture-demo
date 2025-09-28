@@ -12,7 +12,7 @@ export class ValidationError extends DomainError {
     public readonly errors: ValidationErrorItem[] = [],
   ) {
     super(message)
-    this.name = "ValidationError"
+    this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
   }
 }

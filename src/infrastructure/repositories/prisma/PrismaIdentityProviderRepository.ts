@@ -1,11 +1,20 @@
-import { Prisma, IdentityProvider as PrismaIdentityProvider } from "@prisma/client"
+import {
+  Prisma,
+  IdentityProvider as PrismaIdentityProvider,
+  IdentityProviderAuthSettings as PrismaIdentityProviderAuthSettings,
+} from "@prisma/client"
 import { EncryptionProvider } from "~/app/ports"
-import { IdentityProvider, IdentityProviderType } from "~/domain/entities"
+import { IdentityProvider, IdentityProviderAuthSettings, IdentityProviderType } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { IdentityProviderRepository } from "~/domain/repositories"
+import { MapperBuilder } from "~/lib/MapperBuilder"
 import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
 import { PrismaClient } from "./PrismaClient"
+
+type PrismaIdentityProviderWithAuth = PrismaIdentityProvider & {
+  authSettings: PrismaIdentityProviderAuthSettings | null
+}
 
 export class PrismaIdentityProviderRepository implements IdentityProviderRepository {
   constructor(
@@ -14,7 +23,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   ) {}
 
   async query(options: Query<IdentityProvider>): Promise<QueryResult<IdentityProvider>> {
-    const query = mapQuery(options) as Prisma.IdentityProviderFindManyArgs
+    const query = mapQuery(options, ["authSettings"]) as Prisma.IdentityProviderFindManyArgs
     const [total, identityProviders] = await this.prismaClient
       .$replica()
       .$transaction([
@@ -23,7 +32,7 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
       ])
 
     return {
-      items: identityProviders.map(idp => this.mapToIdentityProvider(idp)),
+      items: identityProviders.map(idp => this.mapFromPrismaIdentityProvider(idp as PrismaIdentityProviderWithAuth)),
       total,
     }
   }
@@ -40,17 +49,23 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
   async tryGetById(id: string): Promise<IdentityProvider | undefined> {
     const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
       where: { id },
+      include: { authSettings: true },
     })
 
-    return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
+    return identityProvider
+      ? this.mapFromPrismaIdentityProvider(identityProvider as PrismaIdentityProviderWithAuth)
+      : undefined
   }
 
   async tryGetByName(name: string): Promise<IdentityProvider | undefined> {
     const identityProvider = await this.prismaClient.$primary().identityProvider.findUnique({
       where: { name },
+      include: { authSettings: true },
     })
 
-    return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
+    return identityProvider
+      ? this.mapFromPrismaIdentityProvider(identityProvider as PrismaIdentityProviderWithAuth)
+      : undefined
   }
 
   async tryGetByIssuerUrlAndAudience(issuerUrl: string, audience: string): Promise<IdentityProvider | undefined> {
@@ -61,21 +76,45 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
           audience,
         },
       },
+      include: { authSettings: true },
     })
 
-    return identityProvider ? this.mapToIdentityProvider(identityProvider) : undefined
+    return identityProvider
+      ? this.mapFromPrismaIdentityProvider(identityProvider as PrismaIdentityProviderWithAuth)
+      : undefined
   }
 
   async insert(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.$primary().identityProvider.create({
-      data: this.mapToPrismaIdentityProvider(identityProvider),
+      data: {
+        ...this.mapToPrismaIdentityProvider(identityProvider),
+        authSettings: identityProvider.authSettings
+          ? {
+              create: this.mapToPrismaIdentityProviderAuthSettings(identityProvider.authSettings!),
+            }
+          : undefined,
+      },
     })
+
+    identityProvider.commit()
   }
 
   async update(identityProvider: IdentityProvider): Promise<void> {
     await this.prismaClient.$primary().identityProvider.update({
       where: { id: identityProvider.id, updatedAt: identityProvider.originalUpdatedAt },
-      data: this.mapToPrismaIdentityProvider(identityProvider),
+      data: {
+        ...this.mapToPrismaIdentityProvider(identityProvider),
+        authSettings: {
+          delete: !!identityProvider.authSettings,
+          upsert: identityProvider.authSettings
+            ? {
+                where: { id: identityProvider.id },
+                update: this.mapToPrismaIdentityProviderAuthSettings(identityProvider.authSettings),
+                create: this.mapToPrismaIdentityProviderAuthSettings(identityProvider.authSettings),
+              }
+            : undefined,
+        },
+      },
     })
 
     identityProvider.commit()
@@ -87,47 +126,24 @@ export class PrismaIdentityProviderRepository implements IdentityProviderReposit
     })
   }
 
-  private mapToIdentityProvider(idp: PrismaIdentityProvider): IdentityProvider {
-    return new IdentityProvider({
-      id: idp.id,
-      createdAt: idp.createdAt,
-      updatedAt: idp.updatedAt,
-      name: idp.name,
-      issuerUrl: idp.issuerUrl,
-      audience: idp.audience,
-      identifierClaimName: idp.identifierClaimName,
-      authSettings: idp.authSettingsType
-        ? {
-            type: idp.authSettingsType as IdentityProviderType,
-            brand: idp.authSettingsBrand!,
-            clientId: idp.authSettingsClientId!,
-            clientSecret: this.encryptionProvider.decrypt(idp.authSettingsClientSecret!),
-            redirectUrls: idp.authSettingsRedirectUrls || [],
-            autoLinkUsers: idp.authSettingsAutoLinkUsers!,
-            autoCreateUsers: idp.authSettingsAutoCreateUsers!,
-          }
-        : null,
-    })
-  }
+  private mapFromPrismaIdentityProviderAuthSettings = MapperBuilder.for<PrismaIdentityProviderAuthSettings>()
+    .omit("id", "identityProviderId")
+    .mapProperty("type", type => type as IdentityProviderType)
+    .mapProperty("clientSecret", clientSecret => this.encryptionProvider.decrypt(clientSecret))
+    .build<IdentityProviderAuthSettings>()
 
-  private mapToPrismaIdentityProvider(idp: IdentityProvider): PrismaIdentityProvider {
-    return {
-      id: idp.id,
-      createdAt: idp.createdAt,
-      updatedAt: idp.updatedAt,
-      name: idp.name,
-      issuerUrl: idp.issuerUrl,
-      audience: idp.audience,
-      identifierClaimName: idp.identifierClaimName,
-      authSettingsType: idp.authSettings?.type,
-      authSettingsBrand: idp.authSettings?.brand,
-      authSettingsClientId: idp.authSettings?.clientId,
-      authSettingsClientSecret: idp.authSettings?.clientSecret
-        ? this.encryptionProvider.encrypt(idp.authSettings?.clientSecret)
-        : null,
-      authSettingsRedirectUrls: idp.authSettings?.redirectUrls as string[] | undefined,
-      authSettingsAutoLinkUsers: idp.authSettings?.autoLinkUsers,
-      authSettingsAutoCreateUsers: idp.authSettings?.autoCreateUsers,
-    } as PrismaIdentityProvider
-  }
+  private mapToPrismaIdentityProviderAuthSettings = MapperBuilder.for<IdentityProviderAuthSettings>()
+    .mapProperty("type", type => type as PrismaIdentityProviderAuthSettings["type"])
+    .mapProperty("clientSecret", clientSecret => this.encryptionProvider.encrypt(clientSecret))
+    .build<PrismaIdentityProviderAuthSettings>()
+
+  private mapFromPrismaIdentityProvider = MapperBuilder.for<PrismaIdentityProviderWithAuth>()
+    .mapProperty("authSettings", auth => (auth ? this.mapFromPrismaIdentityProviderAuthSettings(auth) : null))
+    .map(props => new IdentityProvider(props))
+    .build<IdentityProvider>()
+
+  private mapToPrismaIdentityProvider = MapperBuilder.for<IdentityProvider>()
+    .map(props => props.props)
+    .omit("authSettings")
+    .build<PrismaIdentityProvider>()
 }

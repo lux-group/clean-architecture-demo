@@ -8,7 +8,7 @@ export class AuthenticationError extends DomainError {
     public readonly details: AuthenticationEventDetails,
   ) {
     super(message)
-    this.name = "AuthenticationError"
+    this.name = this.constructor.name
     Error.captureStackTrace(this, this.constructor)
   }
 
@@ -48,7 +48,7 @@ export class AuthenticationError extends DomainError {
   }
 
   static clientCredentialsFailed(userId: string | undefined, reason: string) {
-    return new AuthenticationError(`Client crednetials authentication failed. ${reason}`, {
+    return new AuthenticationError(`Client credentials authentication failed. ${reason}`, {
       method: "Client Credentials",
       userId,
     })

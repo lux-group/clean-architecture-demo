@@ -3,6 +3,7 @@ import { EncryptionProvider } from "~/app/ports"
 import { SigningKey } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { SigningKeyRepository } from "~/domain/repositories"
+import { MapperBuilder } from "~/lib/MapperBuilder"
 import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
 import { PrismaClient } from "./PrismaClient"
@@ -23,7 +24,7 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
       ])
 
     return {
-      items: signingKeys.map(sk => this.mapToSigningKey(sk)),
+      items: signingKeys.map(sk => this.mapFromPrismaSigningKey(sk)),
       total,
     }
   }
@@ -41,7 +42,7 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     const signingKey = await this.prismaClient.$primary().signingKey.findUnique({
       where: { id },
     })
-    return signingKey ? this.mapToSigningKey(signingKey) : undefined
+    return signingKey ? this.mapFromPrismaSigningKey(signingKey) : undefined
   }
 
   async tryGetActiveSigningKey(): Promise<SigningKey | undefined> {
@@ -54,7 +55,7 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
       orderBy: { createdAt: "desc" },
     })
 
-    return signingKey ? this.mapToSigningKey(signingKey) : undefined
+    return signingKey ? this.mapFromPrismaSigningKey(signingKey) : undefined
   }
 
   async insert(signingKey: SigningKey): Promise<void> {
@@ -78,23 +79,13 @@ export class PrismaSigningKeyRepository implements SigningKeyRepository {
     })
   }
 
-  private mapToSigningKey(sk: PrismaSigningKey): SigningKey {
-    return new SigningKey({
-      id: sk.id,
-      createdAt: sk.createdAt,
-      updatedAt: sk.updatedAt,
-      publicKey: sk.publicKey,
-      privateKey: sk.privateKey ? this.encryptionProvider.decrypt(sk.privateKey) : null,
-    })
-  }
+  private mapFromPrismaSigningKey = MapperBuilder.for<PrismaSigningKey>()
+    .mapProperty("privateKey", privateKey => (privateKey ? this.encryptionProvider.decrypt(privateKey) : null))
+    .map(props => new SigningKey(props))
+    .build<SigningKey>()
 
-  private mapToPrismaSigningKey(sk: SigningKey): PrismaSigningKey {
-    return {
-      id: sk.id,
-      createdAt: sk.createdAt,
-      updatedAt: sk.updatedAt,
-      publicKey: sk.publicKey,
-      privateKey: sk.privateKey ? this.encryptionProvider.encrypt(sk.privateKey) : null,
-    } as PrismaSigningKey
-  }
+  private mapToPrismaSigningKey = MapperBuilder.for<SigningKey>()
+    .map(props => props.props)
+    .mapProperty("privateKey", privateKey => (privateKey ? this.encryptionProvider.encrypt(privateKey) : null))
+    .build<PrismaSigningKey>()
 }

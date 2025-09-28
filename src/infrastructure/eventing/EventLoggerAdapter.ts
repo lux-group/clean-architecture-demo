@@ -51,7 +51,7 @@ export class EventLoggerAdapter {
       actor: {
         ip: requestContext?.ipAddress,
         userAgent: requestContext?.userAgent,
-        claims: requestContext?.jwtClaims,
+        claims: requestContext?.user?.claims,
       },
       context: {
         requestId: requestContext?.requestId,

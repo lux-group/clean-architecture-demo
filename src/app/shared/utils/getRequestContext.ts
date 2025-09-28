@@ -4,7 +4,12 @@ export interface RequestContext {
   requestId: string
   ipAddress?: string
   userAgent?: string
-  jwtClaims?: Record<string, unknown>
+  user?: UserContext
+}
+
+export interface UserContext {
+  id: string
+  claims: Record<string, unknown>
 }
 
 export const contextStorage = new AsyncLocalStorage<RequestContext>()

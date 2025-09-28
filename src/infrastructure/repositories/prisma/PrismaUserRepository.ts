@@ -2,6 +2,7 @@ import { Prisma, User as PrismaUser, UserIdentity as PrismaUserIdentity } from "
 import { User, UserIdentity } from "~/domain/entities"
 import { NotFoundError } from "~/domain/errors"
 import { UserRepository } from "~/domain/repositories"
+import { MapperBuilder } from "~/lib/MapperBuilder"
 import { Query, QueryResult } from "~/lib/types"
 import { mapQuery } from "./helpers"
 import { PrismaClient } from "./PrismaClient"
@@ -23,7 +24,7 @@ export class PrismaUserRepository implements UserRepository {
       ])
 
     return {
-      items: users.map((u: any) => this.mapToUser(u)),
+      items: users.map((u: any) => this.mapFromPrismaUser(u)),
       total,
     }
   }
@@ -43,7 +44,7 @@ export class PrismaUserRepository implements UserRepository {
       include: { identities: true },
     })
 
-    return user ? this.mapToUser(user) : undefined
+    return user ? this.mapFromPrismaUser(user) : undefined
   }
 
   async tryGetByBrandAndEmail(brand: string, email: string): Promise<User | undefined> {
@@ -59,7 +60,7 @@ export class PrismaUserRepository implements UserRepository {
       },
     })
 
-    return user ? this.mapToUser(user) : undefined
+    return user ? this.mapFromPrismaUser(user) : undefined
   }
 
   async tryGetByExternalIdentity(identityProviderId: string, identifierClaimValue: string): Promise<User | undefined> {
@@ -79,7 +80,7 @@ export class PrismaUserRepository implements UserRepository {
       },
     })
 
-    return userIdentity ? this.mapToUser(userIdentity.user) : undefined
+    return userIdentity ? this.mapFromPrismaUser(userIdentity.user) : undefined
   }
 
   async insert(user: User): Promise<void> {
@@ -120,60 +121,17 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
-  private mapToUser(u: PrismaUserWithIdentities): User {
-    return new User({
-      id: u.id,
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
-      isEnabled: u.isEnabled,
-      brand: u.brand,
-      givenName: u.givenName,
-      surname: u.surname,
-      email: u.email,
-      emailVerified: u.emailVerified,
-      phone: u.phone,
-      country: u.country,
-      city: u.city,
-      postcode: u.postcode,
-      passwordHash: u.passwordHash,
-      roles: u.roles,
-      identities: u.identities.map(ui => this.mapToUserIdentity(ui)),
-    })
-  }
+  private mapFromPrismaUserIdentity = MapperBuilder.for<PrismaUserIdentity>().omit("userId").build<UserIdentity>()
 
-  private mapToUserIdentity(i: PrismaUserIdentity): UserIdentity {
-    return {
-      id: i.id,
-      identityProviderId: i.identityProviderId,
-      identifierClaimValue: i.identifierClaimValue,
-    } as UserIdentity
-  }
+  private mapToPrismaUserIdentity = MapperBuilder.for<UserIdentity>().build<PrismaUserIdentity>()
 
-  private mapToPrismaUser(u: User): PrismaUser {
-    return {
-      id: u.id,
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
-      isEnabled: u.isEnabled,
-      brand: u.brand,
-      givenName: u.givenName,
-      surname: u.surname,
-      email: u.email,
-      emailVerified: u.emailVerified,
-      phone: u.phone,
-      country: u.country,
-      city: u.city,
-      postcode: u.postcode,
-      passwordHash: u.passwordHash,
-      roles: u.roles as string[],
-    } as PrismaUser
-  }
+  private mapFromPrismaUser = MapperBuilder.for<PrismaUserWithIdentities>()
+    .mapProperty("identities", identities => identities.map(this.mapFromPrismaUserIdentity))
+    .map(props => new User(props))
+    .build<User>()
 
-  private mapToPrismaUserIdentity(i: UserIdentity): Omit<PrismaUserIdentity, "userId"> {
-    return {
-      id: i.id,
-      identityProviderId: i.identityProviderId,
-      identifierClaimValue: i.identifierClaimValue,
-    } as PrismaUserIdentity
-  }
+  private mapToPrismaUser = MapperBuilder.for<User>()
+    .map(user => user.props)
+    .omit("identities")
+    .build<PrismaUser>()
 }

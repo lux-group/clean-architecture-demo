@@ -3,14 +3,16 @@ import registerIdentityProviderAdminModule from "./modules/admin/identity-provid
 import registerSessionAdminModule from "./modules/admin/session/module"
 import registerSigningKeyAdminModule from "./modules/admin/signing-key/module"
 import registerUserAdminModule from "./modules/admin/user/module"
-import registerExternalAuthenticationModule from "./modules/authentication/external/module"
-import registerLocalAuthenticationModule from "./modules/authentication/local/module"
-import registerTokenModule from "./modules/authorization/token/module"
-import registerWellKnownModule from "./modules/authorization/well-known/module"
 import registerEntraIntegrationModule from "./modules/integration/entra/module"
+import registerExternalAuthenticationModule from "./modules/public/auth-external/module"
+import registerLocalAuthenticationModule from "./modules/public/auth-local/module"
+import registerPublicModule from "./modules/public/profile/module"
+import registerTokenModule from "./modules/public/token/module"
+import registerWellKnownModule from "./modules/public/well-known/module"
 import { authorize } from "./shared/middleware/authorize"
 import { handleDomainErrors } from "./shared/middleware/handleDomainErrors"
 import { handleServerErrors } from "./shared/middleware/handleServerErrors"
+import { schema } from "./shared/middleware/schema"
 import { setRequestContext } from "./shared/middleware/setRequestContext"
 import { SecureCookieManager } from "./shared/utils/SecureCookieManager"
 
@@ -20,18 +22,22 @@ export default async function registerApp(container: AwilixContainer) {
     authorize: asFunction(authorize).singleton(),
     handleDomainErrors: asFunction(handleDomainErrors).singleton(),
     handleServerErrors: asFunction(handleServerErrors).singleton(),
+    schema: asFunction(schema).singleton(),
     setRequestContext: asFunction(setRequestContext).singleton(),
     secureCookieManager: asClass(SecureCookieManager).singleton(),
   })
 
-  // Register application modules (use cases)
+  // Register application modules
   await registerIdentityProviderAdminModule(container)
   await registerSessionAdminModule(container)
   await registerSigningKeyAdminModule(container)
   await registerUserAdminModule(container)
+
+  await registerEntraIntegrationModule(container)
+
   await registerExternalAuthenticationModule(container)
   await registerLocalAuthenticationModule(container)
-  await registerWellKnownModule(container)
+  await registerPublicModule(container)
   await registerTokenModule(container)
-  await registerEntraIntegrationModule(container)
+  await registerWellKnownModule(container)
 }

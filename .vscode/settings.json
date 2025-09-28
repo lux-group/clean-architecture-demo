@@ -3,7 +3,11 @@
     "awilix",
     "entra",
     "frontchannel",
+    "luxuryescapes",
     "PKCE",
+    "Uncapitalize",
+    "Unflatten",
+    "Unprefix",
     "valkey"
   ],
   "editor.codeActionsOnSave": {
