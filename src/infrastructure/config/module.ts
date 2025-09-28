@@ -1,22 +1,9 @@
 import { AwilixContainer, asValue } from "awilix"
-import { config as devConfig } from "./dev"
-import { Config, schema } from "./schema"
-import { config as testConfig } from "./test"
-
-function readConfig(environment: string): Config {
-  switch (environment) {
-    case "test":
-      return testConfig
-    case "dev":
-      return devConfig
-    default:
-      throw new Error(`Unknown environment: ${environment}`)
-  }
-}
+import { schema } from "./schema"
 
 export default async function registerConfig(container: AwilixContainer, environment: string) {
-  const configData = readConfig(environment)
-  const configResult = schema.safeParse(configData)
+  const importedConfig = await import(`./${environment}`)
+  const configResult = schema.safeParse(importedConfig.config);
   if (!configResult.success) {
     console.error(configResult.error)
     process.exit(1)
