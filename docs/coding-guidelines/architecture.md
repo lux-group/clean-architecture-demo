@@ -43,20 +43,22 @@ There are a few well-known patterns for implementing business/domain logic, such
 ### Domain Events / Event-Driven Architecture
 The application raises events for completed or attempted actions such as sign-in or issued tokens. An audit log consumer subscribes to these events to log them for auditing. Additional consumers could be added for other purposes such as publishing events to an event bus for consumption by other services.
 
-### Repository Pattern
-Domain repositories abstract data persistence from the domain (core) and take care of all data-related concerns such as generating SQL statements (with the help of ORMs) and mapping data between the domain model and the database model. 
-
-### Decorator Pattern
-The [Redis Repositories](/src/infrastructure/repositories/redis) are implemented as decorators for [Prisma Repositories](/src/infrastructure/repositories/prisma). This means they both implement the same [Repository Interface](/src/domain/repositories/), and the Redis repositories sit on top of the Prisma repositories and proxy requests through to Prisma while adding caching.
-
 ### Dependency Injection Pattern
-To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead, all dependencies are "injected" into the consumers that need them, usually via class constructors.
+To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead, all dependencies are "injected" into the consumers that need them, usually via class constructors or factory functions.
 
 To automate dependency injection, the application uses [awilix](https://github.com/jeffijoe/awilix). The library is non-intrusive and easy to replace or remove. Unlike decorator-based DI containers, awilix works fine with functions and even primitive values. But be aware that it relies on consistent dependency names.
 
 ### Adapter Pattern
-- **Infrastructure Adapters**: `BCryptPasswordVerifier`, `JsonWebTokenIssuer` adapt external libraries to domain interfaces
-- **Domain Adapters**: Abstract infrastructure concerns behind domain-focused interfaces
+All infrastructure is abstracted using generic interfaces (ports) defined by the application and their concrete implementations (adapters). This is a key design pattern to enable inversion of control and adopt good architecture styles, such as Clean Architecture, Onion Architecture, or Hexagon Architecture.
+
+### Repository Pattern
+Domain repositories are a specialised form the the Adapter Pattern. The domain specifies its data needs in form of [Repository Interfaces](/src/domain/repositories/) that  are implemented by the infrastructure layer. This ensures that the domain logic can stay focused on business logic and does not have to deal with all the data-related concerns, such as generating SQL statements or map data between schemas.
+
+Multiple implementations can be used, such as [Prisma Repositories](/src/infrastructure/repositories/prisma) for persistence, [Redis Repositories](/src/infrastructure/repositories/redis) for caching, and [Memory Repositories](/src/infrastructure/repositories/memory) for testing.
+
+### Decorator Pattern
+- **Caching Repositories**: The [Prisma Repositories](/src/infrastructure/repositories/prisma) are implemented as decorators for the actual persistence repositories (such as Prisma). This makes caching completely transparent to the application.
+- **Routing Decorators**: API Controllers define their routes, schemas, and middleware requirements with decorators (annotations).
 
 ### Strategy Pattern
 - **Authentication Providers**: Different authentication providers (Entra ID, Google, Facebook, Apple) abstracted through a common interface.
@@ -66,10 +68,13 @@ To automate dependency injection, the application uses [awilix](https://github.c
 - **Entity Creation**: `User.createNew()` factory method for creating new entities
 - **Client Factory**: `AuthClientFactory` for creating OAuth clients
 
-### Command Pattern & CQRS
-- **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
-- **Input/Output DTOs**: Clear command/query interfaces with typed inputs/outputs
+### Builder Pattern
+- **Data Mapper**: `MapperBuilder` for building type-safe data mapping functions with a fluent interface.
 
 ### Observer Pattern
 - **Domain Events**: `EventPublisher` allows multiple subscribers to domain events
 - **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
+
+### Command Pattern & CQRS
+- **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
+- **Input/Output DTOs**: Clear command/query interfaces with typed inputs/outputs

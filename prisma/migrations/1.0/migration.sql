@@ -56,13 +56,6 @@ CREATE TABLE "identity_providers" (
     "issuer_url" TEXT NOT NULL,
     "audience" TEXT NOT NULL,
     "identifier_claim_name" TEXT NOT NULL,
-    "auth_settings_type" TEXT,
-    "auth_settings_brand" TEXT,
-    "auth_settings_client_id" TEXT,
-    "auth_settings_client_secret" TEXT,
-    "auth_settings_redirect_urls" TEXT[],
-    "auth_settings_auto_link_users" BOOLEAN,
-    "auth_settings_auto_create_users" BOOLEAN,
 
     CONSTRAINT "identity_providers_pkey" PRIMARY KEY ("id")
 );
@@ -76,6 +69,21 @@ CREATE TABLE "signing_keys" (
     "private_key" TEXT,
 
     CONSTRAINT "signing_keys_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "identity_provider_auth_settings" (
+    "id" TEXT NOT NULL,
+    "identity_provider_id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "brand" TEXT NOT NULL,
+    "client_id" TEXT NOT NULL,
+    "client_secret" TEXT NOT NULL,
+    "redirect_urls" TEXT[] NOT NULL,
+    "auto_link_users" BOOLEAN NOT NULL,
+    "auto_create_users" BOOLEAN NOT NULL,
+
+    CONSTRAINT "identity_provider_auth_settings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -93,6 +101,9 @@ CREATE UNIQUE INDEX "identity_providers_name_key" ON "identity_providers"("name"
 -- CreateIndex
 CREATE UNIQUE INDEX "identity_providers_issuer_url_audience_key" ON "identity_providers"("issuer_url", "audience");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "identity_provider_auth_settings_identity_provider_id_key" ON "identity_provider_auth_settings"("identity_provider_id");
+
 -- AddForeignKey
 ALTER TABLE "user_identities" ADD CONSTRAINT "user_identities_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -104,3 +115,6 @@ ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user
 
 -- AddForeignKey
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_identity_provider_id_fkey" FOREIGN KEY ("identity_provider_id") REFERENCES "identity_providers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "identity_provider_auth_settings" ADD CONSTRAINT "identity_provider_auth_settings_identity_provider_id_fkey" FOREIGN KEY ("identity_provider_id") REFERENCES "identity_providers"("id") ON DELETE CASCADE ON UPDATE CASCADE;

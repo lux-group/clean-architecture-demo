@@ -27,7 +27,7 @@ export default async function registerApp(container: AwilixContainer) {
     secureCookieManager: asClass(SecureCookieManager).singleton(),
   })
 
-  // Register application modules (use cases)
+  // Register application modules
   await registerIdentityProviderAdminModule(container)
   await registerSessionAdminModule(container)
   await registerSigningKeyAdminModule(container)

@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "hbenl.vscode-test-explorer",
+    "ms-vscode.test-adapter-converter",
+    "Prisma.prisma",
+    "streetsidesoftware.code-spell-checker",
+    "vitest.explorer"
+  ]
+}

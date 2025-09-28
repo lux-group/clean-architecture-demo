@@ -13,14 +13,23 @@ Related ADRs:
 ```ts
 @Controller("/admin/v1/users")
 export class UserController {
-  constructor(private readonly baseUrl: string, private readonly createUserHandler: CreateUserHandler) {}
+  constructor(
+    private readonly baseUrl: string,
+    private readonly createUserHandler: CreateUserHandler,
+  ) {}
 
   @Post("/")
   @Authorize({ scopes: ["user:write"] })
-  async create(req: Request, res: Response) {
-    const command: CreateUserCommand = { /* parse */ }
+  @Schema({ requestBody: schemas.createBody, responseBody: schemas.singleResponse })
+  async create(
+    req: Request<unknown, models.CreateBody>,
+    res: Response<models.SingleResponse>,
+  ) {
+    const command: CreateUserCommand = map.toCreateUserCommand(req.body)
     const item = await this.createUserHandler.execute(command)
-    res.status(201).header("Location", `${this.baseUrl}/admin/v1/users/${item.id}`).json(this.present(item))
+    res.status(201)
+      .header("Location", `${this.baseUrl}/admin/v1/users/${item.id}`)
+      .json(map.toSingleUserDto(item))
   }
 }
 ```

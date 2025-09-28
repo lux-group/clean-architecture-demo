@@ -134,7 +134,7 @@ export class User extends Entity<UserProps> {
 
   changePassword(passwordHash: string) {
     if (this.identities.length > 0) {
-      throw InvalidOperationError.passwordChangeNotAllowed(this.id, "Account has external identitied.")
+      throw InvalidOperationError.passwordChangeNotAllowed(this.id, "Account has external identities.")
     }
 
     this.props = {

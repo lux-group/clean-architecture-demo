@@ -18,8 +18,8 @@ const identityProviderAuthSettingsSchema = z.object({
   clientId: z.string().min(10).max(100),
   clientSecret: z.string().min(10).max(100),
   redirectUrls: z.array(z.url()).min(1).max(20),
-  autoLinkUsers: z.boolean().default(false),
-  autoCreateUsers: z.boolean().default(false),
+  autoLinkUsers: z.boolean(),
+  autoCreateUsers: z.boolean(),
 })
 
 const identityProviderSchema = z.object({

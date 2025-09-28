@@ -1,5 +1,9 @@
 import { toCamelCase, toISODateString, toSnakeCase, transformObject } from "./transformObject"
 
+export type Primitive = string | number | bigint | boolean | Date | symbol | null | undefined
+
+export type RealObject<T> = T extends Primitive ? never : T
+
 export type CamelCase<S extends string> = S extends `${infer P}_${infer Q}`
   ? `${Uncapitalize<P>}${Capitalize<CamelCase<Q>>}`
   : Uncapitalize<S>
@@ -12,7 +16,7 @@ export type SnakeCase<S extends string> = S extends `${infer P}${infer Q}`
 
 export type CamelCaseObject<T> = T extends Array<infer U>
   ? Array<CamelCaseObject<U>>
-  : T extends object
+  : T extends RealObject<T>
     ? {
         [K in keyof T as CamelCase<string & K>]: CamelCaseObject<T[K]>
       }
@@ -20,7 +24,7 @@ export type CamelCaseObject<T> = T extends Array<infer U>
 
 export type SnakeCaseObject<T> = T extends Array<infer U>
   ? Array<SnakeCaseObject<U>>
-  : T extends object
+  : T extends RealObject<T>
     ? {
         [K in keyof T as SnakeCase<string & K>]: SnakeCaseObject<T[K]>
       }
@@ -30,7 +34,7 @@ export type DatesToIsoStringObject<T> = T extends Date
   ? string
   : T extends Array<infer U>
     ? Array<DatesToIsoStringObject<U>>
-    : T extends object
+    : T extends RealObject<T>
       ? {
           [K in keyof T]: DatesToIsoStringObject<T[K]>
         }
@@ -45,12 +49,12 @@ export class MapperBuilder<Start extends object, Current extends object> {
     return new MapperBuilder<Start, Start>([])
   }
 
-  create<End extends Current>(): Mapper<Start, Current> {
+  build<End extends Current>(): Mapper<Start, Current> {
     return (input: Start) => [...this.actions].reduce((v: any, a) => a(v), input) as End
   }
 
-  omitProperties<K extends string & keyof Current>(key: K) {
-    return this.omit(key)
+  map<Result extends object>(action: (obj: Current) => Result): MapperBuilder<Start, Result> {
+    return this.append(action)
   }
 
   mapProperty<K extends string & keyof Current, Result>(
@@ -58,10 +62,6 @@ export class MapperBuilder<Start extends object, Current extends object> {
     action: (obj: Current[K]) => Result,
   ): MapperBuilder<Start, Omit<Current, K> & { [P in K]: Result }> {
     return this.map(data => ({ ...data, [key]: action(data[key]) }))
-  }
-
-  map<Result extends object>(action: (obj: Current) => Result): MapperBuilder<Start, Result> {
-    return this.append(action)
   }
 
   pick<K extends string & keyof Current>(...keys: K[]): MapperBuilder<Start, Pick<Current, K>> {
@@ -87,7 +87,7 @@ export class MapperBuilder<Start extends object, Current extends object> {
   }
 
   datesToIsoString(): MapperBuilder<Start, DatesToIsoStringObject<Current> & object> {
-    return this.append(input => transformObject(input, [toISODateString], []))
+    return this.append(input => transformObject(input, [], [toISODateString]))
   }
 
   private append<Next extends object>(action: (input: Current) => Next): MapperBuilder<Start, Next> {
