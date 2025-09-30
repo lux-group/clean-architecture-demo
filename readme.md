@@ -134,7 +134,7 @@ Repetitive patterns allow AI to generalize solutions across the codebase:
 - **Import Paths**: Consistent aliases (`~/domain`, `@test/`)
 
 ### 🔍 **Clear Abstractions & Boundaries**
-Well-defined interfaces minimize cognitive load:
+Well-defined interfaces minimize cognitive load and token usage:
 - **Layer Isolation**: Domain completely independent of infrastructure
 - **Interface Segregation**: Focused, single-purpose interfaces
 - **Error Boundaries**: Structured error handling with context
