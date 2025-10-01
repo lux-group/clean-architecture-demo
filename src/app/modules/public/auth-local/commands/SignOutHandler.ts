@@ -21,6 +21,9 @@ export class SignOutHandler {
         return
       }
 
+      session.ensureIsLocalSession()
+      session.verifyNonce(command.nonce)
+
       session.terminateLocalSessionByUser()
       await this.sessionRepository.update(session)
 
