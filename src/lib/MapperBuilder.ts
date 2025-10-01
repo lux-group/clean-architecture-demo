@@ -61,7 +61,7 @@ export class MapperBuilder<Start extends object, Current extends object> {
     key: K,
     action: (obj: Current[K]) => Result,
   ): MapperBuilder<Start, Omit<Current, K> & { [P in K]: Result }> {
-    return this.map(data => ({ ...data, [key]: action(data[key]) }))
+    return this.append(data => ({ ...data, [key]: action(data[key]) }))
   }
 
   pick<K extends string & keyof Current>(...keys: K[]): MapperBuilder<Start, Pick<Current, K>> {
