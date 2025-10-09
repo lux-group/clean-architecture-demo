@@ -80,16 +80,13 @@ export class SecureCookieManager {
     return payload
   }
 
-  // This is just for demo purposes. There is surely a better way to do this.
-  // For example:
-  // - use the CloudFront-Viewer-JA4-Fingerprint header from CloudFront
-  // - consider something like https://github.com/salesforce/tough-cookie
   private extractFingerprint(headers: Record<string, string | string[] | undefined>): string {
     const acceptLanguage = (headers["accept-language"] as string) || ""
     const rawUserAgent = (headers["user-agent"] as string) || ""
+    const fingerprint = (headers["cloudfront-viewer-ja4-fingerprint"] as string) || ""
     const userAgent = rawUserAgent.replace(/\/[\d.]+/g, "").trim()
     return createHash("sha256")
-      .update(acceptLanguage + userAgent)
+      .update(acceptLanguage + userAgent + fingerprint)
       .digest("hex")
   }
 }
