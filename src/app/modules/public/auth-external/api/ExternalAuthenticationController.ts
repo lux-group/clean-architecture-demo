@@ -45,7 +45,7 @@ export class ExternalAuthenticationController {
 
     const request = await this.createSignInRequestHandler.execute(command)
     this.secureCookieManager.setStateCookie(req, res, request.signInState)
-    res.redirect(request.url)
+    res.redirect(this.safeRedirect(request.url))
   }
 
   @Get("/sign-in-callback")
@@ -59,10 +59,12 @@ export class ExternalAuthenticationController {
 
       const session = await this.processSignInResponseHandler.execute(command)
       this.secureCookieManager.setSessionCookie(req, res, session)
-      res.redirect(signInState.redirectUrl)
+      res.redirect(this.safeRedirect(signInState.redirectUrl))
     } catch (err) {
       this.logger.error(err)
-      res.redirect(`${signInState.redirectUrl}?error=${encodeURIComponent(this.getErrorMessage(err))}`)
+      res.redirect(
+        this.safeRedirect(`${signInState.redirectUrl}?error=${encodeURIComponent(this.getErrorMessage(err))}`),
+      )
     }
   }
 
@@ -87,13 +89,13 @@ export class ExternalAuthenticationController {
       this.secureCookieManager.setStateCookie(req, res, request.signOutState)
     }
 
-    res.redirect(request.url)
+    res.redirect(this.safeRedirect(request.url))
   }
 
   @Get("/sign-out-callback")
   async processSignOutResponse(req: Request, res: Response) {
     const signOutState = this.secureCookieManager.getAndRemoveStateCookie<SignOutState>(req, res)
-    res.redirect(signOutState.redirectUrl)
+    res.redirect(this.safeRedirect(signOutState.redirectUrl))
   }
 
   @Get("/frontchannel-sign-out")
@@ -110,5 +112,17 @@ export class ExternalAuthenticationController {
     if (err instanceof AuthenticationError || err instanceof InvalidOperationError) return err.message
 
     return "An unknown error occurred. Please try again."
+  }
+
+  private safeRedirect(url: string): string {
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+        return parsed.toString()
+      }
+    } catch {
+      // If URL constructor throws, fall through to default
+    }
+    return "/" // fallback to home on invalid or unsafe scheme
   }
 }

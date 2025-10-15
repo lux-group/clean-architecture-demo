@@ -22,7 +22,7 @@ describe("[POST] /auth/v2/external/sign-out-callback (ProcessSignOutResponse)", 
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(idp.authSettings!.redirectUrls[0])
+      expect(response.headers.location).toBe(`${idp.authSettings!.redirectUrls[0]}/`)
     })
   })
 

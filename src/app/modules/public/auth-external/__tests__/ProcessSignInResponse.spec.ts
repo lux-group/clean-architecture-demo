@@ -45,7 +45,7 @@ describe("[POST] /auth/v2/external/sign-in-callback (ProcessSignInResponse)", ()
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(`${idp.authSettings?.redirectUrls[0]}/`)
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )
@@ -77,7 +77,7 @@ describe("[POST] /auth/v2/external/sign-in-callback (ProcessSignInResponse)", ()
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(`${idp.authSettings?.redirectUrls[0]}/`)
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )
@@ -156,7 +156,7 @@ describe("[POST] /auth/v2/external/sign-in-callback (ProcessSignInResponse)", ()
         .send()
 
       expect(response.status).toBe(302)
-      expect(response.headers.location).toBe(idp.authSettings?.redirectUrls[0])
+      expect(response.headers.location).toBe(`${idp.authSettings?.redirectUrls[0]}/`)
       expect(response.headers["set-cookie"]).toEqual(
         expect.arrayContaining([expect.stringMatching(/auth-session=.*HttpOnly; Secure; SameSite=Strict/)]),
       )
