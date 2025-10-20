@@ -21,7 +21,7 @@ export class UserController {
     private readonly updateUserHandler: UpdateUserHandler,
     private readonly getUserByIdHandler: GetUserByIdHandler,
     private readonly searchUsersHandler: SearchUsersHandler,
-  ) {}
+  ) { }
 
   @Get("/")
   @Authorize({ scopes: ["user:write", "user:read"] })
@@ -48,7 +48,7 @@ export class UserController {
   @Post("/")
   @Authorize({ scopes: ["user:write"] })
   @Schema({ requestBody: schemas.createBody, responseBody: schemas.singleResponse })
-  async create(req: Request<unknown, models.CreateBody>, res: Response<models.SingleResponse>) {
+  async create(req: Request<never, never, models.CreateBody>, res: Response<models.SingleResponse>) {
     const command: CreateUserCommand = map.toCreateUserCommand(req.body)
     const item = await this.createUserHandler.execute(command)
     res.status(201).header("Location", `${this.baseUrl}/admin/v1/users/${item.id}`).json(map.toSingleUserDto(item))
@@ -57,7 +57,7 @@ export class UserController {
   @Put("/:id")
   @Authorize({ scopes: ["user:write"] })
   @Schema({ params: schemas.idParam, requestBody: schemas.updateBody, responseBody: schemas.singleResponse })
-  async update(req: Request<models.IdParams, models.UpdateBody>, res: Response<models.SingleResponse>) {
+  async update(req: Request<models.IdParams, never, models.UpdateBody>, res: Response<models.SingleResponse>) {
     const command: UpdateUserCommand = { id: req.params.id, ...map.toUpdateUserCommand(req.body) }
     const item = await this.updateUserHandler.execute(command)
     res.json(map.toSingleUserDto(item))

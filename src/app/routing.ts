@@ -1,9 +1,17 @@
 import "reflect-metadata"
+import { RouteOptions, RouterAbstraction } from "@luxuryescapes/router"
 import { AwilixContainer } from "awilix"
-import express, { ErrorRequestHandler, Handler, Router } from "express"
+import { ErrorRequestHandler, Handler, RequestHandler } from "express"
+import { ZodType } from "zod"
 import { AuthorizeOptions } from "./shared/middleware/authorize"
 import { ErrorHandlerOptions } from "./shared/middleware/handleDomainErrors"
-import { SchemaOptions } from "./shared/middleware/schema"
+
+export interface SchemaOptions {
+  query?: ZodType
+  params?: ZodType
+  requestBody?: ZodType
+  responseBody?: ZodType
+}
 
 enum MetadataKeys {
   BASE_PATH = "base_path",
@@ -15,6 +23,9 @@ interface Route {
   propertyKey: string
   method: string
   path: string
+  schema?: SchemaOptions
+  preHandlers?: RequestHandler[]
+  postHandlers?: RequestHandler[]
 }
 
 interface Middleware {
@@ -59,6 +70,17 @@ export function Controller(basePath: string) {
   }
 }
 
+export const Schema = (options: SchemaOptions) => {
+  return (target: any, propertyKey: string | symbol) => {
+    const items: Route[] = getMetadataArray<Route>(MetadataKeys.ROUTES, target.constructor)
+    const route = items.find(item => item.propertyKey === String(propertyKey))
+    if (route) {
+      route.schema = options
+    }
+    Reflect.defineMetadata(MetadataKeys.ROUTES, items, target.constructor)
+  }
+}
+
 export const Get = routeDecoratorFactory("get")
 export const Delete = routeDecoratorFactory("delete")
 export const Head = routeDecoratorFactory("head")
@@ -67,25 +89,21 @@ export const Patch = routeDecoratorFactory("patch")
 export const Post = routeDecoratorFactory("post")
 export const Put = routeDecoratorFactory("put")
 
-export const Schema = middlewareDecoratorFactory<[SchemaOptions?]>("schema", false)
 export const Authorize = middlewareDecoratorFactory<[AuthorizeOptions?]>("authorize", false)
 export const HandleDomainErrors = middlewareDecoratorFactory<[ErrorHandlerOptions]>("handleDomainErrors", true)
 
-export function createRouterFromDecorators(container: AwilixContainer): Router {
+export function mountRoutesFromDecorators(router: RouterAbstraction, container: AwilixContainer): void {
   // Get all the controllers from the container.
   // We use a simple naming convention to identify them.
   const controllers = Object.keys(container.registrations)
     .filter(key => key.endsWith("Controller"))
     .map(key => container.resolve(key))
 
-  const router = express.Router()
-  const http = router as unknown as Record<string, (path: string, ...handlers: any[]) => Router>
-
   for (const controller of controllers) {
     // Get all the metadata for the controller.
     const basePath: string = Reflect.getMetadata(MetadataKeys.BASE_PATH, controller.constructor)
-    const routeInfos: Route[] = getMetadataArray<Route>(MetadataKeys.ROUTES, controller.constructor)
-    const middlewareInfos: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, controller.constructor)
+    const routes: Route[] = getMetadataArray<Route>(MetadataKeys.ROUTES, controller.constructor)
+    const middleware: Middleware[] = getMetadataArray<Middleware>(MetadataKeys.MIDDLEWARE, controller.constructor)
 
     // Instantiate all middleware and error handlers for the controller.
     const controllerMiddleware: Handler[] = []
@@ -93,7 +111,7 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
     const routeMiddleware: Record<string, Handler[]> = {}
     const routeErrorHandlers: Record<string, ErrorRequestHandler[]> = {}
 
-    for (const { propertyKey, identifier, args, isErrorHandler } of middlewareInfos) {
+    for (const { propertyKey, identifier, args, isErrorHandler } of middleware) {
       if (propertyKey) {
         const collection = isErrorHandler ? routeErrorHandlers : routeMiddleware
         collection[propertyKey] = collection[propertyKey] ?? []
@@ -105,12 +123,30 @@ export function createRouterFromDecorators(container: AwilixContainer): Router {
     }
 
     // Register all routes for the controller.
-    for (const { propertyKey, method, path } of routeInfos) {
-      const middleware = [...(routeMiddleware[propertyKey] ?? []), ...controllerMiddleware]
-      const errorHandlers = [...(routeErrorHandlers[propertyKey] ?? []), ...controllerErrorHandlers]
-      http[method](basePath + path, ...middleware, controller[propertyKey].bind(controller), ...errorHandlers)
+    const genericRouter = router as unknown as Record<string, (options: RouteOptions) => void>
+
+    for (const route of routes) {
+      const handler = controller[route.propertyKey].bind(controller)
+      const preHandlers = [...(routeMiddleware[route.propertyKey] ?? []), ...controllerMiddleware]
+      const handlers = [handler, ...(routeErrorHandlers[route.propertyKey] ?? []), ...controllerErrorHandlers]
+
+      genericRouter[route.method]({
+        operationId: route.propertyKey,
+        isPublic: true,
+        url: basePath + route.path,
+        preHandlers,
+        handlers,
+        schema: {
+          request: {
+            query: route.schema?.query,
+            params: route.schema?.params,
+            body: route.schema?.requestBody,
+          },
+          responses: {
+            "200": route.schema?.responseBody,
+          },
+        },
+      })
     }
   }
-
-  return router
 }

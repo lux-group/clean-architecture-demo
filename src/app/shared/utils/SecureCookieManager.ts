@@ -13,28 +13,28 @@ export class SecureCookieManager {
   private readonly stateCookieName = "auth-state"
   private readonly sessionCookieName = "auth-session"
 
-  constructor(private readonly encryptionProvider: EncryptionProvider) {}
+  constructor(private readonly encryptionProvider: EncryptionProvider) { }
 
-  setStateCookie = (req: Request, res: Response, state: object) =>
+  setStateCookie = (req: Request<any>, res: Response, state: object) =>
     this.setCookie(req, res, this.stateCookieName, state, false, undefined)
 
-  getStateCookie = <T extends object>(req: Request, res: Response) => this.getCookie<T>(req, res, this.stateCookieName)
+  getStateCookie = <T extends object>(req: Request<any>, res: Response) => this.getCookie<T>(req, res, this.stateCookieName)
 
-  getAndRemoveStateCookie = <T extends object>(req: Request, res: Response) =>
+  getAndRemoveStateCookie = <T extends object>(req: Request<any>, res: Response) =>
     this.getAndRemoveCookie<T>(req, res, this.stateCookieName)
 
-  setSessionCookie = (req: Request, res: Response, session: Session) =>
+  setSessionCookie = (req: Request<any>, res: Response, session: Session) =>
     this.setCookie(req, res, this.sessionCookieName, { id: session.id, nonce: session.nonce }, true, session.expiresAt)
 
-  getSessionCookie = (req: Request, res: Response) => this.getCookie<SessionCookie>(req, res, this.sessionCookieName)
+  getSessionCookie = (req: Request<any>, res: Response) => this.getCookie<SessionCookie>(req, res, this.sessionCookieName)
 
-  getAndRemoveSessionCookie = (req: Request, res: Response) =>
+  getAndRemoveSessionCookie = (req: Request<any>, res: Response) =>
     this.getAndRemoveCookie<SessionCookie>(req, res, this.sessionCookieName)
 
-  removeSessionCookie = (res: Response) => res.clearCookie(this.sessionCookieName)
+  removeSessionCookie = (res: Response<any>) => res.clearCookie(this.sessionCookieName)
 
   encryptCookie = (payload: object, headers: Record<string, string | string[] | undefined>): string => {
-    ;(payload as Record<string, string>).device = this.extractFingerprint(headers)
+    ; (payload as Record<string, string>).device = this.extractFingerprint(headers)
     const json = JSON.stringify(payload)
     return this.encryptionProvider.encrypt(json)
   }

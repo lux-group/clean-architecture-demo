@@ -1,4 +1,4 @@
 import z from "zod"
 import * as schemas from "./schemas"
 
-export type SignInWithPasswordQuery = Readonly<z.input<typeof schemas.signInWithPasswordQuery>>
+export type SignInWithPasswordBody = Readonly<z.input<typeof schemas.signInWithPasswordBody>>

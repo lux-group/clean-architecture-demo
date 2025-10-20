@@ -16,7 +16,7 @@ export class SessionController {
     private readonly terminateSessionHandler: TerminateSessionHandler,
     private readonly getSessionByIdHandler: GetSessionByIdHandler,
     private readonly searchSessionsHandler: SearchSessionsHandler,
-  ) {}
+  ) { }
 
   @Get("/")
   @Authorize({ scopes: ["session:write", "session:read"] })

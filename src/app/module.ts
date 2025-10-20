@@ -12,8 +12,6 @@ import registerWellKnownModule from "./modules/public/well-known/module"
 import { authorize } from "./shared/middleware/authorize"
 import { handleDomainErrors } from "./shared/middleware/handleDomainErrors"
 import { handleServerErrors } from "./shared/middleware/handleServerErrors"
-import { schema } from "./shared/middleware/schema"
-import { setRequestContext } from "./shared/middleware/setRequestContext"
 import { SecureCookieManager } from "./shared/utils/SecureCookieManager"
 
 export default async function registerApp(container: AwilixContainer) {
@@ -22,8 +20,6 @@ export default async function registerApp(container: AwilixContainer) {
     authorize: asFunction(authorize).singleton(),
     handleDomainErrors: asFunction(handleDomainErrors).singleton(),
     handleServerErrors: asFunction(handleServerErrors).singleton(),
-    schema: asFunction(schema).singleton(),
-    setRequestContext: asFunction(setRequestContext).singleton(),
     secureCookieManager: asClass(SecureCookieManager).singleton(),
   })
 

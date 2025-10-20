@@ -1,6 +1,6 @@
+import { getRequestContext } from "@luxuryescapes/lib-request-context"
 import { Request, Response } from "express"
 import { Authorize, Controller, Get, HandleDomainErrors, Schema } from "~/app/routing"
-import { getRequestContext } from "~/app/shared/utils/getRequestContext"
 import { GetProfileByIdHandler, GetProfileByIdQuery } from "../queries/GetProfileByIdHandler"
 import * as map from "./mappers"
 import * as models from "./models"

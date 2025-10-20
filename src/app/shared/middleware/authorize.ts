@@ -93,6 +93,20 @@ export function authorize(
           return
         }
 
+        // HACK!
+        // We would usually use the auth middleware to get the user profile from svc-auth.
+        // In that case, the router library would set these properties automatically.
+        // But for this demo, we need to set them manually so that the request-context
+        // middleware in the router library can use them.
+        const payload = decodedJwt.payload as JwtPayload
+        const extensibleRequest = req as any
+        extensibleRequest.jwt = payload
+        extensibleRequest.user = {
+          id_member: String(payload.sub),
+          email: String(`${payload.sub}@example.com`),
+          roles: [],
+        }
+
         next()
       }
 

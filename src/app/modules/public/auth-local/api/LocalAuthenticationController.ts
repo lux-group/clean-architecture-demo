@@ -13,14 +13,14 @@ export class LocalAuthenticationController {
     private readonly secureCookieManager: SecureCookieManager,
     private readonly signInWithPasswordHandler: SignInWithPasswordHandler,
     private readonly signOutHandler: SignOutHandler,
-  ) {}
+  ) { }
 
   // TODO: What should we do if a user who already has active session tries to sign in
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
   @Post("/sign-in")
-  @Schema({ requestBody: schemas.signInWithPasswordQuery })
-  async signInWithPassword(req: Request<models.SignInWithPasswordQuery>, res: Response) {
+  @Schema({ requestBody: schemas.signInWithPasswordBody })
+  async signInWithPassword(req: Request<unknown, unknown, models.SignInWithPasswordBody>, res: Response) {
     const command: SignInWithPasswordCommand = {
       brand: req.body.brand,
       email: req.body.email,

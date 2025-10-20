@@ -21,7 +21,7 @@ export class IdentityProviderController {
     private readonly updateIdentityProviderHandler: UpdateIdentityProviderHandler,
     private readonly getIdentityProviderByIdHandler: GetIdentityProviderByIdHandler,
     private readonly searchIdentityProvidersHandler: SearchIdentityProvidersHandler,
-  ) {}
+  ) { }
 
   @Get("/")
   @Authorize({ scopes: ["identity-provider:write", "identity-provider:read"] })
@@ -44,7 +44,7 @@ export class IdentityProviderController {
   @Post("/")
   @Authorize({ scopes: ["identity-provider:write"] })
   @Schema({ requestBody: schemas.createBody, responseBody: schemas.singleResponse })
-  async create(req: Request<unknown, models.CreateBody>, res: Response<models.SingleResponse>) {
+  async create(req: Request<never, never, models.CreateBody>, res: Response<models.SingleResponse>) {
     const command: CreateIdentityProviderCommand = map.toCreateIdentityProviderCommand(req.body)
     const item = await this.createIdentityProviderHandler.execute(command)
     res
@@ -56,7 +56,7 @@ export class IdentityProviderController {
   @Put("/:id")
   @Authorize({ scopes: ["identity-provider:write"] })
   @Schema({ params: schemas.idParam, requestBody: schemas.updateBody, responseBody: schemas.singleResponse })
-  async update(req: Request<models.IdParams, models.UpdateBody>, res: Response<models.SingleResponse>) {
+  async update(req: Request<models.IdParams, never, models.UpdateBody>, res: Response<models.SingleResponse>) {
     const command: UpdateIdentityProviderCommand = {
       id: req.params.id,
       ...map.toUpdateIdentityProviderCommand(req.body),

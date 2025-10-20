@@ -20,14 +20,14 @@ export class ExternalAuthenticationController {
     private readonly createSignOutRequestHandler: CreateSignOutRequestHandler,
     private readonly processSignInResponseHandler: ProcessSignInResponseHandler,
     private readonly frontChannelSignOutHandler: FrontChannelSignOutHandler,
-  ) {}
+  ) { }
 
   // TODO: What should we do if a user who already has active session tries to sign in
   // for some reason? Should we block the sign-in or just terminate the existing session?
 
   @Get("/sign-in")
   @Schema({ query: schemas.createSignInRequestQuery })
-  async createSignInRequest(req: Request<any, any, any, models.CreateSignInRequestQuery>, res: Response) {
+  async createSignInRequest(req: Request<unknown, unknown, unknown, models.CreateSignInRequestQuery>, res: Response) {
     const identityProviderName = req.query.provider
     if (!identityProviderName) {
       throw new InvalidOperationError("Provider parameter is required")
@@ -70,7 +70,7 @@ export class ExternalAuthenticationController {
 
   @Get("/sign-out")
   @Schema({ query: schemas.createSignOutRequestQuery })
-  async createSignOutRequest(req: Request<any, any, any, models.CreateSignOutRequestQuery>, res: Response) {
+  async createSignOutRequest(req: Request<unknown, unknown, unknown, models.CreateSignOutRequestQuery>, res: Response) {
     const redirectUrl = req.query.redirect_uri
     if (!redirectUrl) {
       throw new InvalidOperationError("Redirect URI parameter is required")
