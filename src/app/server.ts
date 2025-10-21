@@ -1,25 +1,9 @@
-import { router as buildRouter, JSONSchema, RouterOptions, Schema, SchemaValidationError } from "@luxuryescapes/router"
+import { router as buildRouter, RouterOptions } from "@luxuryescapes/router"
 import { AwilixContainer } from "awilix"
 import cookieParser from "cookie-parser"
 import express from "express"
 import helmet, { HelmetOptions } from "helmet"
-import z, { ZodType } from "zod"
 import { mountRoutesFromDecorators } from "./routing"
-
-const schemaValidator = (schema: Schema, data: unknown): SchemaValidationError[] => {
-  const result = (schema as ZodType).safeParse(data)
-  return result.success
-    ? []
-    : result.error.issues.map(issue => ({
-        message: issue.message,
-        path: issue.path.join("."),
-        value: undefined!,
-      }))
-}
-
-const jsonSchemaGenerator = (schema: Schema): JSONSchema => {
-  return z.toJSONSchema(schema as ZodType, { target: "openapi-3.0" })
-}
 
 export default function createServer(container: AwilixContainer) {
   const baseUrl = container.resolve("baseUrl")
@@ -49,8 +33,6 @@ export default function createServer(container: AwilixContainer) {
         },
       ],
     },
-    schemaValidator,
-    jsonSchemaGenerator,
   }
 
   const app = express()
