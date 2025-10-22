@@ -39,18 +39,23 @@ export class JsonWebTokenIssuer implements TokenIssuer {
   }
 
   private createV1Claims(request: TokenRequest): Record<string, unknown> {
-    // V1 issues times in milliseconds instead of seconds.
+    // Important notes about V1:
+    // - Issues times in milliseconds instead of seconds.
+    // - Uses the service name instead of URL in the issuer field. The implementation below
+    //   uses the audience from the config as the issuer but we need to review this.
+    // - Abuses the audience field for impersonation.
+
     const iat = Date.now()
     const exp = iat + (this.tokenIssuerConfig.lifetimeSeconds * 1000)
 
     return {
       ver: "1.0",
       jti: randomUUID(),
-      iss: this.baseUrl + this.tokenIssuerConfig.path, // TODO: Need to provide the real V1 issuer here.
+      iss: this.tokenIssuerConfig.audience, 
       sub: request.userId,
       iat,
       exp,
-      aud: request.impersonatedByUserId, // V1 abuses the audience field for impersonation.
+      aud: request.impersonatedByUserId,
       ...request.customClaims,
     }
   }
