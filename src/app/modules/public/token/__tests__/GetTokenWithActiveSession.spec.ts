@@ -65,7 +65,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
   })
 
   describe("when impersonating another user", () => {
-    it("should return 200 and access token with impersonation claims", async () => {
+    it("should return 200 and access token with impersonation claims (V1)", async () => {
       const session = await context.data.createSession({ userId: user.id }, 1)
       const cookie = context.data.createAuthSessionCookie(session)
 
@@ -78,11 +78,33 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
         .send({
           grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
           subject_to_impersonate_id: userToImpersonate.id,
+          access_token_version: "1.0",
         })
 
       expect(response.status).toBe(200)
-      expect(response.body.expires_in).toBe(3600)
-      expect(response.body.access_token).toMatch(/^ey/)
+
+      const claims = getTokenClaims(response.body.access_token)
+      expect(claims.sub).toBe(userToImpersonate.id)
+      expect(claims.aud).toBe(user.id)
+    })
+
+    it("should return 200 and access token with impersonation claims (V2)", async () => {
+      const session = await context.data.createSession({ userId: user.id }, 1)
+      const cookie = context.data.createAuthSessionCookie(session)
+
+      const userToImpersonate = await context.data.createUser({ roles: [] })
+
+      const response = await request(context.server)
+        .post("/oauth2/token")
+        .set("Cookie", [`auth-session=${cookie}`])
+        .type("form")
+        .send({
+          grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie",
+          subject_to_impersonate_id: userToImpersonate.id,
+          access_token_version: "2.0",
+        })
+
+      expect(response.status).toBe(200)
 
       const claims = getTokenClaims(response.body.access_token)
       expect(claims.sub).toBe(userToImpersonate.id)

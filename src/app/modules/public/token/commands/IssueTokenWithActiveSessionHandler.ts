@@ -1,4 +1,4 @@
-import { AuthClientFactory, EventPublisher, SessionConfig, TokenIssuer, TokenResponse } from "~/app/ports"
+import { AuthClientFactory, EventPublisher, SessionConfig, TokenIssuer, TokenResponse, TokenVersion } from "~/app/ports"
 import { Session, User } from "~/domain/entities"
 import { AuthenticationError, AuthorizationError, InvalidOperationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent, SessionEvent } from "~/domain/events"
@@ -6,6 +6,7 @@ import { IdentityProviderRepository, SessionRepository, UserRepository } from "~
 import { AuthenticationService, AuthorizationService } from "~/domain/services"
 
 export interface IssueTokenWithActiveSessionInput {
+  version: TokenVersion
   sessionId: string
   nonce: string
   userToImpersonateId?: string
@@ -46,12 +47,13 @@ export class IssueTokenWithActiveSessionHandler {
       // e.g. check requested audience and scopes.
 
       const response = await this.tokenIssuer.createAccessToken({
+        version: command.version,
         userId: user.id,
+        impersonatedByUserId: impersonatedByUser?.id ?? undefined,
         sessionId: session?.id,
         customClaims: {
           brand: user.brand,
           roles: user.roles,
-          impersonated_by_sub: impersonatedByUser?.id,
         },
       })
 

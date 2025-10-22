@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { TokenResponse } from "~/app/ports"
+import { TokenResponse, TokenVersion } from "~/app/ports"
 import { Controller, HandleDomainErrors, Post } from "~/app/routing"
 import { SecureCookieManager } from "~/app/shared/utils/SecureCookieManager"
 import { InvalidOperationError } from "~/domain/errors"
@@ -35,6 +35,7 @@ type TokenRequest = (
       actor_token_type: string | undefined
     }
 ) & {
+  access_token_version?: TokenVersion
   audience?: string
   scope?: string
 }
@@ -58,6 +59,7 @@ export class TokenController {
     if (body.grant_type === GrantType.SessionCookie) {
       const cookie = this.secureCookieManager.getSessionCookie(req, res)
       result = await this.issueTokenWithActiveSessionHandler.execute({
+        version: body.access_token_version ?? TokenVersion.V2,
         sessionId: cookie.id,
         nonce: cookie.nonce,
         userToImpersonateId: body.subject_to_impersonate_id,
@@ -68,6 +70,7 @@ export class TokenController {
 
     if (body.grant_type === GrantType.ClientCredentials) {
       result = await this.issueTokenWithClientCredentialsHandler.execute({
+        version: body.access_token_version ?? TokenVersion.V2,
         clientId: body.client_id,
         clientSecret: body.client_secret,
         audience: body.audience,
@@ -77,6 +80,7 @@ export class TokenController {
 
     if (body.grant_type === GrantType.TokenExchange) {
       result = await this.issueTokenWithTokenExchangeHandler.execute({
+        version: body.access_token_version ?? TokenVersion.V2,
         token: body.subject_token,
         audience: body.audience,
         scope: body.scope,

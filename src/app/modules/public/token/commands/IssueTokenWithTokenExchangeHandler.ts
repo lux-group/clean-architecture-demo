@@ -1,10 +1,11 @@
-import { EventPublisher, TokenIssuer, TokenResponse, TokenValidator } from "~/app/ports"
+import { EventPublisher, TokenIssuer, TokenResponse, TokenValidator, TokenVersion } from "~/app/ports"
 import { AuthenticationError, AuthorizationError } from "~/domain/errors"
 import { AuthenticationEvent, AuthorizationEvent } from "~/domain/events"
 import { UserRepository } from "~/domain/repositories"
 import { AuthenticationService } from "~/domain/services"
 
 export interface IssueTokenWithTokenExchangeInput {
+  version: TokenVersion
   token: string
   audience?: string
   scope?: string
@@ -29,6 +30,7 @@ export class IssueTokenWithTokenExchangeHandler {
       // e.g. check requested audience and scopes.
 
       const response = await this.tokenIssuer.createAccessToken({
+        version: command.version,
         userId: user.id,
         customClaims: {
           brand: user.brand,

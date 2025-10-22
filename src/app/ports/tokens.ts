@@ -1,8 +1,17 @@
 import { IdentityProvider } from "~/domain/entities"
 import { Profile } from "./auth"
 
+export const TokenVersion = {
+  V1: "1.0",
+  V2: "2.0",
+} as const
+
+export type TokenVersion = (typeof TokenVersion)[keyof typeof TokenVersion]
+
 export interface TokenRequest {
+  readonly version: TokenVersion
   readonly userId: string
+  readonly impersonatedByUserId?: string
   readonly sessionId?: string
   readonly audience?: string
   readonly scopes?: string[]

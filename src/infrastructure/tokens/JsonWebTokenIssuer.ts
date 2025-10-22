@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import jwt from "jsonwebtoken"
-import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse } from "~/app/ports"
+import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse, TokenVersion } from "~/app/ports"
 import { SigningKeyRepository } from "~/domain/repositories"
 import { UUIDToShort } from "~/lib/ShortUUID"
 
@@ -17,26 +17,60 @@ export class JsonWebTokenIssuer implements TokenIssuer {
       throw new Error("No active signing key found.")
     }
 
-    const now = Math.round(Date.now() / 1000)
-    const claims: Record<string, unknown> = {
-      ver: "2.0",
-      jti: UUIDToShort(randomUUID()),
-      iss: this.baseUrl + this.tokenIssuerConfig.path,
-      aud: request.audience ?? this.tokenIssuerConfig.audience,
-      sub: request.userId,
-      sid: request.sessionId,
-      iat: now,
-      exp: now + this.tokenIssuerConfig.lifetimeSeconds,
-      scope: request.scopes?.join(" "),
-      ...request.customClaims,
+    let claims: Record<string, unknown> | undefined
+    switch (request.version) {
+      case TokenVersion.V1:
+        claims = this.createV1Claims(request)
+        break
+      case TokenVersion.V2:
+        claims = this.createV2Claims(request)
+        break
+      default:
+        throw new Error("Unsupported token version.")
     }
 
-    // We shorten the key ID to save size.
+    // We shorten the key ID to save a few bytes.
     // Make sure the same thing is done in the JWKS endpoint.
     const kid = UUIDToShort(signingKey.id)
 
     const accessToken = jwt.sign(claims, signingKey.privateKey!, { algorithm: "RS256", keyid: kid })
 
     return { accessToken, expiresIn: this.tokenIssuerConfig.lifetimeSeconds, claims }
+  }
+
+  private createV1Claims(request: TokenRequest): Record<string, unknown> {
+    // V1 issues times in milliseconds instead of seconds.
+    const iat = Date.now()
+    const exp = iat + (this.tokenIssuerConfig.lifetimeSeconds * 1000)
+
+    return {
+      ver: "1.0",
+      jti: randomUUID(),
+      iss: this.baseUrl + this.tokenIssuerConfig.path, // TODO: Need to provide the real V1 issuer here.
+      sub: request.userId,
+      iat,
+      exp,
+      aud: request.impersonatedByUserId, // V1 abuses the audience field for impersonation.
+      ...request.customClaims,
+    }
+  }
+
+  private createV2Claims(request: TokenRequest): Record<string, unknown> {
+    const iat = Math.round(Date.now() / 1000)
+    const exp = iat + this.tokenIssuerConfig.lifetimeSeconds
+
+    return {
+      ver: "2.0",
+      jti: UUIDToShort(randomUUID()),
+      iss: this.baseUrl + this.tokenIssuerConfig.path,
+      aud: request.audience ?? this.tokenIssuerConfig.audience,
+      sub: request.userId,
+      sid: request.sessionId,
+      iat,
+      exp,
+      scope: request.scopes?.join(" "),
+      impersonated_by_sub: request.impersonatedByUserId,
+      ...request.customClaims,
+    }
   }
 }
