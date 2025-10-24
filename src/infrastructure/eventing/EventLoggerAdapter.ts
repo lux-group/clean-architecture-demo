@@ -1,5 +1,5 @@
+import { getRequestContext } from "@luxuryescapes/lib-request-context"
 import { Logger } from "~/app/ports"
-import { getRequestContext } from "~/app/shared/utils/getRequestContext"
 import { AuthenticationEvent, AuthorizationEvent, Event, SessionEvent } from "~/domain/events"
 import { EntityChangeEvent } from "~/domain/events/EntityChangeEvent"
 import { EventBus } from "./EventBus"
@@ -51,7 +51,7 @@ export class EventLoggerAdapter {
       actor: {
         ip: requestContext?.ipAddress,
         userAgent: requestContext?.userAgent,
-        claims: requestContext?.user?.claims,
+        claims: requestContext?.jwtClaims,
       },
       context: {
         requestId: requestContext?.requestId,

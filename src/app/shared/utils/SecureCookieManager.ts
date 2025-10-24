@@ -81,12 +81,11 @@ export class SecureCookieManager {
   }
 
   private extractFingerprint(headers: Record<string, string | string[] | undefined>): string {
-    const acceptLanguage = (headers["accept-language"] as string) || ""
     const rawUserAgent = (headers["user-agent"] as string) || ""
     const fingerprint = (headers["cloudfront-viewer-ja4-fingerprint"] as string) || ""
     const userAgent = rawUserAgent.replace(/\/[\d.]+/g, "").trim()
     return createHash("sha256")
-      .update(acceptLanguage + userAgent + fingerprint)
+      .update(userAgent + fingerprint)
       .digest("hex")
   }
 }
