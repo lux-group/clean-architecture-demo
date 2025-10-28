@@ -40,7 +40,7 @@ export default function createServer(container: AwilixContainer) {
     .use(cookieParser())
     .use(express.json({ limit: "100kb" }))
     .use(express.urlencoded({ limit: "100kb" }))
-    .use("/", express.static(`${__dirname}/public`))
+    .use("/", express.static(`${__dirname}/web`))
 
   const router = buildRouter(app, routerOptions)
   router.serveSwagger(`/docs`)

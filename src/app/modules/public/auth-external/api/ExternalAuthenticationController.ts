@@ -28,19 +28,9 @@ export class ExternalAuthenticationController {
   @Get("/sign-in")
   @Schema({ query: schemas.createSignInRequestQuery })
   async createSignInRequest(req: Request<unknown, unknown, unknown, models.CreateSignInRequestQuery>, res: Response) {
-    const identityProviderName = req.query.provider
-    if (!identityProviderName) {
-      throw new InvalidOperationError("Provider parameter is required")
-    }
-
-    const redirectUrl = req.query.redirect_uri
-    if (!redirectUrl) {
-      throw new InvalidOperationError("Redirect URI parameter is required")
-    }
-
     const command: CreateSignInRequestCommand = {
-      identityProviderName,
-      redirectUrl,
+      identityProviderName: req.query.provider,
+      redirectUrl: req.query.redirect_uri,
     }
 
     const request = await this.createSignInRequestHandler.execute(command)
@@ -71,17 +61,12 @@ export class ExternalAuthenticationController {
   @Get("/sign-out")
   @Schema({ query: schemas.createSignOutRequestQuery })
   async createSignOutRequest(req: Request<unknown, unknown, unknown, models.CreateSignOutRequestQuery>, res: Response) {
-    const redirectUrl = req.query.redirect_uri
-    if (!redirectUrl) {
-      throw new InvalidOperationError("Redirect URI parameter is required")
-    }
-
     const cookie = this.secureCookieManager.getAndRemoveSessionCookie(req, res)
 
     const command: CreateSignOutRequestCommand = {
       sessionId: cookie.id,
       nonce: cookie.nonce,
-      redirectUrl,
+      redirectUrl: req.query.redirect_uri,
     }
 
     const request = await this.createSignOutRequestHandler.execute(command)
