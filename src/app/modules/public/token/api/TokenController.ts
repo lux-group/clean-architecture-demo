@@ -40,7 +40,7 @@ type TokenRequest = (
   scope?: string
 }
 
-@Controller("/oauth2/token")
+@Controller("/auth/v2/token")
 @HandleDomainErrors({ format: "OAuth2" })
 export class TokenController {
   constructor(

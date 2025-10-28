@@ -27,7 +27,7 @@
       }
 
       const getToken = () => {
-        fetch("/oauth2/token", {
+        fetch("/auth/v2/token", {
             method: "POST",
             credentials: "include",
             headers: { "content-type": "application/x-www-form-urlencoded" },

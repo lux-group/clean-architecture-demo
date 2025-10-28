@@ -44,7 +44,7 @@ export class SecureCookieManager {
       secure: true, // Don't send cookie over plain HTTP.
       httpOnly: true, // Don't allow cookie to be read by javascript to prevent XSS attacks.
       sameSite: sameSite ? "strict" : "lax", // Use strict where possible but some redirects may require lax.
-      path: "/",
+      path: "/auth/v2", // Only send cookie to auth/v2/* endpoints
       expires,
     }
 

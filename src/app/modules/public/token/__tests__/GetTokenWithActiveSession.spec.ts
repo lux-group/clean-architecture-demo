@@ -3,7 +3,7 @@ import request from "supertest"
 import { beforeAll, describe, expect, it } from "vitest"
 import { User } from "~/domain/entities"
 
-describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
+describe("[POST] /auth/v2/token (GetTokenWithActiveSession)", () => {
   let context: TestContext
   let user: User
 
@@ -18,7 +18,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
   describe("when no session cookie exists", () => {
     it("should return 401", async () => {
       const response = await request(context.server)
-        .post("/oauth2/token")
+        .post("/auth/v2/token")
         .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
 
@@ -33,7 +33,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const cookie = context.data.createAuthSessionCookie(session)
 
       const response = await request(context.server)
-        .post("/oauth2/token")
+        .post("/auth/v2/token")
         .set("Cookie", [`auth-session=${cookie}`])
         .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
@@ -49,7 +49,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const cookie = context.data.createAuthSessionCookie(session)
 
       const response = await request(context.server)
-        .post("/oauth2/token")
+        .post("/auth/v2/token")
         .set("Cookie", [`auth-session=${cookie}`])
         .type("form")
         .send({ grant_type: "urn:ietf:params:oauth:grant-type:luxury-escapes-session-cookie" })
@@ -72,7 +72,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const userToImpersonate = await context.data.createUser({ roles: [] })
 
       const response = await request(context.server)
-        .post("/oauth2/token")
+        .post("/auth/v2/token")
         .set("Cookie", [`auth-session=${cookie}`])
         .type("form")
         .send({
@@ -95,7 +95,7 @@ describe("[POST] /oauth2/token (GetTokenWithActiveSession)", () => {
       const userToImpersonate = await context.data.createUser({ roles: [] })
 
       const response = await request(context.server)
-        .post("/oauth2/token")
+        .post("/auth/v2/token")
         .set("Cookie", [`auth-session=${cookie}`])
         .type("form")
         .send({
