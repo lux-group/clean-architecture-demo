@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { TokenIssuerConfig } from "~/app/ports"
 import { Session } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { NodeEncryptionProvider } from "~/infrastructure/crypto/NodeEncryptionProvider"
@@ -18,7 +19,12 @@ describe("SecureCookieManager", () => {
 
   beforeEach(() => {
     encryptionProvider = new NodeEncryptionProvider([validKey])
-    cookieManager = new SecureCookieManager(encryptionProvider)
+    const tokenIssuerConfig: TokenIssuerConfig = {
+      path: "/auth/v2",
+      audience: "test-le",
+      lifetimeSeconds: 3600,
+    }
+    cookieManager = new SecureCookieManager(encryptionProvider, tokenIssuerConfig)
 
     // Mock request with basic headers for fingerprinting
     mockRequest = {
@@ -343,7 +349,12 @@ describe("SecureCookieManager", () => {
         "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
         validKey,
       ])
-      const multiKeyCookieManager = new SecureCookieManager(multiKeyProvider)
+      const tokenIssuerConfig: TokenIssuerConfig = {
+        path: "/auth/v2",
+        audience: "test-le",
+        lifetimeSeconds: 3600,
+      }
+      const multiKeyCookieManager = new SecureCookieManager(multiKeyProvider, tokenIssuerConfig)
 
       const state: TestState = { test: "data" }
 

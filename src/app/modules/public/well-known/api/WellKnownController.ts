@@ -3,12 +3,12 @@ import { Controller, Get } from "~/app/routing"
 import { GetJsonWebKeysHandler } from "../queries/GetJsonWebKeysHandler"
 import { GetOpenidConfigurationHandler } from "../queries/GetOpenidConfigurationHandler"
 
-@Controller("/oauth2/.well-known")
+@Controller("/auth/v2/.well-known")
 export class WellKnownController {
   constructor(
     private readonly getOpenidConfigurationHandler: GetOpenidConfigurationHandler,
     private readonly getJsonWebKeysHandler: GetJsonWebKeysHandler,
-  ) {}
+  ) { }
 
   @Get("/openid-configuration")
   async getOpenidConfiguration(_req: Request, res: Response) {

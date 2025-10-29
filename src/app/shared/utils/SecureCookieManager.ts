@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 import { CookieOptions, Request, Response } from "express"
-import { EncryptionProvider } from "~/app/ports"
+import { EncryptionProvider, TokenIssuerConfig } from "~/app/ports"
 import { Session } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 
@@ -13,7 +13,10 @@ export class SecureCookieManager {
   private readonly stateCookieName = "auth-state"
   private readonly sessionCookieName = "auth-session"
 
-  constructor(private readonly encryptionProvider: EncryptionProvider) { }
+  constructor(
+    private readonly encryptionProvider: EncryptionProvider,
+    private readonly tokenIssuerConfig: TokenIssuerConfig,
+  ) { }
 
   setStateCookie = (req: Request<any>, res: Response, state: object) =>
     this.setCookie(req, res, this.stateCookieName, state, false, undefined)
@@ -44,7 +47,7 @@ export class SecureCookieManager {
       secure: true, // Don't send cookie over plain HTTP.
       httpOnly: true, // Don't allow cookie to be read by javascript to prevent XSS attacks.
       sameSite: sameSite ? "strict" : "lax", // Use strict where possible but some redirects may require lax.
-      path: "/auth/v2", // Only send cookie to auth/v2/* endpoints
+      path: this.tokenIssuerConfig.path, // Only send cookie to auth/v2/* endpoints
       expires,
     }
 

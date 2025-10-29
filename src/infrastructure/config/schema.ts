@@ -12,7 +12,7 @@ export const schema = z.object({
     minSessionRefreshDelayMinutes: z.number().min(1).default(10),
   }),
   tokenIssuer: z.object({
-    path: z.string().nonempty().default("/oauth2"),
+    path: z.string().nonempty().default("/auth/v2"),
     audience: z.string().nonempty(),
     lifetimeSeconds: z.number().min(1).default(3600),
   }),

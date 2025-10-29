@@ -31,7 +31,7 @@ describe("JsonWebTokenIssuer", () => {
   beforeEach(() => {
     tokenIssuer = new JsonWebTokenIssuer(
       baseUrl,
-      { path: "/oauth2", lifetimeSeconds, audience },
+      { path: "/auth/v2", lifetimeSeconds, audience },
       mockSigningKeyRepository,
     )
 
@@ -43,9 +43,9 @@ describe("JsonWebTokenIssuer", () => {
       customClaims: { customClaim: "customValue" },
     }
 
-    ;(mockSigningKeyRepository.tryGetActiveSigningKey as ReturnType<typeof vi.fn>).mockResolvedValue(
-      signingKey,
-    )
+      ; (mockSigningKeyRepository.tryGetActiveSigningKey as ReturnType<typeof vi.fn>).mockResolvedValue(
+        signingKey,
+      )
   })
 
   describe("createAccessToken V1", () => {
@@ -84,7 +84,7 @@ describe("JsonWebTokenIssuer", () => {
       const decoded = decodeToken(result.accessToken)
       expect(decoded.ver).toBe("2.0")
       expect(decoded.jti).toBeDefined()
-      expect(decoded.iss).toBe(`${baseUrl}/oauth2`)
+      expect(decoded.iss).toBe(`${baseUrl}/auth/v2`)
       expect(decoded.aud).toBe(audience)
       expect(decoded.sub).toBe(baseTokenRequest.userId)
       expect(decoded.sid).toBe(baseTokenRequest.sessionId)
