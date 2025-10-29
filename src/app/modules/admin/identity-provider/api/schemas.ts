@@ -9,6 +9,7 @@ const identityProviderAuthSettings = z.object({
   redirect_urls: z.array(z.url()).min(1).max(20),
   auto_link_users: z.boolean(),
   auto_create_users: z.boolean(),
+  session_lifetime_hours: z.int().min(1).max(8760),
 })
 
 const identityProvider = z.object({

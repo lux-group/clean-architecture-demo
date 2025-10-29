@@ -22,6 +22,7 @@ describe("[PUT] /admin/v1/identity-providers/:id (UpdateIdentityProvider)", () =
       redirect_urls: ["https://test.updated.com"],
       auto_link_users: true,
       auto_create_users: true,
+      session_lifetime_hours: 12,
     },
   })
 
@@ -62,7 +63,7 @@ describe("[PUT] /admin/v1/identity-providers/:id (UpdateIdentityProvider)", () =
       const payload = getPayload()
 
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
-      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
+      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => { })
 
       await request(context.server)
         .put(`/admin/v1/identity-providers/${original.id}`)

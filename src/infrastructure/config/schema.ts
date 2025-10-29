@@ -8,7 +8,6 @@ export const schema = z.object({
   encryptionKeys: z.array(z.string().length(64)),
   sessions: z.object({
     localSessionLifetimeHours: z.number().min(1).default(8760),
-    externalSessionLifetimeHours: z.number().min(1).default(12),
     minSessionRefreshDelayMinutes: z.number().min(1).default(10),
   }),
   tokenIssuer: z.object({

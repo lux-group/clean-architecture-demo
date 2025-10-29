@@ -22,6 +22,7 @@ describe("IdentityProvider", () => {
       redirectUrls: ["https://app.example.com/callback", "https://app.example.com/auth"],
       autoLinkUsers: true,
       autoCreateUsers: false,
+      sessionLifetimeHours: 12,
     },
   }
 
@@ -116,6 +117,7 @@ describe("IdentityProvider", () => {
           redirectUrls: ["https://app.example.com/new-callback"],
           autoLinkUsers: false,
           autoCreateUsers: true,
+          sessionLifetimeHours: 24,
         },
       }
 

@@ -22,6 +22,7 @@ describe("[POST] /admin/v1/identity-providers (CreateIdentityProvider)", () => {
       redirect_urls: ["https://test.updated.com"],
       auto_link_users: true,
       auto_create_users: true,
+      session_lifetime_hours: 12,
     },
   })
 
@@ -60,7 +61,7 @@ describe("[POST] /admin/v1/identity-providers (CreateIdentityProvider)", () => {
       const payload = getPayload()
 
       const eventPublisher: EventPublisher = context.container.resolve("eventPublisher")
-      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => {})
+      vi.spyOn(eventPublisher, "publishEvent").mockImplementation(() => { })
 
       await request(context.server)
         .post("/admin/v1/identity-providers")

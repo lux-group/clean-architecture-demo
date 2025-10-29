@@ -88,15 +88,16 @@ model IdentityProvider {
 }
 
 model IdentityProviderAuthSettings {
-  id                 String   @id @default(uuid())
-  identityProviderId String   @unique @map("identity_provider_id")
-  type               String   @map("type")
-  brand              String   @map("brand")
-  clientId           String   @map("client_id")
-  clientSecret       String   @map("client_secret")
-  redirectUrls       String[] @map("redirect_urls")
-  autoLinkUsers      Boolean  @map("auto_link_users")
-  autoCreateUsers    Boolean  @map("auto_create_users")
+  id                   String   @id @default(uuid())
+  identityProviderId   String   @unique @map("identity_provider_id")
+  type                 String   @map("type")
+  brand                String   @map("brand")
+  clientId             String   @map("client_id")
+  clientSecret         String   @map("client_secret")
+  redirectUrls         String[] @map("redirect_urls")
+  autoLinkUsers        Boolean  @map("auto_link_users")
+  autoCreateUsers      Boolean  @map("auto_create_users")
+  sessionLifetimeHours Int      @map("session_lifetime_hours")
 
   // Relations
   identityProvider IdentityProvider @relation(fields: [identityProviderId], references: [id], onDelete: Cascade)

@@ -26,6 +26,7 @@ export function createIdentityProvider(props: DeepPartial<CreateIdentityProvider
       redirectUrls: ["https://test.example.com"],
       autoLinkUsers: true,
       autoCreateUsers: true,
+      sessionLifetimeHours: 12,
       ...props.authSettings,
     }
   })
@@ -141,5 +142,6 @@ DFwr4KfObjmvIOtAv5G+7h7BHOkTOYHJKsV5faRwUsHvNqYojAJrKtIR1sm+SsLq
 S2S/2K4UGs0QdWDBGDAYwmnartmzMhlY6P2gi8PRrvlQgPxNGJQhNo9jk54irouP
 +J+J5qrEmZcwEV0VV3WSOY0ezUUoIy8=
 -----END PRIVATE KEY-----`,
-  ...props})
+    ...props
+  })
 }

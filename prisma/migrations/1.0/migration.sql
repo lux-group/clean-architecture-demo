@@ -82,6 +82,7 @@ CREATE TABLE "identity_provider_auth_settings" (
     "redirect_urls" TEXT[] NOT NULL,
     "auto_link_users" BOOLEAN NOT NULL,
     "auto_create_users" BOOLEAN NOT NULL,
+    "session_lifetime_hours" INTEGER NOT NULL,
 
     CONSTRAINT "identity_provider_auth_settings_pkey" PRIMARY KEY ("id")
 );

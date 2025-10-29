@@ -1,6 +1,5 @@
 export interface SessionConfig {
   localSessionLifetimeHours: number
-  externalSessionLifetimeHours: number
   minSessionRefreshDelayMinutes: number
 }
 

@@ -1,4 +1,4 @@
-import { AuthClientFactory, EventPublisher, SessionConfig, SignInState } from "~/app/ports"
+import { AuthClientFactory, EventPublisher, SignInState } from "~/app/ports"
 import { CreateSessionProps, Session, User } from "~/domain/entities"
 import { AuthenticationError } from "~/domain/errors"
 import { AuthenticationEvent, EntityChangeEvent, SessionEvent } from "~/domain/events"
@@ -16,10 +16,9 @@ export class ProcessSignInResponseHandler {
     private readonly authenticationService: AuthenticationService,
     private readonly eventPublisher: EventPublisher,
     private readonly identityProviderRepository: IdentityProviderRepository,
-    private readonly sessionConfig: SessionConfig,
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
-  ) {}
+  ) { }
 
   async execute(command: ProcessSignInResponseCommand): Promise<Session> {
     try {
@@ -88,7 +87,7 @@ export class ProcessSignInResponseHandler {
         refreshToken: signInResponse.refreshToken ?? null,
       }
 
-      const session = Session.createNew(props, this.sessionConfig.externalSessionLifetimeHours)
+      const session = Session.createNew(props, idp.authSettings!.sessionLifetimeHours)
       await this.sessionRepository.insert(session)
 
       this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderCodeVerified(user.id, idp.id, claimValue))
