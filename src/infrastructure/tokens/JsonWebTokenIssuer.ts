@@ -74,7 +74,9 @@ export class JsonWebTokenIssuer implements TokenIssuer {
       iat,
       exp,
       scope: request.scopes?.join(" "),
-      impersonated_by_sub: request.impersonatedByUserId,
+      act: request.impersonatedByUserId ? {
+        sub: request.impersonatedByUserId,
+      } : undefined,
       ...request.customClaims,
     }
   }

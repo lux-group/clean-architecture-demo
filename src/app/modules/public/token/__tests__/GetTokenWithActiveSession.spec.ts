@@ -108,7 +108,7 @@ describe("[POST] /auth/v2/token (GetTokenWithActiveSession)", () => {
 
       const claims = getTokenClaims(response.body.access_token)
       expect(claims.sub).toBe(userToImpersonate.id)
-      expect(claims.impersonated_by_sub).toBe(user.id)
+      expect(claims.act?.sub).toBe(user.id)
     })
   })
 })
