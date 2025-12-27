@@ -1,172 +1,151 @@
-import { randomBytes, randomUUID } from "node:crypto"
-import z from "zod"
-import { AuthenticationError, InvalidOperationError } from "../errors"
-import { Entity, validateProps } from "./Entity"
+import { randomBytes, randomUUID } from 'node:crypto';
+import { AuthenticationError, InvalidOperationError } from '../errors';
 
 export const SessionStatus = {
-  Active: "ACTIVE",
-  Expired: "EXPIRED",
-  TerminatedByUser: "TERMINATED_BY_USER",
-  TerminatedByAdmin: "TERMINATED_BY_ADMIN",
-  TerminatedByProvider: "TERMINATED_BY_PROVIDER",
-} as const
+  Active: 'ACTIVE',
+  Expired: 'EXPIRED',
+  TerminatedByUser: 'TERMINATED_BY_USER',
+  TerminatedByAdmin: 'TERMINATED_BY_ADMIN',
+  TerminatedByProvider: 'TERMINATED_BY_PROVIDER',
+} as const;
 
-export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus];
 
-const sessionSchema = z.object({
-  id: z.uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  lastRefreshAt: z.date(),
-  expiresAt: z.date(),
-  terminatedAt: z.date().nullable(),
-  status: z.enum(SessionStatus),
-  nonce: z.string().min(40).max(40),
-  userId: z.uuid(),
-  identityProviderId: z.uuid().nullable(),
-  identityProviderSessionId: z.string().max(100).nullable(),
-  idToken: z.string().max(10000).nullable(),
-  refreshToken: z.string().max(10000).nullable(),
-})
+export type Session = Readonly<{
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastRefreshAt: Date;
+  expiresAt: Date;
+  terminatedAt: Date | null;
+  status: SessionStatus;
+  nonce: string;
+  userId: string;
+  identityProviderId: string | null;
+  identityProviderSessionId: string | null;
+  idToken: string | null;
+  refreshToken: string | null;
+}>;
 
-export type SessionProps = Readonly<z.input<typeof sessionSchema>>
 export type CreateSessionProps = Omit<
-  SessionProps,
-  "id" | "createdAt" | "updatedAt" | "lastRefreshAt" | "expiresAt" | "terminatedAt" | "status" | "nonce"
->
+  Session,
+  'id' | 'createdAt' | 'updatedAt' | 'lastRefreshAt' | 'expiresAt' | 'terminatedAt' | 'status' | 'nonce'
+>;
 
-export class Session extends Entity<SessionProps> {
-  get lastRefreshAt() {
-    return this.props.lastRefreshAt
-  }
-  get expiresAt() {
-    return this.props.expiresAt
-  }
-  get terminatedAt() {
-    return this.props.terminatedAt
-  }
-  get status() {
-    return this.props.status
-  }
-  get nonce() {
-    return this.props.nonce
-  }
-  get userId() {
-    return this.props.userId
-  }
-  get identityProviderId() {
-    return this.props.identityProviderId
-  }
-  get identityProviderSessionId() {
-    return this.props.identityProviderSessionId
-  }
-  get idToken() {
-    return this.props.idToken
-  }
-  get refreshToken() {
-    return this.props.refreshToken
-  }
-  get isActive() {
-    return this.status === SessionStatus.Active && this.expiresAt > new Date()
+function changeStatus(session: Session, newStatus: SessionStatus, now: Date): Session {
+  if (session.status !== SessionStatus.Active) {
+    return session;
   }
 
-  static createNew(props: CreateSessionProps, expiresInHours: number) {
-    const now = new Date()
-    const allProps: SessionProps = {
+  if (newStatus === SessionStatus.Active) {
+    throw InvalidOperationError.sessionExpired(session.id);
+  }
+
+  if (session.expiresAt < now) {
+    return {
+      ...session,
+      updatedAt: now,
+      refreshToken: null,
+      status: SessionStatus.Expired,
+      terminatedAt: session.expiresAt,
+    };
+  }
+
+  return {
+    ...session,
+    updatedAt: now,
+    refreshToken: null,
+    status: newStatus,
+    terminatedAt: now,
+  };
+}
+
+export const Session = {
+  isActive(session: Session, now: Date = new Date()): boolean {
+    return session.status === SessionStatus.Active && session.expiresAt > now;
+  },
+
+  createNew(props: CreateSessionProps, expiresInHours: number, now: Date = new Date()): Session {
+    return {
       ...props,
       id: randomUUID(),
       createdAt: now,
       updatedAt: now,
       lastRefreshAt: now,
-      expiresAt: new Date(Date.now() + expiresInHours * 3600000),
+      expiresAt: new Date(now.getTime() + expiresInHours * 3600000),
       terminatedAt: null,
       status: SessionStatus.Active,
-      nonce: randomBytes(20).toString("hex"),
+      nonce: randomBytes(20).toString('hex'),
+    };
+  },
+
+  ensureIsActive(session: Session, now: Date = new Date()): void {
+    if (!Session.isActive(session, now)) {
+      throw AuthenticationError.sessionExpired(session.id, session.userId);
+    }
+  },
+
+  ensureIsLocalSession(session: Session): void {
+    if (session.identityProviderId) {
+      throw InvalidOperationError.sessionMustBeLocal(session.id);
+    }
+  },
+
+  ensureIsIdentityProviderSession(session: Session): void {
+    if (!session.identityProviderId) {
+      throw InvalidOperationError.sessionMustBeExternal(session.id);
+    }
+  },
+
+  verifyNonce(session: Session, nonce: string): void {
+    if (session.nonce !== nonce) {
+      throw Error('Nonce mismatch indicating potential session hijacking attempt detected.');
+    }
+  },
+
+  isIdentityProviderRefreshDue(
+    session: Session,
+    minSessionRefreshDelayMinutes: number,
+    now: Date = new Date(),
+  ): boolean {
+    if (!session.identityProviderId) {
+      return false;
     }
 
-    validateProps(sessionSchema, allProps)
-    return new Session(allProps)
-  }
+    const elapsedTime = now.getTime() - session.lastRefreshAt.getTime();
+    return elapsedTime > minSessionRefreshDelayMinutes * 60000;
+  },
 
-  ensureIsActive() {
-    if (!this.isActive) {
-      throw AuthenticationError.sessionExpired(this.id, this.userId)
-    }
-  }
+  setLastRefresh(session: Session, idToken?: string, refreshToken?: string, now: Date = new Date()): Session {
+    return {
+      ...session,
+      updatedAt: now,
+      lastRefreshAt: now,
+      idToken: idToken ?? session.idToken,
+      refreshToken: refreshToken ?? session.refreshToken,
+    };
+  },
 
-  ensureIsLocalSession() {
-    if (this.identityProviderId) {
-      throw InvalidOperationError.sessionMustBeLocal(this.id)
-    }
-  }
+  expire(session: Session, now: Date = new Date()): Session {
+    return changeStatus(session, SessionStatus.Expired, now);
+  },
 
-  ensureIsIdentityProviderSession() {
-    if (!this.identityProviderId) {
-      throw InvalidOperationError.sessionMustBeExternal(this.id)
-    }
-  }
+  terminateLocalSessionByUser(session: Session, now: Date = new Date()): Session {
+    Session.ensureIsLocalSession(session);
+    return changeStatus(session, SessionStatus.TerminatedByUser, now);
+  },
 
-  verifyNonce(nonce: string) {
-    if (this.nonce !== nonce) {
-      throw Error("Nonce mismatch indicating potential session hijacking attempt detected.")
-    }
-  }
+  terminateIdentityProviderSessionByUser(session: Session, now: Date = new Date()): Session {
+    Session.ensureIsIdentityProviderSession(session);
+    return changeStatus(session, SessionStatus.TerminatedByUser, now);
+  },
 
-  isIdentityProviderRefreshDue(minSessionRefreshDelayMinutes: number) {
-    if (!this.identityProviderId) {
-      return false
-    }
+  terminateSessionByIdentityProvider(session: Session, now: Date = new Date()): Session {
+    Session.ensureIsIdentityProviderSession(session);
+    return changeStatus(session, SessionStatus.TerminatedByProvider, now);
+  },
 
-    const elapsedTime = Date.now() - new Date(this.lastRefreshAt).getTime()
-    return elapsedTime > minSessionRefreshDelayMinutes * 60000
-  }
-
-  setLastRefresh(idToken?: string, refreshToken?: string) {
-    this.props = {
-      ...this.props,
-      updatedAt: new Date(),
-      lastRefreshAt: new Date(),
-      idToken: idToken ?? this.idToken,
-      refreshToken: refreshToken ?? this.refreshToken,
-    }
-  }
-
-  expire() {
-    this.changeStatus(SessionStatus.Expired)
-  }
-
-  terminateLocalSessionByUser() {
-    this.ensureIsLocalSession()
-    this.changeStatus(SessionStatus.TerminatedByUser)
-  }
-
-  terminateIdentityProviderSessionByUser() {
-    this.ensureIsIdentityProviderSession()
-    this.changeStatus(SessionStatus.TerminatedByUser)
-  }
-
-  terminateSessionByIdentityProvider() {
-    this.ensureIsIdentityProviderSession()
-    this.changeStatus(SessionStatus.TerminatedByProvider)
-  }
-
-  terminateSessionByAdmin() {
-    this.changeStatus(SessionStatus.TerminatedByAdmin)
-  }
-
-  private changeStatus(newStatus: SessionStatus) {
-    if (this.status !== SessionStatus.Active) {
-      return
-    }
-
-    if (newStatus === SessionStatus.Active) {
-      throw InvalidOperationError.sessionExpired(this.id)
-    }
-
-    if (this.expiresAt < new Date()) {
-      this.props = { ...this.props, refreshToken: null, status: SessionStatus.Expired, terminatedAt: this.expiresAt }
-    } else {
-      this.props = { ...this.props, refreshToken: null, status: newStatus, terminatedAt: new Date() }
-    }
-  }
-}
+  terminateSessionByAdmin(session: Session, now: Date = new Date()): Session {
+    return changeStatus(session, SessionStatus.TerminatedByAdmin, now);
+  },
+} as const;

@@ -1,5 +1,5 @@
-import { User } from "../entities"
-import { AuthorizationError } from "../errors"
+import { User } from '../entities';
+import { AuthorizationError } from '../errors';
 
 export class AuthorizationService {
   authorizeImpersonation(user: User, userToImpersonate: User) {
@@ -7,40 +7,40 @@ export class AuthorizationService {
       throw AuthorizationError.impersonationNotAllowed(
         user.id,
         userToImpersonate.id,
-        "A user cannot impersonate itself.",
-      )
+        'A user cannot impersonate itself.',
+      );
     }
 
-    if (!user.roles.includes("employee")) {
+    if (!user.roles.includes('employee')) {
       throw AuthorizationError.impersonationNotAllowed(
         user.id,
         userToImpersonate.id,
-        "Only users with the employee role can impersonate other users.",
-      )
+        'Only users with the employee role can impersonate other users.',
+      );
     }
 
-    if (user.isServiceAccount) {
+    if (User.isServiceAccount(user)) {
       throw AuthorizationError.impersonationNotAllowed(
         user.id,
         userToImpersonate.id,
-        "Service accounts cannot impersonate users.",
-      )
+        'Service accounts cannot impersonate users.',
+      );
     }
 
-    if (userToImpersonate.isServiceAccount) {
+    if (User.isServiceAccount(userToImpersonate)) {
       throw AuthorizationError.impersonationNotAllowed(
         user.id,
         userToImpersonate.id,
-        "Users cannot impersonate service accounts.",
-      )
+        'Users cannot impersonate service accounts.',
+      );
     }
 
     if (userToImpersonate.roles.length > 0) {
       throw AuthorizationError.impersonationNotAllowed(
         user.id,
         userToImpersonate.id,
-        "Only users without roles can be impersonated.",
-      )
+        'Only users without roles can be impersonated.',
+      );
     }
   }
 }

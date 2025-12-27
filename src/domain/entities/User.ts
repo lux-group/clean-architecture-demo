@@ -1,150 +1,99 @@
-import { randomUUID } from "node:crypto"
-import z from "zod"
-import { InvalidOperationError } from "../errors"
-import { Entity, validateProps } from "./Entity"
+import { randomUUID } from 'node:crypto';
+import { InvalidOperationError } from '../errors';
 
-const userIdentitySchema = z.object({
-  id: z.uuid(),
-  identityProviderId: z.uuid(),
-  identifierClaimValue: z.string().min(1).max(255),
-})
+export type UserIdentity = Readonly<{
+  id: string;
+  identityProviderId: string;
+  identifierClaimValue: string;
+}>;
 
-const userSchema = z.object({
-  id: z.uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  isEnabled: z.boolean(),
-  brand: z.string().min(1).max(50),
-  givenName: z.string().min(1).max(50),
-  surname: z.string().min(1).max(50),
-  email: z.email().max(255),
-  emailVerified: z.boolean(),
-  phone: z.string().min(4).max(15).nullable(),
-  country: z.string().min(2).max(2).nullable(),
-  city: z.string().min(4).max(50).nullable(),
-  postcode: z.string().min(4).max(20).nullable(),
-  passwordHash: z.string().min(4).max(255).nullable(),
-  roles: z.array(z.string().min(1).max(50)),
-  identities: z.array(userIdentitySchema),
-})
+export type User = Readonly<{
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isEnabled: boolean;
+  brand: string;
+  givenName: string;
+  surname: string;
+  email: string;
+  emailVerified: boolean;
+  phone: string | null;
+  country: string | null;
+  city: string | null;
+  postcode: string | null;
+  passwordHash: string | null;
+  roles: string[];
+  identities: UserIdentity[];
+}>;
 
-export type UserIdentity = Readonly<z.input<typeof userIdentitySchema>>
-export type UserProps = Readonly<z.input<typeof userSchema>>
-export type CreateUserProps = Omit<UserProps, "id" | "createdAt" | "updatedAt" | "identities">
+export type CreateUserProps = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'identities'>;
 export type UpdateUserProps = Omit<
-  UserProps,
-  "id" | "createdAt" | "updatedAt" | "brand" | "email" | "emailVerified" | "phone" | "passwordHash" | "identities"
->
+  User,
+  'id' | 'createdAt' | 'updatedAt' | 'brand' | 'email' | 'emailVerified' | 'phone' | 'passwordHash' | 'identities'
+>;
 
-export class User extends Entity<UserProps> {
-  get isEnabled() {
-    return this.props.isEnabled
-  }
-  get brand() {
-    return this.props.brand
-  }
-  get givenName() {
-    return this.props.givenName
-  }
-  get surname() {
-    return this.props.surname
-  }
-  get email() {
-    return this.props.email
-  }
-  get emailVerified() {
-    return this.props.emailVerified
-  }
-  get phone() {
-    return this.props.phone
-  }
-  get country() {
-    return this.props.country
-  }
-  get city() {
-    return this.props.city
-  }
-  get postcode() {
-    return this.props.postcode
-  }
-  get passwordHash() {
-    return this.props.passwordHash
-  }
-  get roles() {
-    return this.props.roles
-  }
-  get identities() {
-    return this.props.identities
-  }
-  get isServiceAccount() {
-    return this.roles.includes("service")
-  }
-  get fullName() {
-    return User.formatFullName(this.givenName, this.surname)
-  }
+export const User = {
+  formatFullName: (givenName: string, surname: string) => `${givenName} ${surname}`,
 
-  static formatFullName = (givenName: string, surname: string) => `${givenName} ${surname}`
+  fullName(user: User): string {
+    return User.formatFullName(user.givenName, user.surname);
+  },
 
-  static createNew(props: CreateUserProps & { identities?: UserIdentity[] }) {
-    const now = new Date()
-    const allProps: UserProps = {
+  isServiceAccount(user: User): boolean {
+    return user.roles.includes('service');
+  },
+
+  createNew(props: CreateUserProps & { identities?: UserIdentity[] }, now: Date = new Date()): User {
+    return {
       ...props,
       id: randomUUID(),
       createdAt: now,
       updatedAt: now,
       isEnabled: props.isEnabled ?? true,
       identities: props.identities ?? [],
-    }
+    };
+  },
 
-    validateProps(userSchema, allProps)
-    return new User(allProps)
-  }
-
-  update(props: UpdateUserProps) {
-    const allProps = {
-      ...this.props,
+  update(user: User, props: UpdateUserProps, now: Date = new Date()): User {
+    return {
+      ...user,
       ...props,
-      updatedAt: new Date(),
-    }
+      updatedAt: now,
+    };
+  },
 
-    validateProps(userSchema, allProps)
-    this.props = allProps
-  }
-
-  addIdentity(identityProviderId: string, identifierClaimValue: string) {
-    if (this.identities.some(i => i.identityProviderId === identityProviderId)) {
-      throw InvalidOperationError.duplicateIdentity(this.id, identityProviderId)
+  addIdentity(user: User, identityProviderId: string, identifierClaimValue: string, now: Date = new Date()): User {
+    if (user.identities.some(i => i.identityProviderId === identityProviderId)) {
+      throw InvalidOperationError.duplicateIdentity(user.id, identityProviderId);
     }
 
     const newIdentity: UserIdentity = {
       id: randomUUID(),
       identityProviderId,
       identifierClaimValue,
-    }
+    };
 
-    this.props = {
-      ...this.props,
+    return {
+      ...user,
       passwordHash: null, // Clear password when adding identity
-      identities: [...this.props.identities, newIdentity],
-      updatedAt: new Date(),
+      identities: [...user.identities, newIdentity],
+      updatedAt: now,
+    };
+  },
+
+  changePassword(user: User, passwordHash: string, now: Date = new Date()): User {
+    if (user.identities.length > 0) {
+      throw InvalidOperationError.passwordChangeNotAllowed(user.id, 'Account has external identities.');
     }
 
-    return newIdentity
-  }
-
-  changePassword(passwordHash: string) {
-    if (this.identities.length > 0) {
-      throw InvalidOperationError.passwordChangeNotAllowed(this.id, "Account has external identities.")
-    }
-
-    this.props = {
-      ...this.props,
+    return {
+      ...user,
       passwordHash,
-      updatedAt: new Date(),
-    }
-  }
+      updatedAt: now,
+    };
+  },
 
-  public handleFailedSignInAttempt() {
+  handleFailedSignInAttempt(_user: User): void {
     // Logic for handling failed sign-in attempts can be added here
-  }
-}
+  },
+} as const;

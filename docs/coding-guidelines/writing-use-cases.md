@@ -1,44 +1,72 @@
 # How to: Write a Use Case (Command/Query Handler)
+
 ## Introduction
+
 Use cases orchestrate domain behavior. They are thin: build DTOs, call domain services/repositories, and publish events. We do not unit-test handlers in isolation; API integration tests cover them.
 
 Related ADRs:
 - [ADR-006](/docs/adr/006-cqrs-pattern-for-application-services.md) - CQRS Pattern for Application Services
 
 ## Structure
-- Location: `src/app/modules/<feature>/{commands,queries}/<Name>Handler.ts`
-- Naming: `Create<Name>Handler`, `Get<Name>ByIdHandler`
-- Public API: `constructor(dependencies)` and `execute(dto): Promise<Result>`
+
+- Location: `src/application/use-cases/<area>/<feature>/<Name>Handler.ts`
+- Areas: `admin` for admin operations, `public` for public-facing operations
+- Naming: `Create<Name>Handler`, `Get<Name>ByIdHandler`, `Search<Names>Handler`
+- Outer factory function for DI returns actual handler function.
+
+### Sample Handler
 
 ```ts
-export class CreateUserHandler {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly passwordVerifier: PasswordVerifier,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+import { EventPublisher } from '~/application/ports';
+import { CreateIdentityProviderProps, IdentityProvider } from '~/domain/entities';
+import { EntityChangeEvent } from '~/domain/events';
+import { IdentityProviderRepository } from '~/domain/repositories';
 
-  async execute(command: CreateUserCommand): Promise<User> {
-    const props: CreateUserProps = { /* shape props; zod at entity */ }
-    const user = User.createNew(props)
-    await this.userRepository.insert(user)
-    this.eventPublisher.publishEvent(EntityChangeEvent.entityCreated("User", user))
-    return user
-  }
-}
+export type CreateIdentityProviderCommand = CreateIdentityProviderProps;
+
+export type CreateIdentityProvider = ReturnType<typeof createIdentityProvider>;
+
+export const createIdentityProvider = (
+  identityProviderRepository: IdentityProviderRepository,
+  eventPublisher: EventPublisher,
+) => {
+  return async (command: CreateIdentityProviderCommand) => {
+    const identityProvider = IdentityProvider.createNew(command);
+    await identityProviderRepository.insert(identityProvider);
+
+    const event = EntityChangeEvent.entityCreated('Identity Provider', identityProvider);
+    eventPublisher.publishEvent(event);
+
+    return identityProvider;
+  };
+};
 ```
 
 ## DI registration
 
-Register handlers in the module under `src/app/modules/<feature>/module.ts` using Awilix. Use lowerCamelCase keys that end with `Handler`.
+Register handlers in `src/application/use-cases/<area>/<feature>/module.ts`:
 
 ```ts
-container.register({
-  createUserHandler: asClass(CreateUserHandler).singleton(),
-  getUserByIdHandler: asClass(GetUserByIdHandler).singleton(),
-})
+import { AwilixContainer, asFunction } from 'awilix';
+import { createIdentityProvider } from './CreateIdentityProvider';
+import { getIdentityProviderById } from './GetIdentityProviderById';
+
+export default async function registerIdentityProviderHandlers(container: AwilixContainer) {
+  container.register({
+    createIdentityProvider: asFunction(createIdentityProvider).singleton(),
+    getIdentityProviderById: asFunction(getIdentityProviderById).singleton(),
+  });
+}
 ```
 
 ## Testing
 
-Handlers are covered by [API integration tests](./writing-api-controllers.md).
+Handlers are covered by [API integration tests](./writing-api-controllers.md). The integration tests verify the entire flow from HTTP request through handler to database.
+
+## Best practices
+
+- **Keep handlers thin** — orchestrate, don't implement business logic
+- **Delegate to domain** — call entity methods and domain services for business rules
+- **Publish events** — use `EventPublisher` for audit logging and cross-cutting concerns
+- **Single responsibility** — one handler per use case
+- **Clear naming** — `Create`, `Update`, `Delete` for commands; `Get`, `Search` for queries

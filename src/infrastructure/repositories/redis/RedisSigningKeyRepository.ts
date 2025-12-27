@@ -1,47 +1,46 @@
-import { RedisClientType } from "redis"
-import { SigningKey } from "~/domain/entities"
-import { SigningKeyRepository } from "~/domain/repositories"
-import { toDateObject, toISODateString, transformObject } from "~/lib/transformObject"
-import { RedisRepository } from "./RedisRepository"
+import { RedisClientType } from 'redis';
+import { SigningKey } from '~/domain/entities';
+import { SigningKeyRepository } from '~/domain/repositories';
+import { toDateObject, toISODateString, transformObject } from '~/lib/transformObject';
+import { RedisRepository } from './RedisRepository';
 
 export class RedisSigningKeyRepository
   extends RedisRepository<SigningKey, SigningKeyRepository>
   implements SigningKeyRepository
 {
   constructor(redisClient: RedisClientType, redisDecorated_signingKeyRepository: SigningKeyRepository) {
-    super("signing_key", 3600, redisClient, redisDecorated_signingKeyRepository)
+    super('signing_key', 3600, redisClient, redisDecorated_signingKeyRepository);
   }
 
   async tryGetActiveSigningKey(): Promise<SigningKey | undefined> {
-    const activeCacheKey = this.getCacheKey("active")
-    const cached = await this.redisClient.get(activeCacheKey)
+    const activeCacheKey = this.getCacheKey('active');
+    const cached = await this.redisClient.get(activeCacheKey);
     if (cached) {
-      return this.deserializeEntity(cached)
+      return this.deserializeEntity(cached);
     }
 
-    const signingKey = await this.repository.tryGetActiveSigningKey()
+    const signingKey = await this.repository.tryGetActiveSigningKey();
     if (signingKey) {
-      this.redisClient.setEx(activeCacheKey, this.cacheDurationSeconds, this.serializeEntity(signingKey))
+      this.redisClient.setEx(activeCacheKey, this.cacheDurationSeconds, this.serializeEntity(signingKey));
     }
 
-    return signingKey
+    return signingKey;
   }
 
   protected override serializeEntity(signingKey: SigningKey): string {
     // TODO: Encrypt sensitive data (private key) before storing in Redis
-    const props = transformObject(signingKey.props, [], [toISODateString])
-    return JSON.stringify(props)
+    const props = transformObject(signingKey, [], [toISODateString]);
+    return JSON.stringify(props);
   }
 
   protected override deserializeEntity(data: string): SigningKey {
-    const props = transformObject(JSON.parse(data), [], [toDateObject])
-    return new SigningKey(props)
+    return transformObject(JSON.parse(data), [], [toDateObject]);
   }
 
   protected override async removeFromCache(signingKey: SigningKey): Promise<void> {
-    const idCacheKey = this.getCacheKey("id", signingKey.id)
-    const activeCacheKey = this.getCacheKey("active")
+    const idCacheKey = this.getCacheKey('id', signingKey.id);
+    const activeCacheKey = this.getCacheKey('active');
 
-    await Promise.all([this.redisClient.del(idCacheKey), this.redisClient.del(activeCacheKey)])
+    await Promise.all([this.redisClient.del(idCacheKey), this.redisClient.del(activeCacheKey)]);
   }
 }

@@ -1,18 +1,22 @@
 # Code Structure
+
 ## Source Code Folder Hierarchy
+
 | Folder | Responsibility |
 | --- | --- |
-| 📁 [app](/src/app) | Application use case implementations and triggers (API, scheduled tasks, event subscribers) |
-| &nbsp;&nbsp; 📁 [ports](/src/app/ports) | Interfaces for infrastructure services used by app services.<br/>Their implementations can be found in the [infrastructure](/src/infrastructure/adapters) folder. |
-| &nbsp;&nbsp; 📁 [modules](/src/app/modules) | The app folder is segregated into feature modules.<br/>In most cases, there are two levels. |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 api | API controllers, routes, presenters, and middleware |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 events | Event handlers |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 jobs | Scheduled jobs |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 commands | Application use case implementations that change state.<br/>They orchestrate business logic in the domain but don't contain business logic. |
-| &nbsp;&nbsp; &nbsp;&nbsp; 📁 queries | Application use case implementations that do not change state. |
-| &nbsp;&nbsp; 📁 [shared](/src/app/shared) | Shared app components such as common Express middleware. |
-| 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) but other [styles](https://aussiecommerce.atlassian.net/wiki/x/EYDp0w) like Transaction Script are also possible. |
-| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities that contain the application's core business structures and rules. |
+| 📁 [api](/src/api) | API layer: routes, middleware, and HTTP-related concerns |
+| &nbsp;&nbsp; 📁 [controllers](/src/api/controllers) | Feature-organised endpoints grouped by domain area |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [admin](/src/api/controllers/admin) | Admin API endpoints (user, session, signing-key, identity-provider) |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [public](/src/api/controllers/public) | Public API endpoints (auth, profile, token) |
+| &nbsp;&nbsp; 📁 [middleware](/src/api/middleware) | Express middleware (authorization, error handling, etc.) |
+| &nbsp;&nbsp; 📁 [utils](/src/api/utils) | API utilities (query parsing, cookie management, etc.) |
+| 📁 [application](/src/application) | Application layer: use cases and port interfaces |
+| &nbsp;&nbsp; 📁 [ports](/src/application/ports) | Interfaces for infrastructure services used by application layer.<br/>Their implementations can be found in the [infrastructure](/src/infrastructure) folder. |
+| &nbsp;&nbsp; 📁 [use-cases](/src/application/use-cases) | Application use case implementations (command and query handlers) |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [admin](/src/application/use-cases/admin) | Admin use cases (CRUD operations) |
+| &nbsp;&nbsp; &nbsp;&nbsp; 📁 [public](/src/application/use-cases/public) | Public use cases (authentication, tokens, profiles) |
+| 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w). |
+| &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities as immutable types with companion objects containing business logic. |
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
 | &nbsp;&nbsp; 📁 [events](/src/domain/events) | Domain event messages |
 | &nbsp;&nbsp; 📁 [repositories](/src/domain/repositories) | Interfaces for data repositories.<br/>Their implementations can be found in [/infrastructure/repositories](/src/infrastructure/repositories). |
@@ -29,17 +33,48 @@
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [redis](/src/infrastructure/repositories/redis) | Cache layer decorating Prisma repositories |
 | 📁 [lib](/src/lib) | Common utility libraries (no domain logic) |
 
+## Feature folder structure
+
+Each feature folder in `/api/controllers` follows a consistent structure:
+
+```
+src/api/controllers/admin/user/
+├── routes.ts              # Route registration
+├── shared.ts              # Shared schema and presentation mapper
+├── createUser.ts          # Create endpoint
+├── createUser.spec.ts     # Create endpoint tests
+├── getUserById.ts         # Get by ID endpoint
+├── getUserById.spec.ts    # Get by ID tests
+├── searchUsers.ts         # Search endpoint
+├── searchUsers.spec.ts    # Search tests
+├── updateUser.ts          # Update endpoint
+├── updateUser.spec.ts     # Update tests
+├── deleteUser.ts          # Delete endpoint
+└── deleteUser.spec.ts     # Delete tests
+```
+
+Key characteristics:
+- **One file per endpoint** — each operation has its own file
+- **Co-located tests** — `.spec.ts` files next to their implementation
+- **Explicit route registration** — `routes.ts` mounts all routes using `RouterAbstraction`
+- **Shared code in `shared.ts`** — entity schema and presentation mapper
+
 ## Modules
-The code is organised into logical modules. Every module has an individual `module.ts` file in its folder that registers all provided services in the Awilix DI container.
+
+The application is organised into logical modules. Route registration happens in `routes.ts` files within each feature folder, which are then mounted by the main API module.
+
+Use case handlers are registered in `module.ts` files within each use-case folder using the Awilix DI container.
 
 ## Allowed and disallowed imports
 
 - The `/lib` folder must not import any artifacts from another folder.
 - The `/domain` layer must not import any artifacts from another layer, except from the `/lib` folder.
-- The `/app` layer imports artifacts from the `/domain` layer. It must not import artifacts from `/infrastructure` directly. Instead, it defines interfaces in `/app/ports` that the infrastructure layer implements and injects.
+- The `/application` layer imports artifacts from the `/domain` layer. It must not import artifacts from `/infrastructure` directly. Instead, it defines interfaces in `/application/ports` that the infrastructure layer implements and injects.
+- The `/api` layer imports from `/application` and `/domain`. It must not import from `/infrastructure`.
 - The `/infrastructure` layer may import artifacts from all other layers.
 
 ## Path aliases
-The `tsconfig.json` file defines two path aliases.
-- `~` is a generic alias for folder `/src` and can be used for `~/app/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
+
+The `tsconfig.json` file defines two path aliases:
+- `~` is a generic alias for folder `/src` and can be used for `~/api/*`, `~/application/*`, `~/domain/*`, `~/infrastructure/*`, and `~/lib/*`.
 - `@test` is a global alias for test helpers in folder `/test`.

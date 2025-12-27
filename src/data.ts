@@ -1,71 +1,73 @@
-import { AwilixContainer } from "awilix"
-import { IdentityProvider, IdentityProviderType, SigningKey } from "~/domain/entities"
-import { IdentityProviderRepository, SigningKeyRepository } from "./domain/repositories"
+import { AwilixContainer } from 'awilix';
+import { IdentityProvider, IdentityProviderType, SigningKey } from '~/domain/entities';
+import { IdentityProviderRepository, SigningKeyRepository } from './domain/repositories';
 
 export default async function createTestData(container: AwilixContainer) {
-  const identityProviderRepository = container.resolve<IdentityProviderRepository>("identityProviderRepository")
-  const signingKeyRepository = container.resolve<SigningKeyRepository>("signingKeyRepository")
-  const baseUrl = container.resolve<string>("baseUrl")
+  const identityProviderRepository = container.resolve<IdentityProviderRepository>('identityProviderRepository');
+  const signingKeyRepository = container.resolve<SigningKeyRepository>('signingKeyRepository');
+  const baseUrl = container.resolve<string>('baseUrl');
 
   // Register test Entra ID tenant for authentication.
   await identityProviderRepository.insert(
     IdentityProvider.createNew({
-      name: "Entra",
-      issuerUrl: "https://b690daea-2aad-4dee-bdbf-0a66220e5977.ciamlogin.com/b690daea-2aad-4dee-bdbf-0a66220e5977/v2.0",
-      audience: "b926e720-2d57-443a-be2f-d4b13ae36515",
-      identifierClaimName: "oid",
+      name: 'Entra',
+      issuerUrl: 'https://b690daea-2aad-4dee-bdbf-0a66220e5977.ciamlogin.com/b690daea-2aad-4dee-bdbf-0a66220e5977/v2.0',
+      audience: 'b926e720-2d57-443a-be2f-d4b13ae36515',
+      identifierClaimName: 'oid',
       authSettings: {
         type: IdentityProviderType.Entra,
-        brand: "Test Brand",
-        clientId: "b926e720-2d57-443a-be2f-d4b13ae36515",
-        clientSecret: "o7C8Q~jQbRzi5KJdm_m98DYAQs9p_esZ7JshNcZV", // Secret stored in repo because it's an empty test tenant.
+        brand: 'Test Brand',
+        clientId: 'b926e720-2d57-443a-be2f-d4b13ae36515',
+        clientSecret: 'o7C8Q~jQbRzi5KJdm_m98DYAQs9p_esZ7JshNcZV', // Secret stored in repo because it's an empty test tenant.
         redirectUrls: [baseUrl],
         autoLinkUsers: true,
         autoCreateUsers: true,
+        sessionLifetimeHours: 24,
       },
     }),
-  )
+  );
 
   // Register test Google app for authentication.
   await identityProviderRepository.insert(
     IdentityProvider.createNew({
-      name: "Google",
-      issuerUrl: "https://accounts.google.com",
-      audience: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
-      identifierClaimName: "sub",
+      name: 'Google',
+      issuerUrl: 'https://accounts.google.com',
+      audience: '329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com',
+      identifierClaimName: 'sub',
       authSettings: {
         type: IdentityProviderType.Google,
-        brand: "Test Brand",
-        clientId: "329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com",
-        clientSecret: "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",
+        brand: 'Test Brand',
+        clientId: '329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com',
+        clientSecret: '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',
         redirectUrls: [baseUrl],
         autoLinkUsers: true,
         autoCreateUsers: true,
+        sessionLifetimeHours: 24,
       },
     }),
-  )
+  );
 
   // Register GitHub for token exchange (unused).
   await identityProviderRepository.insert(
     IdentityProvider.createNew({
-      name: "GitHub",
-      issuerUrl: "https://token.actions.githubusercontent.com",
-      audience: "api://TokenExchange",
-      identifierClaimName: "sub",
+      name: 'GitHub',
+      issuerUrl: 'https://token.actions.githubusercontent.com',
+      audience: 'api://TokenExchange',
+      identifierClaimName: 'sub',
       authSettings: null,
     }),
-  )
+  );
 
   // Register CircleCI for token exchange (unused).
   await identityProviderRepository.insert(
     IdentityProvider.createNew({
-      name: "CircleCI",
-      issuerUrl: "https://oidc.circleci.com/org/dcde7526-36e2-4073-9b73-d3d684c57e1a",
-      audience: "dcde7526-36e2-4073-9b73-d3d684c57e1a",
-      identifierClaimName: "sub",
+      name: 'CircleCI',
+      issuerUrl: 'https://oidc.circleci.com/org/dcde7526-36e2-4073-9b73-d3d684c57e1a',
+      audience: 'dcde7526-36e2-4073-9b73-d3d684c57e1a',
+      identifierClaimName: 'sub',
       authSettings: null,
     }),
-  )
+  );
 
   await signingKeyRepository.insert(
     SigningKey.createNew({
@@ -136,5 +138,5 @@ S2S/2K4UGs0QdWDBGDAYwmnartmzMhlY6P2gi8PRrvlQgPxNGJQhNo9jk54irouP
 +J+J5qrEmZcwEV0VV3WSOY0ezUUoIy8=
 -----END PRIVATE KEY-----`,
     }),
-  )
+  );
 }

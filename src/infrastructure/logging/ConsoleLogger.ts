@@ -1,15 +1,15 @@
-import { Logger } from "~/app/ports"
+import { Logger } from '~/application/ports';
 
 export class ConsoleLogger implements Logger {
   error(message: string | unknown, ...meta: unknown[]): void {
-    console.error(message, ...meta)
+    console.error(message, ...meta);
   }
 
   warn(message: string | unknown, ...meta: unknown[]): void {
-    console.warn(message, ...meta)
+    console.warn(message, ...meta);
   }
 
   info(message: string | unknown, ...meta: unknown[]): void {
-    console.info(message, ...meta)
+    console.info(message, ...meta);
   }
 }

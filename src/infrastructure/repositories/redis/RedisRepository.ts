@@ -1,9 +1,9 @@
-import { RedisClientType } from "redis"
-import { Entity, EntityProps } from "~/domain/entities"
-import { Repository } from "~/domain/repositories"
-import { Query, QueryResult } from "~/lib/types"
+import { RedisClientType } from 'redis';
+import { Entity } from '~/domain/entities';
+import { Repository } from '~/domain/repositories';
+import { Query, QueryResult } from '~/lib/types';
 
-export abstract class RedisRepository<T extends Entity<EntityProps>, R extends Repository<T>> implements Repository<T> {
+export abstract class RedisRepository<T extends Entity, R extends Repository<T>> implements Repository<T> {
   constructor(
     protected readonly cachePrefix: string,
     protected readonly cacheDurationSeconds: number,
@@ -12,66 +12,66 @@ export abstract class RedisRepository<T extends Entity<EntityProps>, R extends R
   ) {}
 
   async query(options: Query<T>): Promise<QueryResult<T>> {
-    return await this.repository.query(options)
+    return await this.repository.query(options);
   }
 
   async getById(id: string): Promise<T> {
-    const idCacheKey = this.getCacheKey("id", id)
-    const cached = await this.redisClient.get(idCacheKey)
+    const idCacheKey = this.getCacheKey('id', id);
+    const cached = await this.redisClient.get(idCacheKey);
     if (cached) {
-      return this.deserializeEntity(cached)
+      return this.deserializeEntity(cached);
     }
 
-    const entity = await this.repository.getById(id)
-    await this.addToCache(entity)
+    const entity = await this.repository.getById(id);
+    await this.addToCache(entity);
 
-    return entity
+    return entity;
   }
 
   async tryGetById(id: string): Promise<T | undefined> {
-    const idCacheKey = this.getCacheKey("id", id)
-    const cached = await this.redisClient.get(idCacheKey)
+    const idCacheKey = this.getCacheKey('id', id);
+    const cached = await this.redisClient.get(idCacheKey);
     if (cached) {
-      return this.deserializeEntity(cached)
+      return this.deserializeEntity(cached);
     }
 
-    const entity = await this.repository.tryGetById(id)
+    const entity = await this.repository.tryGetById(id);
     if (entity) {
-      await this.addToCache(entity)
+      await this.addToCache(entity);
     }
 
-    return entity
+    return entity;
   }
 
   async insert(entity: T): Promise<void> {
-    await this.repository.insert(entity)
-    await this.addToCache(entity)
+    await this.repository.insert(entity);
+    await this.addToCache(entity);
   }
 
   async update(entity: T): Promise<void> {
-    await this.repository.update(entity)
-    await this.removeFromCache(entity)
-    await this.addToCache(entity)
+    await this.repository.update(entity);
+    await this.removeFromCache(entity);
+    await this.addToCache(entity);
   }
 
   async delete(entity: T): Promise<void> {
-    await this.repository.delete(entity)
-    await this.removeFromCache(entity)
+    await this.repository.delete(entity);
+    await this.removeFromCache(entity);
   }
 
-  protected abstract serializeEntity(entity: T): string
+  protected abstract serializeEntity(entity: T): string;
 
-  protected abstract deserializeEntity(props: string): T
+  protected abstract deserializeEntity(props: string): T;
 
-  protected getCacheKey = (...args: string[]) => `${this.cachePrefix}:${args.join(":")}`
+  protected getCacheKey = (...args: string[]) => `${this.cachePrefix}:${args.join(':')}`;
 
   protected async addToCache(entity: T): Promise<void> {
-    const idCacheKey = this.getCacheKey("id", entity.id)
-    await this.redisClient.setEx(idCacheKey, this.cacheDurationSeconds, this.serializeEntity(entity))
+    const idCacheKey = this.getCacheKey('id', entity.id);
+    await this.redisClient.setEx(idCacheKey, this.cacheDurationSeconds, this.serializeEntity(entity));
   }
 
   protected async removeFromCache(entity: T): Promise<void> {
-    const idCacheKey = this.getCacheKey("id", entity.id)
-    await this.redisClient.del(idCacheKey)
+    const idCacheKey = this.getCacheKey('id', entity.id);
+    await this.redisClient.del(idCacheKey);
   }
 }

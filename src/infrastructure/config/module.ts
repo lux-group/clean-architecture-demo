@@ -1,15 +1,15 @@
-import { AwilixContainer, asValue } from "awilix"
-import { schema } from "./schema"
+import { AwilixContainer, asValue } from 'awilix';
+import { schema } from './schema';
 
 export default async function registerConfig(container: AwilixContainer, environment: string) {
-  const importedConfig = await import(`./${environment}`)
+  const importedConfig = await import(`./${environment}`);
   const configResult = schema.safeParse(importedConfig.config);
   if (!configResult.success) {
-    console.error(configResult.error)
-    process.exit(1)
+    console.error(configResult.error);
+    process.exit(1);
   }
 
-  const config = configResult.data
+  const config = configResult.data;
 
   container.register({
     config: asValue(config),
@@ -18,5 +18,5 @@ export default async function registerConfig(container: AwilixContainer, environ
     redisUrl: asValue(config.redisUrl),
     sessionConfig: asValue(config.sessions),
     tokenIssuerConfig: asValue(config.tokenIssuer),
-  })
+  });
 }

@@ -1,9 +1,9 @@
-import { DomainError } from "./DomainError"
+import { DomainError } from './DomainError';
 
 export interface ValidationErrorItem {
-  message: string
-  path?: string
-  value?: unknown
+  message: string;
+  path?: string;
+  value?: unknown;
 }
 
 export class ValidationError extends DomainError {
@@ -11,8 +11,8 @@ export class ValidationError extends DomainError {
     message: string,
     public readonly errors: ValidationErrorItem[] = [],
   ) {
-    super(message)
-    this.name = this.constructor.name
-    Error.captureStackTrace(this, this.constructor)
+    super(message);
+    this.name = this.constructor.name;
+    Error.captureStackTrace(this, this.constructor);
   }
 }

@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from 'zod';
 
 export const schema = z.object({
   apiHost: z.string().nonempty(),
@@ -11,10 +11,10 @@ export const schema = z.object({
     minSessionRefreshDelayMinutes: z.number().min(1).default(10),
   }),
   tokenIssuer: z.object({
-    path: z.string().nonempty().default("/auth/v2"),
+    path: z.string().nonempty().default('/auth/v2'),
     audience: z.string().nonempty(),
     lifetimeSeconds: z.number().min(1).default(3600),
   }),
-})
+});
 
-export type Config = z.input<typeof schema>
+export type Config = z.input<typeof schema>;
