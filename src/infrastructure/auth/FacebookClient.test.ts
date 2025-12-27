@@ -1,6 +1,6 @@
 import * as factories from '@test/factories';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SignInState } from '~/application/ports';
+import { ApiConfig, SignInState } from '~/application/ports';
 import { IdentityProvider, IdentityProviderType } from '~/domain/entities';
 import { AuthenticationError } from '~/domain/errors';
 import { FacebookClient } from './FacebookClient';
@@ -12,8 +12,8 @@ global.fetch = mockFetch;
 describe('FacebookClient', () => {
   let facebookClient: FacebookClient;
   let identityProvider: IdentityProvider;
+  let apiConfig: ApiConfig;
 
-  const baseUrl = 'https://auth.example.com';
   const redirectUrl = 'https://app.example.com/callback';
 
   beforeEach(() => {
@@ -36,8 +36,15 @@ describe('FacebookClient', () => {
       },
     });
 
+    // Create API config
+    apiConfig = {
+      host: 'https://auth.example.com',
+      basePath: '/auth/v2',
+      adminBasePath: '/auth/v2/admin',
+    };
+
     // Create Facebook client
-    facebookClient = new FacebookClient(baseUrl, identityProvider);
+    facebookClient = new FacebookClient(apiConfig, identityProvider);
   });
 
   describe('constructor', () => {
@@ -171,7 +178,7 @@ describe('FacebookClient', () => {
         ...identityProvider,
         identifierClaimName: 'custom_id',
       });
-      const customFacebookClient = new FacebookClient(baseUrl, customIdentityProvider);
+      const customFacebookClient = new FacebookClient(apiConfig, customIdentityProvider);
 
       mockUserProfile.custom_id = 'custom-123';
 
@@ -193,7 +200,7 @@ describe('FacebookClient', () => {
         ...identityProvider,
         identifierClaimName: 'nonexistent_field',
       });
-      const customFacebookClient = new FacebookClient(baseUrl, customIdentityProvider);
+      const customFacebookClient = new FacebookClient(apiConfig, customIdentityProvider);
 
       const customSignInState: SignInState = {
         ...signInState,

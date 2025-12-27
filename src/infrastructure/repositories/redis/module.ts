@@ -1,5 +1,6 @@
 import { AwilixContainer, asClass, asFunction, Resolver } from 'awilix';
 import { createClient } from 'redis';
+import { Config } from '~/infrastructure/config/schema';
 import { RedisIdentityProviderRepository } from './RedisIdentityProviderRepository';
 import { RedisSessionRepository } from './RedisSessionRepository';
 import { RedisSigningKeyRepository } from './RedisSigningKeyRepository';
@@ -13,9 +14,9 @@ function decorate<T>(container: AwilixContainer, name: string, resolver: Resolve
 
 export default async function registerRedisDecoratorRepositories(container: AwilixContainer) {
   const logger = container.resolve('logger');
-  const { redisUrl } = container.resolve('config');
+  const { redis } = container.resolve<Config>('config');
 
-  const client = createClient({ url: redisUrl });
+  const client = createClient({ url: redis.url });
   client.on('error', err => logger.error('Redis Client Error:', err));
   await client.connect();
 

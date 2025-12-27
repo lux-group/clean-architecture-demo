@@ -2,7 +2,7 @@ import * as factories from '@test/factories';
 import jwt from 'jsonwebtoken';
 import * as client from 'openid-client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SignInState } from '~/application/ports';
+import { ApiConfig, SignInState } from '~/application/ports';
 import { IdentityProvider, IdentityProviderType } from '~/domain/entities';
 import { OidcClient } from './OidcClient';
 
@@ -21,9 +21,9 @@ describe('OidcClient', () => {
   let entraClient: OidcClient;
   let identityProvider: IdentityProvider;
   let entraIdentityProvider: IdentityProvider;
+  let apiConfig: ApiConfig;
   let mockClaims: any;
 
-  const baseUrl = 'https://auth.example.com';
   const redirectUrl = 'https://app.example.com/callback';
 
   beforeEach(() => {
@@ -62,9 +62,16 @@ describe('OidcClient', () => {
       },
     });
 
+    // Create API config
+    apiConfig = {
+      host: 'https://auth.example.com',
+      basePath: '/auth/v2',
+      adminBasePath: '/auth/v2/admin',
+    };
+
     // Create OIDC clients
-    oidcClient = new OidcClient(baseUrl, identityProvider, false);
-    entraClient = new OidcClient(baseUrl, entraIdentityProvider, true);
+    oidcClient = new OidcClient(apiConfig, identityProvider, false);
+    entraClient = new OidcClient(apiConfig, entraIdentityProvider, true);
 
     // Mock claims object
     mockClaims = {
@@ -130,7 +137,7 @@ describe('OidcClient', () => {
       const callArgs = mockClient.buildAuthorizationUrl.mock.calls[0];
       const urlParams = callArgs[1] as URLSearchParams;
       expect(urlParams.get('scope')).toBe('email openid profile');
-      expect(urlParams.get('redirect_uri')).toBe(`${baseUrl}/auth/v2/external/sign-in-callback`);
+      expect(urlParams.get('redirect_uri')).toBe(`${apiConfig.host}${apiConfig.basePath}/external/sign-in-callback`);
       expect(urlParams.get('code_challenge')).toBe('mock-code-challenge');
       expect(urlParams.get('code_challenge_method')).toBe('S256');
       expect(urlParams.get('nonce')).toBe('mock-nonce');
@@ -194,7 +201,7 @@ describe('OidcClient', () => {
 
       expect(mockClient.authorizationCodeGrant).toHaveBeenCalledWith(
         expect.anything(), // config
-        new URL(baseUrl + urlPath),
+        new URL(apiConfig.host + urlPath),
         {
           expectedState: signInState.state,
           expectedNonce: signInState.nonce,
@@ -350,7 +357,7 @@ describe('OidcClient', () => {
 
       const callArgs = mockClient.buildEndSessionUrl.mock.calls[0];
       const urlParams = callArgs[1] as URLSearchParams;
-      expect(urlParams.get('post_logout_redirect_uri')).toBe(`${baseUrl}/auth/v2/external/sign-out-callback`);
+      expect(urlParams.get('post_logout_redirect_uri')).toBe(`${apiConfig.host}${apiConfig.basePath}/external/sign-out-callback`);
       expect(urlParams.get('logout_hint')).toBe('test@example.com');
       expect(urlParams.get('id_token_hint')).toBeNull();
 

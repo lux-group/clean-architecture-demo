@@ -1,7 +1,7 @@
 import * as factories from '@test/factories';
 import jwt from 'jsonwebtoken';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SignInState } from '~/application/ports';
+import { ApiConfig, SignInState } from '~/application/ports';
 import { IdentityProvider, IdentityProviderType } from '~/domain/entities';
 import { AuthenticationError } from '~/domain/errors';
 import { AppleClient } from './AppleClient';
@@ -13,8 +13,8 @@ global.fetch = mockFetch;
 describe('AppleClient', () => {
   let appleClient: AppleClient;
   let identityProvider: IdentityProvider;
+  let apiConfig: ApiConfig;
 
-  const baseUrl = 'https://auth.example.com';
   const redirectUrl = 'https://app.example.com/callback';
 
   beforeEach(() => {
@@ -37,8 +37,15 @@ describe('AppleClient', () => {
       },
     });
 
+    // Create API config
+    apiConfig = {
+      host: 'https://auth.example.com',
+      basePath: '/auth/v2',
+      adminBasePath: '/auth/v2/admin',
+    };
+
     // Create Apple client
-    appleClient = new AppleClient(baseUrl, identityProvider);
+    appleClient = new AppleClient(apiConfig, identityProvider);
   });
 
   describe('constructor', () => {

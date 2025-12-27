@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
+import type { ApiConfig } from '~/application/ports';
 import type {
   CreateIdentityProvider,
   CreateIdentityProviderCommand,
@@ -33,13 +34,13 @@ type ResponseBody = z.infer<(typeof createIdentityProviderSchema.responses)['201
 
 const mapRequestToCommand = MapperBuilder.for<RequestBody>().toCamelCase().build<CreateIdentityProviderCommand>();
 
-export const createIdentityProviderHandler = (baseUrl: string, createIdentityProvider: CreateIdentityProvider) => {
+export const createIdentityProviderHandler = (apiConfig: ApiConfig, createIdentityProvider: CreateIdentityProvider) => {
   return async (req: Request<unknown, ResponseBody, RequestBody>, res: Response<ResponseBody>) => {
     const command = mapRequestToCommand(req.body);
     const item = await createIdentityProvider(command);
     res
       .status(201)
-      .header('Location', `${baseUrl}/admin/v2/identity-providers/${item.id}`)
+      .header('Location', `${apiConfig.host}${apiConfig.adminBasePath}/identity-providers/${item.id}`)
       .json({
         status: 201,
         message: 'Identity provider created',

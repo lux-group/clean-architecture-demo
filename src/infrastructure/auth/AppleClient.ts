@@ -1,12 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from '~/application/ports';
+import { ApiConfig, AuthClient, CheckSessionResponse, Profile, SignInState, SignOutRequest } from '~/application/ports';
 import { IdentityProvider } from '~/domain/entities';
 import { AuthenticationError } from '~/domain/errors';
 
 export class AppleClient implements AuthClient {
   constructor(
-    private readonly baseUrl: string,
+    private readonly apiConfig: ApiConfig,
     private readonly identityProvider: IdentityProvider,
   ) {}
 
@@ -33,7 +33,7 @@ export class AppleClient implements AuthClient {
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
+      redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-in-callback`,
       scope: 'name email',
       state,
       nonce,
@@ -46,7 +46,7 @@ export class AppleClient implements AuthClient {
   }
 
   async processSignInResponse(signInState: SignInState, urlPath: string) {
-    const url = new URL(this.baseUrl + urlPath);
+    const url = new URL(this.apiConfig.host + urlPath);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const userParam = url.searchParams.get('user');
@@ -92,7 +92,7 @@ export class AppleClient implements AuthClient {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
+      redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-in-callback`,
       client_id: this.identityProvider.authSettings!.clientId,
       client_secret: this.identityProvider.authSettings!.clientSecret,
     });

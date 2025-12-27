@@ -1,3 +1,9 @@
+export interface ApiConfig {
+  host: string;
+  basePath: string;
+  adminBasePath: string;
+}
+
 export interface SessionConfig {
   localSessionLifetimeHours: number;
   minSessionRefreshDelayMinutes: number;

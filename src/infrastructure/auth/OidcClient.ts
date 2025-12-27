@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import * as client from 'openid-client';
-import { AuthClient, SignInResponse, SignInState, SignOutState } from '~/application/ports';
+import { ApiConfig, AuthClient, SignInResponse, SignInState, SignOutState } from '~/application/ports';
 import { IdentityProvider } from '~/domain/entities';
 import { ClientCache } from '~/lib/ClientCache';
 
@@ -10,7 +10,7 @@ const oidcConfigCache = new ClientCache<IdentityProvider, client.Configuration>(
 
 export class OidcClient implements AuthClient {
   constructor(
-    private readonly baseUrl: string,
+    private readonly apiConfig: ApiConfig,
     private readonly identityProvider: IdentityProvider,
     private readonly isEntra: boolean,
   ) {}
@@ -49,7 +49,7 @@ export class OidcClient implements AuthClient {
     // Additional scopes offline_access and User.Read/User.ReadWrite should be granted in Entra by admin consent.
     const params = new URLSearchParams({
       scope,
-      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
+      redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-in-callback`,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
       nonce,
@@ -60,7 +60,7 @@ export class OidcClient implements AuthClient {
   }
 
   async processSignInResponse(signInState: SignInState, urlPath: string) {
-    const url = new URL(this.baseUrl + urlPath);
+    const url = new URL(this.apiConfig.host + urlPath);
 
     const checks = {
       expectedState: signInState.state,
@@ -125,7 +125,7 @@ export class OidcClient implements AuthClient {
     };
 
     const params = new URLSearchParams({
-      post_logout_redirect_uri: `${this.baseUrl}/auth/v2/external/sign-out-callback`,
+      post_logout_redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-out-callback`,
     });
 
     if (this.isEntra) {

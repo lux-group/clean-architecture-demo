@@ -1,6 +1,7 @@
 import * as factories from '@test/factories';
 import { mockAuthClient } from '@test/mocks';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiConfig } from '~/application/ports';
 import { IdentityProviderType } from '~/domain/entities';
 import { InvalidOperationError } from '~/domain/errors';
 import { AppleClient } from './AppleClient';
@@ -18,11 +19,18 @@ const MockAppleClient = vi.mocked(AppleClient);
 
 describe('ClientFactory', () => {
   let clientFactory: ClientFactory;
-  const baseUrl = 'https://auth.example.com';
+  let apiConfig: ApiConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    clientFactory = new ClientFactory(baseUrl);
+
+    // Create API config
+    apiConfig = {
+      host: 'https://auth.example.com',
+      basePath: '/auth/v2',
+    } as ApiConfig;
+    
+    clientFactory = new ClientFactory(apiConfig);
   });
 
   describe('createClient', () => {
@@ -37,7 +45,7 @@ describe('ClientFactory', () => {
 
       const result = clientFactory.createClient(identityProvider);
 
-      expect(MockOidcClient).toHaveBeenCalledWith(baseUrl, identityProvider, true);
+      expect(MockOidcClient).toHaveBeenCalledWith(apiConfig, identityProvider, true);
       expect(result).toBe(mockAuthClient);
     });
 
@@ -52,7 +60,7 @@ describe('ClientFactory', () => {
 
       const result = clientFactory.createClient(identityProvider);
 
-      expect(MockOidcClient).toHaveBeenCalledWith(baseUrl, identityProvider, false);
+      expect(MockOidcClient).toHaveBeenCalledWith(apiConfig, identityProvider, false);
       expect(result).toBe(mockAuthClient);
     });
 
@@ -67,7 +75,7 @@ describe('ClientFactory', () => {
 
       const result = clientFactory.createClient(identityProvider);
 
-      expect(MockAppleClient).toHaveBeenCalledWith(baseUrl, identityProvider);
+      expect(MockAppleClient).toHaveBeenCalledWith(apiConfig, identityProvider);
       expect(result).toBe(mockAuthClient);
     });
 
@@ -82,7 +90,7 @@ describe('ClientFactory', () => {
 
       const result = clientFactory.createClient(identityProvider);
 
-      expect(MockFacebookClient).toHaveBeenCalledWith(baseUrl, identityProvider);
+      expect(MockFacebookClient).toHaveBeenCalledWith(apiConfig, identityProvider);
       expect(result).toBe(mockAuthClient);
     });
 

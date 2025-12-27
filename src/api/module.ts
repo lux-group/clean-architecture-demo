@@ -3,7 +3,7 @@ import { AwilixContainer, asClass, asFunction } from 'awilix';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import helmet, { HelmetOptions } from 'helmet';
-import { TokenIssuerConfig } from '~/application/ports';
+import { ApiConfig, TokenIssuerConfig } from '~/application/ports';
 import identityProviderAdminRoutes from './controllers/admin/identity-provider/routes';
 import sessionAdminRoutes from './controllers/admin/session/routes';
 import signingKeyAdminRoutes from './controllers/admin/signing-key/routes';
@@ -14,11 +14,9 @@ import profileRoutes from './controllers/public/profile/routes';
 import tokenRoutes from './controllers/public/token/routes';
 import { SecureCookieManager } from './utils/SecureCookieManager';
 
-const basePath = '/auth/v2';
-const adminBasePath = `${basePath}/admin`;
-
 export const createRouter = (app: Express, container: AwilixContainer): RouterAbstraction => {
-  const tokenIssuerPath = container.resolve<TokenIssuerConfig>('tokenIssuerConfig').path;
+  const apiConfig = container.resolve<ApiConfig>('apiConfig');
+  const tokenIssuerConfig = container.resolve<TokenIssuerConfig>('tokenIssuerConfig');
 
   const routerOptions: RouterOptions = {
     swaggerBaseProperties: {
@@ -32,17 +30,17 @@ export const createRouter = (app: Express, container: AwilixContainer): RouterAb
 
   const router = buildRouter(app, routerOptions);
 
-  identityProviderAdminRoutes.mount(container, router, adminBasePath);
-  sessionAdminRoutes.mount(container, router, adminBasePath);
-  signingKeyAdminRoutes.mount(container, router, adminBasePath);
-  userAdminRoutes.mount(container, router, adminBasePath);
+  identityProviderAdminRoutes.mount(container, router, apiConfig.adminBasePath);
+  sessionAdminRoutes.mount(container, router, apiConfig.adminBasePath);
+  signingKeyAdminRoutes.mount(container, router, apiConfig.adminBasePath);
+  userAdminRoutes.mount(container, router, apiConfig.adminBasePath);
 
-  authExternalRoutes.mount(container, router, basePath);
-  authLocalRoutes.mount(container, router, basePath);
-  profileRoutes.mount(container, router, basePath);
-  tokenRoutes.mount(container, router, tokenIssuerPath);
+  authExternalRoutes.mount(container, router, apiConfig.basePath);
+  authLocalRoutes.mount(container, router, apiConfig.basePath);
+  profileRoutes.mount(container, router, apiConfig.basePath);
+  tokenRoutes.mount(container, router, tokenIssuerConfig.path);
 
-  router.serveSwagger(`${basePath}/docs`);
+  router.serveSwagger(`${apiConfig.basePath}/docs`);
 
   // TODO: Register custom error handler.
 

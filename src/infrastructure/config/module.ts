@@ -13,10 +13,9 @@ export default async function registerConfig(container: AwilixContainer, environ
 
   container.register({
     config: asValue(config),
-    baseUrl: asValue(config.apiHost),
-    encryptionKeys: asValue(config.encryptionKeys),
-    redisUrl: asValue(config.redisUrl),
+    apiConfig: asValue(config.api),
     sessionConfig: asValue(config.sessions),
     tokenIssuerConfig: asValue(config.tokenIssuer),
+    encryptionKeys: asValue(config.encryptionKeys),
   });
 }

@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import {
+  ApiConfig,
   AuthClient,
   CheckSessionResponse,
   Profile,
@@ -12,7 +13,7 @@ import { AuthenticationError } from '~/domain/errors';
 
 export class FacebookClient implements AuthClient {
   constructor(
-    private readonly baseUrl: string,
+    private readonly apiConfig: ApiConfig,
     private readonly identityProvider: IdentityProvider,
   ) {}
 
@@ -38,7 +39,7 @@ export class FacebookClient implements AuthClient {
 
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
-      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
+      redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-in-callback`,
       scope: 'email public_profile',
       response_type: 'code',
       state,
@@ -51,7 +52,7 @@ export class FacebookClient implements AuthClient {
   }
 
   async processSignInResponse(signInState: SignInState, urlPath: string) {
-    const url = new URL(this.baseUrl + urlPath);
+    const url = new URL(this.apiConfig.host + urlPath);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const error = url.searchParams.get('error');
@@ -104,7 +105,7 @@ export class FacebookClient implements AuthClient {
     const params = new URLSearchParams({
       client_id: this.identityProvider.authSettings!.clientId,
       client_secret: this.identityProvider.authSettings!.clientSecret,
-      redirect_uri: `${this.baseUrl}/auth/v2/external/sign-in-callback`,
+      redirect_uri: `${this.apiConfig.host}${this.apiConfig.basePath}/external/sign-in-callback`,
       code,
     });
 

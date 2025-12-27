@@ -1,11 +1,12 @@
 import { AwilixContainer } from 'awilix';
+import { ApiConfig } from '~/application/ports';
 import { IdentityProvider, IdentityProviderType, SigningKey } from '~/domain/entities';
-import { IdentityProviderRepository, SigningKeyRepository } from './domain/repositories';
+import { IdentityProviderRepository, SigningKeyRepository } from '~/domain/repositories';
 
 export default async function createTestData(container: AwilixContainer) {
   const identityProviderRepository = container.resolve<IdentityProviderRepository>('identityProviderRepository');
   const signingKeyRepository = container.resolve<SigningKeyRepository>('signingKeyRepository');
-  const baseUrl = container.resolve<string>('baseUrl');
+  const apiConfig = container.resolve<ApiConfig>('apiConfig');
 
   // Register test Entra ID tenant for authentication.
   await identityProviderRepository.insert(
@@ -19,7 +20,7 @@ export default async function createTestData(container: AwilixContainer) {
         brand: 'Test Brand',
         clientId: 'b926e720-2d57-443a-be2f-d4b13ae36515',
         clientSecret: 'o7C8Q~jQbRzi5KJdm_m98DYAQs9p_esZ7JshNcZV', // Secret stored in repo because it's an empty test tenant.
-        redirectUrls: [baseUrl],
+        redirectUrls: [apiConfig.host + apiConfig.basePath],
         autoLinkUsers: true,
         autoCreateUsers: true,
         sessionLifetimeHours: 24,
@@ -39,7 +40,7 @@ export default async function createTestData(container: AwilixContainer) {
         brand: 'Test Brand',
         clientId: '329419931200-9godclu5b1sgdjtgllmcbptc03scqfns.apps.googleusercontent.com',
         clientSecret: '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',
-        redirectUrls: [baseUrl],
+        redirectUrls: [apiConfig.host + apiConfig.basePath],
         autoLinkUsers: true,
         autoCreateUsers: true,
         sessionLifetimeHours: 24,
