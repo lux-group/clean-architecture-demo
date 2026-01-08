@@ -1,74 +1,121 @@
 # Code Conventions
+
 ## Tooling
-The project uses [Biome](https://biomejs.dev/) for lintig and formatting. Check the `biome.json` configuration file for rules.
+
+The project uses [Biome](https://biomejs.dev/) for linting and formatting. Check the `biome.json` configuration file for rules.
 
 ## Language & Syntax
-- **Quotes**: Use double quotes for strings.
-- **Semicolons**: Do not use semicolons; rely on ASI (Auto Semi-colon Insertion).
+
+- **Quotes**: Use single quotes for strings.
+- **Semicolons**: Use semicolons at the end of statements.
 - **Variables**: Use `const` by default; use `let` when reassignment is required; never use `var`.
 - **Line length**: Keep lines under ~120 characters when practical. This is a soft limit—prefer clarity and consistency over strict wrapping.
 - **Imports**:
   - Use ES import syntax.
   - Prefer absolute path aliases (e.g., `~/...`) configured in `tsconfig.json`.
   - Order imports logically: Node built-ins (e.g., `node:crypto`), third-party, then internal modules.
-- **Exports**: Prefer named exports. Avoid default exports for shared types/classes.
+  - Use `type` imports for type-only imports (e.g., `import type { User } from '~/domain/entities'`).
+- **Exports**: Prefer named exports. Avoid default exports except for route modules.
 - **Async/await**: Prefer `async/await` over promise chains.
 
 ## TypeScript Practices
+
 - **Strictness**: The project uses `"strict": true`. Avoid `any` where possible.
-- **Public APIs**: Explicitly annotate exported/public function signatures and class constructor parameters where it helps readability. Allow local inference for trivial cases.
-- **Type aliases**: Use `type` or `interface` where appropriate; use `readonly` for values that should not change.
-- **Validation**: Use `zod` schemas for input and entity validation; derive types from schemas where helpful.
+- **Public APIs**: Explicitly annotate exported/public function signatures where it helps readability.
+- **Type aliases**: Use `type` for object shapes; use `Readonly<>` for immutable data.
+- **Validation**: Use `zod` schemas for API request/response validation; derive types from schemas.
 
 ## Naming & Structure
-- **Files & Classes**:
-  - Classes, entities, repositories, controllers, and handlers use PascalCase file names (e.g., `UserController.ts`, `PrismaUserRepository.ts`).
-  - Utilities may use camelCase file names (e.g., `parseQuery.ts`).
-- **Directories**: Feature and HTTP folders use kebab-case (e.g., `identity-provider`, `well-known`).
-- **Enums**: Use PascalCase enum names; enum members use UPPER_SNAKE_CASE when representing constants (e.g., `BASE_PATH`).
-- **Handlers**: CQRS handlers end with `Handler` and expose an `execute` method (e.g., `CreateUserHandler`).
-- **Modules**: Composition/DI entry points are named `module.ts` within each feature layer.
 
-## Formatting
-- **Indentation & spacing**: Match the existing two-space indentation and spacing style in the repository.
-- **Object/array literals**: Format multi-line literals with one property per line when it improves readability.
-- **Getters**: Use concise one-line getters for simple property access.
-- **Chaining**: Break chained calls across lines when they would exceed the soft line length limit.
+- **Files**:
+  - Endpoint files use camelCase: `createUser.ts`, `getUserById.ts`, `searchUsers.ts`
+  - Use-case files use PascalCase: `CreateUser.ts`, `GetUserById.ts`
+  - Utilities use camelCase: `parseQuery.ts`, `SecureCookieManager.ts`
+- **Directories**: Feature folders use kebab-case (e.g., `identity-provider`, `auth-external`).
+- **Handlers**: CQRS handlers are functions; inject with DI and call directly.
+- **Routes**: Route files are named `routes.ts` and export a `{ mount }` object.
+- **Shared**: Shared schemas and mappers go in `shared.ts`.
 
-## Error Handling
-- **Domain errors**: Throw domain-specific errors (e.g., `InvalidOperationError`, `NotFoundError`, `AuthenticationError`) rather than generic errors.
-- **HTTP mapping**: Map errors to responses in middleware (e.g., `handleClientErrors`, `handleServerErrors`, `handleOAuthErrors`) rather than inside controllers.
-- **No silent catches**: Do not catch and ignore errors; handle or propagate them.
+## API Endpoints
+
+- **One file per endpoint**: Each operation (create, read, update, delete) has its own file.
+- **Schema and handler together**: Each endpoint file exports both the schema and handler factory.
+- **Response envelope**: All responses use `{ status, message, result }` format.
+- **Co-located tests**: Test files use `.spec.ts` suffix and sit next to implementation files.
+
+```ts
+// Endpoint file structure (excerpt)
+import type { Request, Response } from 'express';
+import z from 'zod';
+import type { CreateUser, CreateUserCommand } from '~/application/use-cases/admin/user/CreateUser';
+import { userSchema } from './shared';
+
+export const createUserSchema = {
+  request: { body: z.object({ /* ... */ }) },
+  responses: {
+    201: z.object({ status: z.literal(201), message: z.string(), result: userSchema }),
+  },
+};
+
+export const createUserHandler = (createUser: CreateUser) => {
+  return async (req: Request<unknown, any, CreateUserCommand>, res: Response) => {
+    const created = await createUser(req.body);
+    res.status(201).json({ status: 201, message: 'User created', result: created });
+  };
+};
+```
 
 ## Domain Layer
-- **Purity**: Keep the domain layer free of dependencies on infrastructure, app, and frameworks.
+
+- **Purity**: Keep the domain layer free of dependencies on infrastructure, API, and frameworks.
 - **Domain Entities**:
-  - Provide static factory methods (e.g., `createNew`) for creation.
-  - Validate invariants with `zod` (`validateProps`) and use immutable updates via object spreads; prefer getters for access.
+  - Define as `Readonly<>` types with a companion object containing static methods.
+  - Use factory methods (e.g., `createNew`) for creation.
+  - Return new instances from mutation methods (immutable updates).
+  - Validate invariants and throw domain-specific errors.
 - **Domain events**:
   - Use dedicated event classes with clear `topic`, `id`, `timestamp`, `result`, and `details` fields.
-  - Provide event-specific static factory methods for common scenarios (e.g., `passwordSuccess`, `entityCreated`).
+  - Provide event-specific static factory methods for common scenarios.
 - **Domain services**:
   - Keep functions pure and without dependencies on infrastructure services.
 
-## Application Layer (Controllers & Use Cases)
-- **Decorators**: Use decorator-based routing with `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, etc.
-- **Authorization**: Use `@Authorize` with clearly defined `scopes`.
-- **Thin controllers**: Controllers should parse/validate input (using helpers like `parseQuery`) and delegate to command/query handlers.
-- **CQRS**: Separate commands and queries into their respective folders with dedicated handlers.
+## Application Layer
+
+- **Handler patterns**: Prefer functional factory pattern for use cases (no classes).
+- **Thin orchestration**: Handlers orchestrate domain logic but don't contain business rules.
+- **CQRS**: Separate commands (state changes) and queries (reads) into distinct handlers.
+
+## API Layer
+
+- **Feature-based organisation**: Group endpoints by feature, not by artifact type.
+- **Explicit routing**: Use `routes.ts` with `RouterAbstraction` for route registration.
+- **Handler factories**: Handler functions are factories that receive dependencies and return Express handlers.
+- **Authorization**: Use `authorizeMiddlewareFactory` for scope-based authorization.
 
 ## Infrastructure Layer
+
 - **Repositories**:
-  - Implement repositories per backing store (e.g., Prisma, Redis, Memory) with clear mapping helpers (`mapToDomain`, `mapToPrisma`).
+  - Implement repositories per backing store (Prisma, Redis, Memory).
   - Keep mapping logic in private methods. Do not leak persistence types into the domain.
-  - Use optimistic concurrency where applicable (e.g., `updatedAt` checks).
-- **Adapters**: Keep external integrations behind adapter interfaces defined in the apps layer and provide concrete implementations in `infrastructure`.
+- **Adapters**: Keep external integrations behind adapter interfaces defined in the application layer.
+
+## Formatting
+
+- **Indentation & spacing**: Two-space indentation.
+- **Object/array literals**: Format multi-line literals with one property per line when it improves readability.
+- **Arrow functions**: Use concise arrow function syntax for simple handlers.
+- **Trailing commas**: Use trailing commas in multi-line arrays and objects.
+
+## Error Handling
+
+- **Domain errors**: Throw domain-specific errors (e.g., `InvalidOperationError`, `NotFoundError`, `AuthenticationError`).
+- **HTTP mapping**: Map errors to responses in middleware rather than inside handlers.
+- **No silent catches**: Do not catch and ignore errors; handle or propagate them.
 
 ## Miscellaneous
+
 - **Node built-ins**: Import via the `node:` scheme (e.g., `node:crypto`).
-- **Dates**: Use `Date` for timestamps; favor passing timestamps explicitly to event factories when meaningful.
-- **Immutability**: Prefer immutable updates (`{ ...obj, changed }`, array spreads) to in-place mutation.
+- **Dates**: Use `Date` for timestamps; favor passing timestamps explicitly for testability.
+- **Immutability**: Prefer immutable updates (`{ ...obj, changed }`, array spreads).
 
 If you encounter an area not covered here, match the prevailing style in the surrounding code and keep changes minimal and consistent.
-
-

@@ -1,13 +1,13 @@
-import { User } from "~/domain/entities"
-import { UserRepository } from "~/domain/repositories"
-import { MemoryRepository } from "./MemoryRepository"
+import { User } from '~/domain/entities';
+import { UserRepository } from '~/domain/repositories';
+import { MemoryRepository } from './MemoryRepository';
 
 export class MemoryUserRepository extends MemoryRepository<User> implements UserRepository {
   constructor() {
-    super("User")
+    super('User');
   }
 
-  tryGetByBrandAndEmail = (brand: string, email: string) => this.tryGet({ brand, email })
+  tryGetByBrandAndEmail = (brand: string, email: string) => this.tryGet({ brand, email });
 
   tryGetByExternalIdentity = (identityProviderId: string, identifierClaimValue: string) => {
     return Promise.resolve(
@@ -16,6 +16,6 @@ export class MemoryUserRepository extends MemoryRepository<User> implements User
           i => i.identityProviderId === identityProviderId && i.identifierClaimValue === identifierClaimValue,
         ),
       ),
-    )
-  }
+    );
+  };
 }

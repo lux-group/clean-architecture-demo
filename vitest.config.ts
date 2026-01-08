@@ -10,12 +10,11 @@ export default defineConfig({
       provider: "v8",
       include: ["src/**/*.ts"],
       exclude: [
-        "src/**/__tests__/**",
         "src/**/*.d.ts",
         "src/**/types.ts",
         "src/**/index.ts",
         "src/data.ts",
-        "src/app/ports",
+        "src/application/ports",
         "src/domain/events",
         "src/domain/repositories",
         "src/infrastructure/config",
@@ -37,8 +36,8 @@ export default defineConfig({
         extends: true,
         test: {
           name: "integration",
-          include: ["src/app/**/*.spec.ts"],
-          globalSetup: "test/integration/vitest-setup.ts",
+          include: ["src/**/*.spec.ts"],
+          globalSetup: "test/integration/vitest.setup.ts",
           testTimeout: 30000,
         }
       },

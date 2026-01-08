@@ -1,8 +1,8 @@
-import { AwilixContainer, asClass } from "awilix"
-import { MemoryIdentityProviderRepository } from "./MemoryIdentityProviderRepository"
-import { MemorySessionRepository } from "./MemorySessionRepository"
-import { MemorySigningKeyRepository } from "./MemorySigningKeyRepository"
-import { MemoryUserRepository } from "./MemoryUserRepository"
+import { AwilixContainer, asClass } from 'awilix';
+import { MemoryIdentityProviderRepository } from './MemoryIdentityProviderRepository';
+import { MemorySessionRepository } from './MemorySessionRepository';
+import { MemorySigningKeyRepository } from './MemorySigningKeyRepository';
+import { MemoryUserRepository } from './MemoryUserRepository';
 
 export default async function registerMemoryRepositories(container: AwilixContainer) {
   container.register({
@@ -10,5 +10,5 @@ export default async function registerMemoryRepositories(container: AwilixContai
     sessionRepository: asClass(MemorySessionRepository).singleton(),
     signingKeyRepository: asClass(MemorySigningKeyRepository).singleton(),
     userRepository: asClass(MemoryUserRepository).singleton(),
-  })
+  });
 }

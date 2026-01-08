@@ -41,7 +41,8 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Single Responsibility Principle (SRP)
 - **Domain Entities**: Each entity (`User`, `Session`, `IdentityProvider`, `SigningKey`) has a single responsibility - managing its own business rules and state
 - **Domain Services**: `AuthenticationService`, `AuthorizationService`, and `SessionService` each handle specific domain concerns
-- **Use Cases**: Application services like `SignInWithPasswordHandler` have a single responsibility - orchestrating one specific business flow
+- **Use Cases**: Application services like `CreateUserHandler` have a single responsibility - orchestrating one specific business flow
+- **API Endpoints**: Each endpoint file handles a single operation with its schema and handler
 - **Adapters**: Each adapter interface (`TokenIssuer`, `PasswordVerifier`, `EventPublisher`) has one clear purpose
 
 ### Open/Closed Principle (OCP)
@@ -52,7 +53,6 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Liskov Substitution Principle (LSP)
 - **Repository Implementations**: `RedisSessionRepository` can substitute `SessionRepository` interface seamlessly
 - **Infrastructure Adapters**: `BCryptPasswordVerifier` can be substituted with any other `PasswordVerifier` implementation
-- **Entity Inheritance**: Base `Entity` class can be extended by domain entities while maintaining contracts
 
 ### Interface Segregation Principle (ISP)
 - **Consumer-focused REST APIs**: The REST APIs are segregated into consumer-focused areas that can be versioned and evolve independently. 
@@ -71,25 +71,26 @@ To achieve this structure, we rely on proven design principles such as the Depen
 ### Domain Model Pattern
 There are a few well-known patterns for implementing business/domain logic, such as Transaction Script, Active Record, and Domain Model. This application uses a simple [Domain Model](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w) which is great for managing complex domain logic and making the code expressive and easier to reason about.
 
+Domain entities are implemented as immutable TypeScript types with companion objects containing static methods. This functional approach provides immutability by default, clear separation between data and behavior, and easy testing with pure functions.
+
 ### Domain Events / Event-Driven Architecture
 The application raises events for completed or attempted actions such as sign-in or issued tokens. An audit log consumer subscribes to these events to log them for auditing. Additional consumers could be added for other purposes such as publishing events to an event bus for consumption by other services.
 
 ### Dependency Injection Pattern
-To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead, all dependencies are "injected" into the consumers that need them, usually via class constructors or factory functions.
+To avoid spaghetti code, the application does not use any global singleton variables like `logger`, `config`, or `prismaClient`. Instead, all dependencies are "injected" into the consumers that need them, via factory functions or class constructors.
 
-To automate dependency injection, the application uses [awilix](https://github.com/jeffijoe/awilix). The library is non-intrusive and easy to replace or remove. Unlike decorator-based DI containers, awilix works fine with functions and even primitive values. But be aware that it relies on consistent dependency names.
+To automate dependency injection, the application uses [awilix](https://github.com/jeffijoe/awilix). The library is non-intrusive and easy to replace or remove. It works well with both classes and factory functions. Be aware that it relies on consistent dependency names.
 
 ### Adapter Pattern
 All infrastructure is abstracted using generic interfaces (ports) defined by the application and their concrete implementations (adapters). This is a key design pattern to enable inversion of control and adopt good architecture styles, such as Clean Architecture, Onion Architecture, or Hexagon Architecture.
 
 ### Repository Pattern
-Domain repositories are a specialised form the the Adapter Pattern. The domain specifies its data needs in form of [Repository Interfaces](/src/domain/repositories/) that  are implemented by the infrastructure layer. This ensures that the domain logic can stay focused on business logic and does not have to deal with all the data-related concerns, such as generating SQL statements or map data between schemas.
+Domain repositories are a specialised form the the Adapter Pattern. The domain specifies its data needs in form of [Repository Interfaces](/src/domain/repositories/) that are implemented by the infrastructure layer. This ensures that the domain logic can stay focused on business logic and does not have to deal with all the data-related concerns, such as generating SQL statements or map data between schemas.
 
 Multiple implementations can be used, such as [Prisma Repositories](/src/infrastructure/repositories/prisma) for persistence, [Redis Repositories](/src/infrastructure/repositories/redis) for caching, and [Memory Repositories](/src/infrastructure/repositories/memory) for testing.
 
 ### Decorator Pattern
-- **Caching Repositories**: The [Prisma Repositories](/src/infrastructure/repositories/prisma) are implemented as decorators for the actual persistence repositories (such as Prisma). This makes caching completely transparent to the application.
-- **Routing Decorators**: API Controllers define their routes, schemas, and middleware requirements with decorators (annotations).
+- **Caching Repositories**: The [Redis Repositories](/src/infrastructure/repositories/redis) are implemented as decorators for the persistence repositories (Prisma). This makes caching completely transparent to the application.
 
 ### Strategy Pattern
 - **Authentication Providers**: Different authentication providers (Entra ID, Google, Facebook, Apple) abstracted through a common interface.
@@ -97,6 +98,7 @@ Multiple implementations can be used, such as [Prisma Repositories](/src/infrast
 
 ### Factory Pattern
 - **Entity Creation**: `User.createNew()` factory method for creating new entities
+- **Handler Factories**: API handler factories that receive dependencies and return Express handlers
 - **Client Factory**: `AuthClientFactory` for creating OAuth clients
 
 ### Builder Pattern
@@ -128,10 +130,10 @@ The architecture leverages widely recognized design patterns that AI models are 
 
 ### 🔄 **Consistent Structure & Conventions**
 Repetitive patterns allow AI to generalize solutions across the codebase:
-- **File Naming**: Matches primary export (e.g., `CreateUserHandler.ts`)
-- **DI Registration**: Predictable camelCase keys (`createUserHandler`)
-- **Module Structure**: Standardized folder layout (`api/`, `commands/`, `queries/`)
-- **Import Paths**: Consistent aliases (`~/domain`, `@test/`)
+- **File Naming**: Matches operation name (e.g., `createUser.ts`, `getUserById.ts`)
+- **Feature Organisation**: One file per endpoint with co-located tests
+- **DI Registration**: Predictable camelCase keys
+- **Import Paths**: Consistent aliases (`~/domain`, `~/application`, `@test/`)
 
 ### 🔍 **Clear Abstractions & Boundaries**
 Well-defined interfaces minimize cognitive load and token usage:
@@ -144,12 +146,12 @@ Well-defined interfaces minimize cognitive load and token usage:
 Self-explanatory identifiers reduce ambiguity:
 - **No Abbreviations**: Full descriptive names (`UserRepository` not `UserRepo`)
 - **Business Language**: Domain terminology in code matches business requirements
-- **Consistent Prefixes**: `Create`, `Update`, `Delete` for commands; `Get`, `Search` for queries
+- **Consistent Prefixes**: `create`, `update`, `delete` for commands; `get`, `search` for queries
 - **Clear Intent**: Method names describe what they do, not how
 
 ### 🎨 **Descriptive Domain Models**
 Domain-driven design ensures semantic richness:
-- **Rich Entities**: Business logic encapsulated in domain entities
+- **Immutable Entities**: Business logic in companion objects with pure functions
 - **Domain Events**: Clear representation of business state changes
 - **Ubiquitous Language**: Consistent terminology throughout the codebase; external terminology translated at the boundary
 
@@ -176,7 +178,7 @@ When working with this codebase:
 2. **Follow Established Patterns**: Mirror existing code structure and naming
 3. **Use Type Information**: Leverage TypeScript definitions for accuracy
 4. **Validate Against Schema**: Ensure new code follows Zod validation patterns
-5. **Include Tests**: Generate corresponding unit/integration tests
+5. **Include Tests**: Generate corresponding integration tests as `.spec.ts` files
 
 ### 👨‍💻 **For Human Developers**
 The AI-friendly design also benefits human developers:

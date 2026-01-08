@@ -1,5 +1,4 @@
-import { randomUUID } from "node:crypto"
-import { DeepPartial } from "~/lib/types"
+import { randomUUID } from 'node:crypto';
 import {
   CreateIdentityProviderProps,
   CreateSessionProps,
@@ -8,34 +7,38 @@ import {
   IdentityProvider,
   Session,
   SigningKey,
-  User
-} from "~/domain/entities"
+  User,
+} from '~/domain/entities';
+import { DeepPartial } from '~/lib/types';
 
 export function createIdentityProvider(props: DeepPartial<CreateIdentityProviderProps> = {}) {
   return IdentityProvider.createNew({
     name: randomUUID(),
-    issuerUrl: "https://login.test.com",
+    issuerUrl: 'https://login.test.com',
     audience: randomUUID(),
-    identifierClaimName: "sub",
+    identifierClaimName: 'sub',
     ...props,
-    authSettings: props.authSettings === null ? null : {
-      type: "ENTRA",
-      brand: "Test Brand",
-      clientId: randomUUID(),
-      clientSecret: randomUUID(),
-      redirectUrls: ["https://test.example.com"],
-      autoLinkUsers: true,
-      autoCreateUsers: true,
-      sessionLifetimeHours: 12,
-      ...props.authSettings,
-    }
-  })
+    authSettings:
+      props.authSettings === null
+        ? null
+        : {
+            type: 'ENTRA',
+            brand: 'Test Brand',
+            clientId: randomUUID(),
+            clientSecret: randomUUID(),
+            redirectUrls: ['https://test.example.com'],
+            autoLinkUsers: true,
+            autoCreateUsers: true,
+            sessionLifetimeHours: 12,
+            ...props.authSettings,
+          },
+  });
 }
 
 export function createUser(props: Partial<CreateUserProps> = {}) {
   const user = User.createNew({
     isEnabled: true,
-    brand: "Test Brand",
+    brand: 'Test Brand',
     givenName: randomUUID(),
     surname: randomUUID(),
     email: `${randomUUID()}@example.com`,
@@ -47,31 +50,37 @@ export function createUser(props: Partial<CreateUserProps> = {}) {
     passwordHash: null,
     roles: [],
     ...props,
-  })
+  });
 
-  return user
+  return user;
 }
 
 export function createLocalSession(props: Partial<CreateSessionProps> = {}, hours: number = 1) {
-  return Session.createNew({
-    userId: randomUUID(),
-    identityProviderId: null,
-    identityProviderSessionId: null,
-    idToken: null,
-    refreshToken: null,
-    ...props,
-  }, hours)
+  return Session.createNew(
+    {
+      userId: randomUUID(),
+      identityProviderId: null,
+      identityProviderSessionId: null,
+      idToken: null,
+      refreshToken: null,
+      ...props,
+    },
+    hours,
+  );
 }
 
 export function createIdentityProviderSession(props: Partial<CreateSessionProps> = {}, hours: number = 1) {
-  return Session.createNew({
-    userId: randomUUID(),
-    identityProviderId: randomUUID(),
-    identityProviderSessionId: randomUUID(),
-    idToken: randomUUID(),
-    refreshToken: randomUUID(),
-    ...props,
-  }, hours)
+  return Session.createNew(
+    {
+      userId: randomUUID(),
+      identityProviderId: randomUUID(),
+      identityProviderSessionId: randomUUID(),
+      idToken: randomUUID(),
+      refreshToken: randomUUID(),
+      ...props,
+    },
+    hours,
+  );
 }
 
 export function createSigningKey(props: Partial<CreateSigningKeyProps> = {}) {
@@ -142,6 +151,6 @@ DFwr4KfObjmvIOtAv5G+7h7BHOkTOYHJKsV5faRwUsHvNqYojAJrKtIR1sm+SsLq
 S2S/2K4UGs0QdWDBGDAYwmnartmzMhlY6P2gi8PRrvlQgPxNGJQhNo9jk54irouP
 +J+J5qrEmZcwEV0VV3WSOY0ezUUoIy8=
 -----END PRIVATE KEY-----`,
-    ...props
-  })
+    ...props,
+  });
 }
