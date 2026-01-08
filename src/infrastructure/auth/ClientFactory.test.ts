@@ -29,7 +29,7 @@ describe('ClientFactory', () => {
       host: 'https://auth.example.com',
       basePath: '/auth/v2',
     } as ApiConfig;
-    
+
     clientFactory = new ClientFactory(apiConfig);
   });
 

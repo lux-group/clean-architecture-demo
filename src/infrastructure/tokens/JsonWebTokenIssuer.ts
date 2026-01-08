@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse, TokenVersion } from '~/application/ports';
+import { ApiConfig, TokenIssuer, TokenIssuerConfig, TokenRequest, TokenResponse, TokenVersion } from '~/application/ports';
 import { SigningKeyRepository } from '~/domain/repositories';
 import { UUIDToShort } from '~/lib/ShortUUID';
 
 export class JsonWebTokenIssuer implements TokenIssuer {
   constructor(
-    private readonly baseUrl: string,
+    private readonly apiConfig: ApiConfig,
     private readonly tokenIssuerConfig: TokenIssuerConfig,
     private readonly signingKeyRepository: SigningKeyRepository,
   ) {}
@@ -67,7 +67,7 @@ export class JsonWebTokenIssuer implements TokenIssuer {
     return {
       ver: '2.0',
       jti: UUIDToShort(randomUUID()),
-      iss: this.baseUrl + this.tokenIssuerConfig.path,
+      iss: this.apiConfig.host + this.apiConfig.basePath + this.tokenIssuerConfig.path,
       aud: request.audience ?? this.tokenIssuerConfig.audience,
       sub: request.userId,
       sid: request.sessionId,

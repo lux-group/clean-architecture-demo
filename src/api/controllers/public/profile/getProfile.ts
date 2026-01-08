@@ -1,7 +1,7 @@
 import { getRequestContext } from '@luxuryescapes/lib-request-context';
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetProfileByIdHandler } from '~/application/use-cases/public/profile/GetProfileByIdHandler';
+import type { GetProfileById } from '~/application/use-cases/public/profile/GetProfileById';
 import { presentProfile, profileSchema } from './shared';
 
 export const getProfileSchema = {
@@ -21,11 +21,11 @@ export const getProfileSchema = {
 
 type ResponseBody = z.infer<(typeof getProfileSchema.responses)['200']>;
 
-export const getProfileHandler = (getProfileByIdHandler: GetProfileByIdHandler) => {
+export const getProfileHandler = (getProfileById: GetProfileById) => {
   return async (_req: Request, res: Response<ResponseBody>) => {
     const context = getRequestContext();
     const query = { id: context!.user!.id };
-    const item = await getProfileByIdHandler.execute(query);
+    const item = await getProfileById(query);
     res.json({
       status: 200,
       message: 'Profile found',

@@ -4,17 +4,17 @@ import { SigningKeyRepository } from '~/domain/repositories';
 import { UUIDToShort } from '~/lib/ShortUUID';
 import { Query } from '~/lib/types';
 
-export class GetJsonWebKeysHandler {
-  constructor(private readonly signingKeyRepository: SigningKeyRepository) {}
+export type GetJsonWebKeys = ReturnType<typeof getJsonWebKeys>;
 
-  async execute(): Promise<object> {
+export const getJsonWebKeys = (signingKeyRepository: SigningKeyRepository) => {
+  return async (): Promise<object> => {
     const query: Query<SigningKey> = {
       offset: 0,
       limit: 10,
       orderBy: { property: 'createdAt', direction: 'desc' },
     };
 
-    const { items: validationKeys } = await this.signingKeyRepository.query(query);
+    const { items: validationKeys } = await signingKeyRepository.query(query);
 
     const keys = await Promise.all(
       validationKeys.map(async key => {
@@ -28,5 +28,5 @@ export class GetJsonWebKeysHandler {
     );
 
     return { keys };
-  }
-}
+  };
+};

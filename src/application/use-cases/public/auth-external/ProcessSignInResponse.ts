@@ -10,38 +10,38 @@ export interface ProcessSignInResponseCommand {
   url: string;
 }
 
-export class ProcessSignInResponseHandler {
-  constructor(
-    private readonly authClientFactory: AuthClientFactory,
-    private readonly authenticationService: AuthenticationService,
-    private readonly eventPublisher: EventPublisher,
-    private readonly identityProviderRepository: IdentityProviderRepository,
-    private readonly sessionRepository: SessionRepository,
-    private readonly userRepository: UserRepository,
-  ) {}
+export type ProcessSignInResponse = ReturnType<typeof processSignInResponse>;
 
-  async execute(command: ProcessSignInResponseCommand): Promise<Session> {
+export const processSignInResponse = (
+  authClientFactory: AuthClientFactory,
+  authenticationService: AuthenticationService,
+  eventPublisher: EventPublisher,
+  identityProviderRepository: IdentityProviderRepository,
+  sessionRepository: SessionRepository,
+  userRepository: UserRepository,
+) => {
+  return async (command: ProcessSignInResponseCommand): Promise<Session> => {
     try {
-      const idp = await this.identityProviderRepository.getById(command.state.identityProviderId);
-      const client = this.authClientFactory.createClient(idp);
+      const idp = await identityProviderRepository.getById(command.state.identityProviderId);
+      const client = authClientFactory.createClient(idp);
       const signInResponse = await client.processSignInResponse(command.state, command.url);
       const profile = signInResponse.profile;
       const claimValue = profile.identifierClaimValue;
 
-      let user = await this.userRepository.tryGetByExternalIdentity(idp.id, claimValue);
+      let user = await userRepository.tryGetByExternalIdentity(idp.id, claimValue);
       if (!user) {
         // If the user cannot be found by the linked identity, check if we can find an existing
         // user with the same email address (Entra ID verifies email addresses) and if we find one,
         // link it automatically if this option is enabled for the IDP. This is useful data
         // migration of existing services but should not be used by new services.
         if (idp.authSettings!.autoLinkUsers) {
-          const existingUser = await this.userRepository.tryGetByBrandAndEmail(idp.authSettings!.brand, profile.email);
+          const existingUser = await userRepository.tryGetByBrandAndEmail(idp.authSettings!.brand, profile.email);
           if (existingUser) {
             user = User.addIdentity(existingUser, idp.id, claimValue);
-            await this.userRepository.update(user);
+            await userRepository.update(user);
 
             const event = EntityChangeEvent.entityUpdated('User', user);
-            this.eventPublisher.publishEvent(event);
+            eventPublisher.publishEvent(event);
           }
         }
 
@@ -63,10 +63,10 @@ export class ProcessSignInResponseHandler {
           });
 
           user = User.addIdentity(newUser, idp.id, claimValue);
-          await this.userRepository.insert(user);
+          await userRepository.insert(user);
 
           const event = EntityChangeEvent.entityCreated('User', user);
-          this.eventPublisher.publishEvent(event);
+          eventPublisher.publishEvent(event);
         }
 
         // Because the user has signed in for the first time, we need to delete all
@@ -77,7 +77,7 @@ export class ProcessSignInResponseHandler {
         }
       }
 
-      user = this.authenticationService.authenticateWithIdentityProvider(user, idp, claimValue);
+      user = authenticationService.authenticateWithIdentityProvider(user, idp, claimValue);
 
       const props: CreateSessionProps = {
         userId: user.id,
@@ -88,18 +88,18 @@ export class ProcessSignInResponseHandler {
       };
 
       const session = Session.createNew(props, idp.authSettings!.sessionLifetimeHours);
-      await this.sessionRepository.insert(session);
+      await sessionRepository.insert(session);
 
-      this.eventPublisher.publishEvent(AuthenticationEvent.identityProviderCodeVerified(user.id, idp.id, claimValue));
-      this.eventPublisher.publishEvent(SessionEvent.sessionCreated(session));
+      eventPublisher.publishEvent(AuthenticationEvent.identityProviderCodeVerified(user.id, idp.id, claimValue));
+      eventPublisher.publishEvent(SessionEvent.sessionCreated(session));
 
       return session;
     } catch (error: unknown) {
       if (error instanceof AuthenticationError) {
-        this.eventPublisher.publishEvent(error.toEvent());
+        eventPublisher.publishEvent(error.toEvent());
       }
 
       throw error;
     }
-  }
-}
+  };
+};

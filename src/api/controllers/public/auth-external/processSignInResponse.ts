@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import z from 'zod';
 import type { SecureCookieManager } from '~/api/utils/SecureCookieManager';
 import type { Logger, SignInState } from '~/application/ports';
-import type { ProcessSignInResponseHandler } from '~/application/use-cases/public/auth-external/ProcessSignInResponseHandler';
+import type { ProcessSignInResponse } from '~/application/use-cases/public/auth-external/ProcessSignInResponse';
 import { getErrorMessage, safeRedirect } from './shared';
 
 export const processSignInResponseSchema = {
@@ -15,7 +15,7 @@ export const processSignInResponseSchema = {
 export const processSignInResponseHandler = (
   logger: Logger,
   secureCookieManager: SecureCookieManager,
-  processSignInResponseHandler: ProcessSignInResponseHandler,
+  processSignInResponse: ProcessSignInResponse,
 ) => {
   return async (req: Request, res: Response) => {
     const signInState = secureCookieManager.getAndRemoveStateCookie<SignInState>(req, res);
@@ -25,7 +25,7 @@ export const processSignInResponseHandler = (
         url: req.url,
       };
 
-      const session = await processSignInResponseHandler.execute(command);
+      const session = await processSignInResponse(command);
       secureCookieManager.setSessionCookie(req, res, session);
       res.redirect(safeRedirect(signInState.redirectUrl));
     } catch (err) {

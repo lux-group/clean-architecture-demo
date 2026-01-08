@@ -7,20 +7,17 @@ export interface TerminateSessionCommand {
   sessionId: string;
 }
 
-export class TerminateSessionHandler {
-  constructor(
-    private readonly sessionRepository: SessionRepository,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+export type TerminateSession = ReturnType<typeof terminateSession>;
 
-  async execute(commands: TerminateSessionCommand): Promise<Session> {
-    const session = await this.sessionRepository.getById(commands.sessionId);
+export const terminateSession = (sessionRepository: SessionRepository, eventPublisher: EventPublisher) => {
+  return async (command: TerminateSessionCommand): Promise<Session> => {
+    const session = await sessionRepository.getById(command.sessionId);
     const terminated = Session.terminateSessionByAdmin(session);
-    await this.sessionRepository.update(terminated);
+    await sessionRepository.update(terminated);
 
     const event = EntityChangeEvent.entityUpdated('Session', terminated);
-    this.eventPublisher.publishEvent(event);
+    eventPublisher.publishEvent(event);
 
     return terminated;
-  }
-}
+  };
+};

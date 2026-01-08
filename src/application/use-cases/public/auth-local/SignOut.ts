@@ -9,15 +9,12 @@ export interface SignOutCommand {
   nonce: string;
 }
 
-export class SignOutHandler {
-  constructor(
-    private readonly eventPublisher: EventPublisher,
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+export type SignOut = ReturnType<typeof signOut>;
 
-  async execute(command: SignOutCommand): Promise<void> {
+export const signOut = (eventPublisher: EventPublisher, sessionRepository: SessionRepository) => {
+  return async (command: SignOutCommand): Promise<void> => {
     try {
-      const session = await this.sessionRepository.tryGetById(command.sessionId);
+      const session = await sessionRepository.tryGetById(command.sessionId);
       if (!session || !Session.isActive(session)) {
         return;
       }
@@ -26,15 +23,15 @@ export class SignOutHandler {
       Session.verifyNonce(session, command.nonce);
 
       const terminated = Session.terminateLocalSessionByUser(session);
-      await this.sessionRepository.update(terminated);
+      await sessionRepository.update(terminated);
 
-      this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(terminated));
+      eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(terminated));
     } catch (error: unknown) {
       if (error instanceof AuthenticationError) {
-        this.eventPublisher.publishEvent(error.toEvent());
+        eventPublisher.publishEvent(error.toEvent());
       }
 
       throw error;
     }
-  }
-}
+  };
+};

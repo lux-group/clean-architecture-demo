@@ -13,21 +13,21 @@ export interface CreateSignInRequestResult {
   signInState: SignInState;
 }
 
-export class CreateSignInRequestHandler {
-  constructor(
-    private readonly authClientFactory: AuthClientFactory,
-    private readonly identityProviderRepository: IdentityProviderRepository,
-  ) {}
+export type CreateSignInRequest = ReturnType<typeof createSignInRequest>;
 
-  async execute(command: CreateSignInRequestCommand): Promise<CreateSignInRequestResult> {
-    const idp = await this.identityProviderRepository.tryGetByName(command.identityProviderName);
+export const createSignInRequest = (
+  authClientFactory: AuthClientFactory,
+  identityProviderRepository: IdentityProviderRepository,
+) => {
+  return async (command: CreateSignInRequestCommand): Promise<CreateSignInRequestResult> => {
+    const idp = await identityProviderRepository.tryGetByName(command.identityProviderName);
     if (!idp) {
       throw InvalidOperationError.identityProviderNotFound(command.identityProviderName);
     }
 
     IdentityProvider.verifyRedirectUrl(idp, command.redirectUrl);
 
-    const client = this.authClientFactory.createClient(idp);
+    const client = authClientFactory.createClient(idp);
     return await client.createSignInRequest(command.redirectUrl);
-  }
-}
+  };
+};

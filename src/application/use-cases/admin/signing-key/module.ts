@@ -1,15 +1,14 @@
-import { AwilixContainer, asClass } from 'awilix';
-import { CreateNewSigningKeyHandler } from './CreateNewSigningKeyHandler';
-import { DeleteSigningKeyHandler } from './DeleteSigningKeyHandler';
-import { GetSigningKeyByIdHandler } from './GetSigningKeyByIdHandler';
-import { SearchSigningKeysHandler } from './SearchSigningKeysHandler';
+import { AwilixContainer, asFunction } from 'awilix';
+import { createNewSigningKey } from './CreateNewSigningKey';
+import { deleteSigningKey } from './DeleteSigningKey';
+import { getSigningKeyById } from './GetSigningKeyById';
+import { searchSigningKeys } from './SearchSigningKeys';
 
 export default async function registerSigningKeyAdminUseCases(container: AwilixContainer) {
   container.register({
-    createNewSigningKeyHandler: asClass(CreateNewSigningKeyHandler).singleton(),
-    deleteSigningKeyHandler: asClass(DeleteSigningKeyHandler).singleton(),
-
-    getSigningKeyByIdHandler: asClass(GetSigningKeyByIdHandler).singleton(),
-    searchSigningKeysHandler: asClass(SearchSigningKeysHandler).singleton(),
+    createNewSigningKey: asFunction(createNewSigningKey).singleton(),
+    deleteSigningKey: asFunction(deleteSigningKey).singleton(),
+    getSigningKeyById: asFunction(getSigningKeyById).singleton(),
+    searchSigningKeys: asFunction(searchSigningKeys).singleton(),
   });
 }

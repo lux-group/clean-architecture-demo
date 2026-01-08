@@ -2,7 +2,7 @@ import { mockLogger, mockSigningKeyRepository } from '@test/mocks';
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TokenIssuerConfig } from '~/application/ports';
+import { ApiConfig, TokenIssuerConfig } from '~/application/ports';
 import { UUIDToShort } from '~/lib/ShortUUID';
 import { authorizeMiddlewareFactory } from './authorize';
 
@@ -10,9 +10,8 @@ describe('Authorize Middleware', () => {
   const nextFunction: NextFunction = vi.fn();
   let mockRequest: Request;
   let mockResponse: Response;
+  let apiConfig: ApiConfig; 
   let tokenIssuerConfig: TokenIssuerConfig;
-
-  const baseUrl = 'https://example.com';
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -22,6 +21,12 @@ describe('Authorize Middleware', () => {
     mockResponse.status = vi.fn().mockReturnValue(mockResponse);
     mockResponse.send = vi.fn().mockReturnValue(mockResponse);
 
+    apiConfig = {
+      host: 'https://example.com',
+      basePath: '',
+      adminBasePath: ''
+    };
+
     tokenIssuerConfig = {
       path: '/oauth/token',
       lifetimeSeconds: 3600,
@@ -30,7 +35,7 @@ describe('Authorize Middleware', () => {
   });
 
   const createHandler = (options: { roles?: string[]; scopes?: string[] } = {}) =>
-    authorizeMiddlewareFactory(baseUrl, mockLogger, tokenIssuerConfig, mockSigningKeyRepository)(options);
+    authorizeMiddlewareFactory(mockLogger, apiConfig, tokenIssuerConfig, mockSigningKeyRepository)(options);
 
   const setAuthHeader = (token = 'test-token') => {
     mockRequest.headers = { authorization: `Bearer ${token}` };

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { UpdateUserCommand, UpdateUserHandler } from '~/application/use-cases/admin/user/UpdateUserHandler';
+import type { UpdateUser, UpdateUserCommand } from '~/application/use-cases/admin/user/UpdateUser';
 import { MapperBuilder } from '~/lib/MapperBuilder';
 import { presentUser, userSchema } from './shared';
 
@@ -43,13 +43,13 @@ type ResponseBody = z.infer<(typeof updateUserSchema.responses)['200']>;
 
 const mapRequestToCommand = MapperBuilder.for<RequestBody>().toCamelCase().build<UpdateUserCommand>();
 
-export const updateUserHandler = (updateUserHandler: UpdateUserHandler) => {
+export const updateUserHandler = (updateUser: UpdateUser) => {
   return async (req: Request<RequestParams, ResponseBody, RequestBody>, res: Response<ResponseBody>) => {
     const command = {
       id: req.params.id,
       ...mapRequestToCommand(req.body),
     };
-    const item = await updateUserHandler.execute(command);
+    const item = await updateUser(command);
     res.json({
       status: 200,
       message: 'User updated',

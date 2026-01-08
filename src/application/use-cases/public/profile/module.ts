@@ -1,8 +1,8 @@
-import { AwilixContainer, asClass } from 'awilix';
-import { GetProfileByIdHandler } from './GetProfileByIdHandler';
+import { AwilixContainer, asFunction } from 'awilix';
+import { getProfileById } from './GetProfileById';
 
 export default async function registerProfileUseCases(container: AwilixContainer) {
   container.register({
-    getProfileByIdHandler: asClass(GetProfileByIdHandler).singleton(),
+    getProfileById: asFunction(getProfileById).singleton(),
   });
 }

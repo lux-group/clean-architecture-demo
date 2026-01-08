@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import type { SecureCookieManager } from '~/api/utils/SecureCookieManager';
-import type { SignOutHandler } from '~/application/use-cases/public/auth-local/SignOutHandler';
+import type { SignOut } from '~/application/use-cases/public/auth-local/SignOut';
 
 export const signOutSchema = {
   request: {},
@@ -10,7 +10,7 @@ export const signOutSchema = {
   },
 };
 
-export const signOutHandler = (secureCookieManager: SecureCookieManager, signOutHandler: SignOutHandler) => {
+export const signOutHandler = (secureCookieManager: SecureCookieManager, signOut: SignOut) => {
   return async (req: Request, res: Response) => {
     const cookie = secureCookieManager.getAndRemoveSessionCookie(req, res);
 
@@ -19,7 +19,7 @@ export const signOutHandler = (secureCookieManager: SecureCookieManager, signOut
       nonce: cookie.nonce,
     };
 
-    await signOutHandler.execute(command);
+    await signOut(command);
     res.status(204).send();
   };
 };

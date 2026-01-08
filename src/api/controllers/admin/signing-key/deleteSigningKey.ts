@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { DeleteSigningKeyHandler } from '~/application/use-cases/admin/signing-key/DeleteSigningKeyHandler';
+import type { DeleteSigningKey } from '~/application/use-cases/admin/signing-key/DeleteSigningKey';
 
 export const deleteSigningKeySchema = {
   request: {
@@ -23,10 +23,10 @@ export const deleteSigningKeySchema = {
 type RequestParams = z.infer<typeof deleteSigningKeySchema.request.params>;
 type ResponseBody = z.infer<(typeof deleteSigningKeySchema.responses)['204']>;
 
-export const deleteSigningKeyHandler = (deleteSigningKeyHandler: DeleteSigningKeyHandler) => {
+export const deleteSigningKeyHandler = (deleteSigningKey: DeleteSigningKey) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const command = { id: req.params.id };
-    await deleteSigningKeyHandler.execute(command);
+    await deleteSigningKey(command);
     res.status(204).send({
       status: 204,
       message: 'Signing key deleted',

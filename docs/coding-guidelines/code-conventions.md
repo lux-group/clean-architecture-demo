@@ -52,7 +52,7 @@ export const createUserSchema = {
   },
 };
 
-export const createUserHandler = (baseUrl: string, createUserHandler: CreateUserHandler) => {
+export const createUserHandler = (createUserHandler: CreateUserHandler) => {
   return async (req: Request, res: Response) => {
     // ...
   };

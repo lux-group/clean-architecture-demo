@@ -15,32 +15,32 @@ export interface CreateSignOutRequestResult {
   signOutState?: SignOutState;
 }
 
-export class CreateSignOutRequestHandler {
-  constructor(
-    private readonly authClientFactory: AuthClientFactory,
-    private readonly eventPublisher: EventPublisher,
-    private readonly identityProviderRepository: IdentityProviderRepository,
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+export type CreateSignOutRequest = ReturnType<typeof createSignOutRequest>;
 
-  async execute(command: CreateSignOutRequestCommand): Promise<CreateSignOutRequestResult> {
+export const createSignOutRequest = (
+  authClientFactory: AuthClientFactory,
+  eventPublisher: EventPublisher,
+  identityProviderRepository: IdentityProviderRepository,
+  sessionRepository: SessionRepository,
+) => {
+  return async (command: CreateSignOutRequestCommand): Promise<CreateSignOutRequestResult> => {
     try {
-      const session = await this.sessionRepository.tryGetById(command.sessionId);
+      const session = await sessionRepository.tryGetById(command.sessionId);
       if (!session || !Session.isActive(session)) {
         return { url: command.redirectUrl };
       }
 
       Session.ensureIsIdentityProviderSession(session);
 
-      const idp = await this.identityProviderRepository.getById(session.identityProviderId!);
+      const idp = await identityProviderRepository.getById(session.identityProviderId!);
       IdentityProvider.verifyRedirectUrl(idp, command.redirectUrl);
 
       const terminated = Session.terminateIdentityProviderSessionByUser(session);
-      await this.sessionRepository.update(terminated);
+      await sessionRepository.update(terminated);
 
-      this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(terminated));
+      eventPublisher.publishEvent(SessionEvent.sessionTerminatedByUser(terminated));
 
-      const client = this.authClientFactory.createClient(idp);
+      const client = authClientFactory.createClient(idp);
       if (!client.supportsSignOut) {
         return { url: command.redirectUrl };
       }
@@ -48,10 +48,10 @@ export class CreateSignOutRequestHandler {
       return await client.createSignOutRequest(command.redirectUrl, terminated.idToken!);
     } catch (error: unknown) {
       if (error instanceof AuthenticationError) {
-        this.eventPublisher.publishEvent(error.toEvent());
+        eventPublisher.publishEvent(error.toEvent());
       }
 
       throw error;
     }
-  }
-}
+  };
+};

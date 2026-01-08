@@ -2,9 +2,9 @@ import type { Request, Response } from 'express';
 import z from 'zod';
 import type { SecureCookieManager } from '~/api/utils/SecureCookieManager';
 import { TokenResponse, TokenVersion } from '~/application/ports';
-import type { IssueTokenWithActiveSessionHandler } from '~/application/use-cases/public/token/IssueTokenWithActiveSessionHandler';
-import type { IssueTokenWithClientCredentialsHandler } from '~/application/use-cases/public/token/IssueTokenWithClientCredentialsHandler';
-import type { IssueTokenWithTokenExchangeHandler } from '~/application/use-cases/public/token/IssueTokenWithTokenExchangeHandler';
+import type { IssueTokenWithActiveSession } from '~/application/use-cases/public/token/IssueTokenWithActiveSession';
+import type { IssueTokenWithClientCredentials } from '~/application/use-cases/public/token/IssueTokenWithClientCredentials';
+import type { IssueTokenWithTokenExchange } from '~/application/use-cases/public/token/IssueTokenWithTokenExchange';
 import { InvalidOperationError } from '~/domain/errors';
 
 const GrantType = {
@@ -77,9 +77,9 @@ type ResponseBody = z.infer<(typeof getTokenSchema.responses)['200']>;
 
 export const getTokenHandler = (
   secureCookieManager: SecureCookieManager,
-  issueTokenWithActiveSessionHandler: IssueTokenWithActiveSessionHandler,
-  issueTokenWithClientCredentialsHandler: IssueTokenWithClientCredentialsHandler,
-  issueTokenWithTokenExchangeHandler: IssueTokenWithTokenExchangeHandler,
+  issueTokenWithActiveSession: IssueTokenWithActiveSession,
+  issueTokenWithClientCredentials: IssueTokenWithClientCredentials,
+  issueTokenWithTokenExchange: IssueTokenWithTokenExchange,
 ) => {
   return async (req: Request, res: Response<ResponseBody>) => {
     const body = req.body as TokenRequest;
@@ -88,7 +88,7 @@ export const getTokenHandler = (
 
     if (body.grant_type === GrantType.SessionCookie) {
       const cookie = secureCookieManager.getSessionCookie(req, res);
-      result = await issueTokenWithActiveSessionHandler.execute({
+      result = await issueTokenWithActiveSession({
         version: body.access_token_version ?? TokenVersion.V2,
         sessionId: cookie.id,
         nonce: cookie.nonce,
@@ -99,7 +99,7 @@ export const getTokenHandler = (
     }
 
     if (body.grant_type === GrantType.ClientCredentials) {
-      result = await issueTokenWithClientCredentialsHandler.execute({
+      result = await issueTokenWithClientCredentials({
         version: body.access_token_version ?? TokenVersion.V2,
         clientId: body.client_id,
         clientSecret: body.client_secret,
@@ -109,7 +109,7 @@ export const getTokenHandler = (
     }
 
     if (body.grant_type === GrantType.TokenExchange) {
-      result = await issueTokenWithTokenExchangeHandler.execute({
+      result = await issueTokenWithTokenExchange({
         version: body.access_token_version ?? TokenVersion.V2,
         token: body.subject_token,
         audience: body.audience,

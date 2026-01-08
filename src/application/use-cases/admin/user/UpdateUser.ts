@@ -7,21 +7,18 @@ export type UpdateUserCommand = UpdateUserProps & {
   id: string;
 };
 
-export class UpdateUserHandler {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+export type UpdateUser = ReturnType<typeof updateUser>;
 
-  async execute(command: UpdateUserCommand): Promise<User> {
+export const updateUser = (userRepository: UserRepository, eventPublisher: EventPublisher) => {
+  return async (command: UpdateUserCommand): Promise<User> => {
     const { id, ...props } = command;
-    const user = await this.userRepository.getById(id);
+    const user = await userRepository.getById(id);
     const updatedUser = User.update(user, props);
-    await this.userRepository.update(updatedUser);
+    await userRepository.update(updatedUser);
 
     const event = EntityChangeEvent.entityUpdated('User', updatedUser);
-    this.eventPublisher.publishEvent(event);
+    eventPublisher.publishEvent(event);
 
     return updatedUser;
-  }
-}
+  };
+};

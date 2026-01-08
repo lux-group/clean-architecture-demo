@@ -7,28 +7,28 @@ export type CreateUserCommand = Omit<CreateUserProps, 'emailVerified' | 'passwor
   password: string;
 };
 
-export class CreateUserHandler {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly passwordVerifier: PasswordVerifier,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+export type CreateUser = ReturnType<typeof createUser>;
 
-  async execute(command: CreateUserCommand): Promise<User> {
+export const createUser = (
+  userRepository: UserRepository,
+  passwordVerifier: PasswordVerifier,
+  eventPublisher: EventPublisher,
+) => {
+  return async (command: CreateUserCommand): Promise<User> => {
     const { password: _, ...inputWithoutPassword } = command;
 
     const props: CreateUserProps = {
       ...inputWithoutPassword,
       emailVerified: false,
-      passwordHash: this.passwordVerifier.createPasswordHash(command.password),
+      passwordHash: passwordVerifier.createPasswordHash(command.password),
     };
 
     const user = User.createNew(props);
-    await this.userRepository.insert(user);
+    await userRepository.insert(user);
 
     const event = EntityChangeEvent.entityCreated('User', user);
-    this.eventPublisher.publishEvent(event);
+    eventPublisher.publishEvent(event);
 
     return user;
-  }
-}
+  };
+};

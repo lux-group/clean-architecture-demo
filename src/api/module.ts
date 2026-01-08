@@ -12,6 +12,7 @@ import authExternalRoutes from './controllers/public/auth-external/routes';
 import authLocalRoutes from './controllers/public/auth-local/routes';
 import profileRoutes from './controllers/public/profile/routes';
 import tokenRoutes from './controllers/public/token/routes';
+import { handleDomainErrorsMiddlewareFactory } from './middleware/handleDomainErrors';
 import { SecureCookieManager } from './utils/SecureCookieManager';
 
 export const createRouter = (app: Express, container: AwilixContainer): RouterAbstraction => {
@@ -19,6 +20,7 @@ export const createRouter = (app: Express, container: AwilixContainer): RouterAb
   const tokenIssuerConfig = container.resolve<TokenIssuerConfig>('tokenIssuerConfig');
 
   const routerOptions: RouterOptions = {
+    logger: container.resolve('logger'),
     swaggerBaseProperties: {
       info: {
         title: 'Clean Architecture Demo',
@@ -42,7 +44,7 @@ export const createRouter = (app: Express, container: AwilixContainer): RouterAb
 
   router.serveSwagger(`${apiConfig.basePath}/docs`);
 
-  // TODO: Register custom error handler.
+  app.use(container.build(handleDomainErrorsMiddlewareFactory));
 
   router.useErrorHandler();
 

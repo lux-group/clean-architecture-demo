@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { Logger, TokenIssuerConfig } from '~/application/ports';
+import { ApiConfig, Logger, TokenIssuerConfig } from '~/application/ports';
 import { SigningKeyRepository } from '~/domain/repositories';
 import { shortToUUID } from '~/lib/ShortUUID';
 
@@ -11,8 +11,8 @@ export interface AuthorizeOptions {
 
 // The first wrapper function is used for dependency injection.
 export function authorizeMiddlewareFactory(
-  baseUrl: string,
   logger: Logger,
+  apiConfig: ApiConfig,
   tokenIssuerConfig: TokenIssuerConfig,
   signingKeyRepository: SigningKeyRepository,
 ) {
@@ -65,7 +65,7 @@ export function authorizeMiddlewareFactory(
           const options: jwt.VerifyOptions = {
             algorithms: ['RS256'],
             audience: tokenIssuerConfig.audience,
-            issuer: baseUrl + tokenIssuerConfig.path,
+            issuer: apiConfig.host + apiConfig.basePath + tokenIssuerConfig.path,
           };
 
           jwt.verify(token, signingKey.publicKey, options);

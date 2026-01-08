@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetSigningKeyByIdHandler } from '~/application/use-cases/admin/signing-key/GetSigningKeyByIdHandler';
+import type { GetSigningKeyById } from '~/application/use-cases/admin/signing-key/GetSigningKeyById';
 import { presentSigningKey, signingKeySchema } from './shared';
 
 export const getSigningKeyByIdSchema = {
@@ -25,10 +25,10 @@ export const getSigningKeyByIdSchema = {
 type RequestParams = z.infer<typeof getSigningKeyByIdSchema.request.params>;
 type ResponseBody = z.infer<(typeof getSigningKeyByIdSchema.responses)['200']>;
 
-export const getSigningKeyByIdHandler = (getSigningKeyByIdHandler: GetSigningKeyByIdHandler) => {
+export const getSigningKeyByIdHandler = (getSigningKeyById: GetSigningKeyById) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const query = { id: req.params.id };
-    const item = await getSigningKeyByIdHandler.execute(query);
+    const item = await getSigningKeyById(query);
     res.json({
       status: 200,
       message: 'Signing key found',

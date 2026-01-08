@@ -1,4 +1,4 @@
-import { AwilixContainer, createContainer, InjectionMode } from 'awilix';
+import { AwilixContainer, asValue, createContainer, InjectionMode } from 'awilix';
 import { Application } from 'express';
 import registerApi from '~/api/module';
 import registerApplicationServices from '~/application/module';
@@ -21,6 +21,10 @@ const createTestContainer = async () => {
   const container = createContainer({
     injectionMode: InjectionMode.CLASSIC,
     strict: true,
+  });
+
+  container.register({
+    container: asValue(container),
   });
 
   await registerApi(container);

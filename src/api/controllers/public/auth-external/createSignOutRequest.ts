@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import type { SecureCookieManager } from '~/api/utils/SecureCookieManager';
-import type { CreateSignOutRequestHandler } from '~/application/use-cases/public/auth-external/CreateSignOutRequestHandler';
+import type { CreateSignOutRequest } from '~/application/use-cases/public/auth-external/CreateSignOutRequest';
 import { InvalidOperationError } from '~/domain/errors';
 import { safeRedirect } from './shared';
 
@@ -24,7 +24,7 @@ type RequestQuery = z.infer<typeof createSignOutRequestSchema.request.query>;
 
 export const createSignOutRequestHandler = (
   secureCookieManager: SecureCookieManager,
-  createSignOutRequestHandler: CreateSignOutRequestHandler,
+  createSignOutRequest: CreateSignOutRequest,
 ) => {
   return async (req: Request<unknown, unknown, unknown, RequestQuery>, res: Response) => {
     const redirectUrl = req.query.redirect_uri;
@@ -40,7 +40,7 @@ export const createSignOutRequestHandler = (
       redirectUrl,
     };
 
-    const request = await createSignOutRequestHandler.execute(command);
+    const request = await createSignOutRequest(command);
     if (request.signOutState) {
       secureCookieManager.setStateCookie(req, res, request.signOutState);
     }

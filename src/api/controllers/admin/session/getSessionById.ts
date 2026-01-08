@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetSessionByIdHandler } from '~/application/use-cases/admin/session/GetSessionByIdHandler';
+import type { GetSessionById } from '~/application/use-cases/admin/session/GetSessionById';
 import { presentSession, sessionSchema } from './shared';
 
 export const getSessionByIdSchema = {
@@ -25,10 +25,10 @@ export const getSessionByIdSchema = {
 type RequestParams = z.infer<typeof getSessionByIdSchema.request.params>;
 type ResponseBody = z.infer<(typeof getSessionByIdSchema.responses)['200']>;
 
-export const getSessionByIdHandler = (getSessionByIdHandler: GetSessionByIdHandler) => {
+export const getSessionByIdHandler = (getSessionById: GetSessionById) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const query = { id: req.params.id };
-    const item = await getSessionByIdHandler.execute(query);
+    const item = await getSessionById(query);
     res.json({
       status: 200,
       message: 'Session found',

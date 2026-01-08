@@ -69,7 +69,6 @@ container.register({
 ```ts
 // src/infrastructure/config/module.ts (excerpt)
 container.register({
-  baseUrl: asValue(config.apiHost),
   encryptionKeys: asValue(config.encryptionKeys),
   sessionConfig: asValue(config.sessions),
 });

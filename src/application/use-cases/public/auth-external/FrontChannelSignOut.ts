@@ -8,29 +8,26 @@ export interface FrontChannelSignOutCommand {
   sid: string;
 }
 
-export class FrontChannelSignOutHandler {
-  constructor(
-    private readonly eventPublisher: EventPublisher,
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+export type FrontChannelSignOut = ReturnType<typeof frontChannelSignOut>;
 
-  async execute(command: FrontChannelSignOutCommand): Promise<void> {
+export const frontChannelSignOut = (eventPublisher: EventPublisher, sessionRepository: SessionRepository) => {
+  return async (command: FrontChannelSignOutCommand): Promise<void> => {
     try {
-      const session = await this.sessionRepository.tryGetByIdentityProviderSessionId(command.sid);
+      const session = await sessionRepository.tryGetByIdentityProviderSessionId(command.sid);
       if (!session || !Session.isActive(session)) {
         return;
       }
 
       const terminated = Session.terminateSessionByIdentityProvider(session);
-      await this.sessionRepository.update(terminated);
+      await sessionRepository.update(terminated);
 
-      this.eventPublisher.publishEvent(SessionEvent.sessionTerminatedByIdentityProvider(terminated));
+      eventPublisher.publishEvent(SessionEvent.sessionTerminatedByIdentityProvider(terminated));
     } catch (error: unknown) {
       if (error instanceof AuthenticationError) {
-        this.eventPublisher.publishEvent(error.toEvent());
+        eventPublisher.publishEvent(error.toEvent());
       }
 
       throw error;
     }
-  }
-}
+  };
+};

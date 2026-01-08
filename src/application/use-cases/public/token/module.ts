@@ -1,16 +1,16 @@
-import { AwilixContainer, asClass } from 'awilix';
-import { GetJsonWebKeysHandler } from './GetJsonWebKeysHandler';
-import { GetOpenidConfigurationHandler } from './GetOpenidConfigurationHandler';
-import { IssueTokenWithActiveSessionHandler } from './IssueTokenWithActiveSessionHandler';
-import { IssueTokenWithClientCredentialsHandler } from './IssueTokenWithClientCredentialsHandler';
-import { IssueTokenWithTokenExchangeHandler } from './IssueTokenWithTokenExchangeHandler';
+import { AwilixContainer, asFunction } from 'awilix';
+import { getJsonWebKeys } from './GetJsonWebKeys';
+import { getOpenidConfiguration } from './GetOpenidConfiguration';
+import { issueTokenWithActiveSession } from './IssueTokenWithActiveSession';
+import { issueTokenWithClientCredentials } from './IssueTokenWithClientCredentials';
+import { issueTokenWithTokenExchange } from './IssueTokenWithTokenExchange';
 
 export default async function registerTokenUseCases(container: AwilixContainer) {
   container.register({
-    getJsonWebKeysHandler: asClass(GetJsonWebKeysHandler).singleton(),
-    getOpenidConfigurationHandler: asClass(GetOpenidConfigurationHandler).singleton(),
-    issueTokenWithActiveSessionHandler: asClass(IssueTokenWithActiveSessionHandler).singleton(),
-    issueTokenWithClientCredentialsHandler: asClass(IssueTokenWithClientCredentialsHandler).singleton(),
-    issueTokenWithTokenExchangeHandler: asClass(IssueTokenWithTokenExchangeHandler).singleton(),
+    getJsonWebKeys: asFunction(getJsonWebKeys).singleton(),
+    getOpenidConfiguration: asFunction(getOpenidConfiguration).singleton(),
+    issueTokenWithActiveSession: asFunction(issueTokenWithActiveSession).singleton(),
+    issueTokenWithClientCredentials: asFunction(issueTokenWithClientCredentials).singleton(),
+    issueTokenWithTokenExchange: asFunction(issueTokenWithTokenExchange).singleton(),
   });
 }

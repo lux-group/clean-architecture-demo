@@ -65,7 +65,7 @@ const mapRequestToCommand = MapperBuilder.for<RequestBody>()
   .build<CreateUserCommand>();
 
 export const createUserHandler = (
-  baseUrl: string,
+  apiCOnfig: ApiConfig,
   createUserHandler: CreateUserHandler,
 ) => {
   return async (req: Request<unknown, ResponseBody, RequestBody>, res: Response<ResponseBody>) => {
@@ -73,7 +73,7 @@ export const createUserHandler = (
     const item = await createUserHandler.execute(command);
     res
       .status(201)
-      .header('Location', `${baseUrl}/admin/v2/users/${item.id}`)
+      .header('Location', `${apiConfig.host}/${apiConfig.path}/admin/v2/users/${item.id}`)
       .json({
         status: 201,
         message: 'User created',

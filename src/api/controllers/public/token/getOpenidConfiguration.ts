@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetOpenidConfigurationHandler } from '~/application/use-cases/public/token/GetOpenidConfigurationHandler';
+import type { GetOpenidConfiguration } from '~/application/use-cases/public/token/GetOpenidConfiguration';
 
 export const getOpenidConfigurationSchema = {
   request: {},
@@ -18,9 +18,9 @@ export const getOpenidConfigurationSchema = {
 
 type ResponseBody = z.infer<(typeof getOpenidConfigurationSchema.responses)['200']>;
 
-export const getOpenidConfigurationHandler = (getOpenidConfigurationHandler: GetOpenidConfigurationHandler) => {
+export const getOpenidConfigurationHandler = (getOpenidConfiguration: GetOpenidConfiguration) => {
   return async (_req: Request, res: Response<ResponseBody>) => {
-    const document = await getOpenidConfigurationHandler.execute();
+    const document = await getOpenidConfiguration();
     res.json(document as ResponseBody);
   };
 };

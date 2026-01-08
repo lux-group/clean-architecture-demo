@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetJsonWebKeysHandler } from '~/application/use-cases/public/token/GetJsonWebKeysHandler';
+import type { GetJsonWebKeys } from '~/application/use-cases/public/token/GetJsonWebKeys';
 
 export const getJsonWebKeysSchema = {
   request: {},
@@ -21,9 +21,9 @@ export const getJsonWebKeysSchema = {
 
 type ResponseBody = z.infer<(typeof getJsonWebKeysSchema.responses)['200']>;
 
-export const getJsonWebKeysHandler = (getJsonWebKeysHandler: GetJsonWebKeysHandler) => {
+export const getJsonWebKeysHandler = (getJsonWebKeys: GetJsonWebKeys) => {
   return async (_req: Request, res: Response<ResponseBody>) => {
-    const document = await getJsonWebKeysHandler.execute();
+    const document = await getJsonWebKeys();
     res.json(document as ResponseBody);
   };
 };

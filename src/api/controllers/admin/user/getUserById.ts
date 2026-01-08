@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { GetUserByIdHandler } from '~/application/use-cases/admin/user/GetUserByIdHandler';
+import type { GetUserById } from '~/application/use-cases/admin/user/GetUserById';
 import { presentUser, userSchema } from './shared';
 
 export const getUserByIdSchema = {
@@ -25,10 +25,10 @@ export const getUserByIdSchema = {
 type RequestParams = z.infer<typeof getUserByIdSchema.request.params>;
 type ResponseBody = z.infer<(typeof getUserByIdSchema.responses)['200']>;
 
-export const getUserByIdHandler = (getUserByIdHandler: GetUserByIdHandler) => {
+export const getUserByIdHandler = (getUserById: GetUserById) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const query = { id: req.params.id };
-    const item = await getUserByIdHandler.execute(query);
+    const item = await getUserById(query);
     res.json({
       status: 200,
       message: 'User found',

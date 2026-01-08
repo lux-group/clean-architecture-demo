@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { DeleteUserHandler } from '~/application/use-cases/admin/user/DeleteUserHandler';
+import type { DeleteUser } from '~/application/use-cases/admin/user/DeleteUser';
 
 export const deleteUserSchema = {
   request: {
@@ -23,10 +23,10 @@ export const deleteUserSchema = {
 type RequestParams = z.infer<typeof deleteUserSchema.request.params>;
 type ResponseBody = z.infer<(typeof deleteUserSchema.responses)['204']>;
 
-export const deleteUserHandler = (deleteUserHandler: DeleteUserHandler) => {
+export const deleteUserHandler = (deleteUser: DeleteUser) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const command = { id: req.params.id };
-    await deleteUserHandler.execute(command);
+    await deleteUser(command);
     res.status(204).send({
       status: 204,
       message: 'User deleted',

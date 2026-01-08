@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import type { ApiConfig } from '~/application/ports';
-import type { CreateNewSigningKeyHandler } from '~/application/use-cases/admin/signing-key/CreateNewSigningKeyHandler';
+import type { CreateNewSigningKey } from '~/application/use-cases/admin/signing-key/CreateNewSigningKey';
 import { presentSigningKey, signingKeySchema } from './shared';
 
 export const createSigningKeySchema = {
@@ -17,12 +17,9 @@ export const createSigningKeySchema = {
 
 type ResponseBody = z.infer<(typeof createSigningKeySchema.responses)['201']>;
 
-export const createSigningKeyHandler = (
-  apiConfig: ApiConfig,
-  createNewSigningKeyHandler: CreateNewSigningKeyHandler,
-) => {
+export const createSigningKeyHandler = (apiConfig: ApiConfig, createNewSigningKey: CreateNewSigningKey) => {
   return async (_req: Request<unknown, ResponseBody>, res: Response<ResponseBody>) => {
-    const item = await createNewSigningKeyHandler.execute();
+    const item = await createNewSigningKey();
     res
       .status(201)
       .header('Location', `${apiConfig.host}${apiConfig.adminBasePath}/signing-keys/${item.id}`)

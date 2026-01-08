@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import type { ApiConfig } from '~/application/ports';
-import type { CreateUserCommand, CreateUserHandler } from '~/application/use-cases/admin/user/CreateUserHandler';
+import type { CreateUser, CreateUserCommand } from '~/application/use-cases/admin/user/CreateUser';
 import { MapperBuilder } from '~/lib/MapperBuilder';
 import { presentUser, userSchema } from './shared';
 
@@ -37,10 +37,10 @@ type ResponseBody = z.infer<(typeof createUserSchema.responses)['201']>;
 
 const mapRequestToCommand = MapperBuilder.for<RequestBody>().toCamelCase().build<CreateUserCommand>();
 
-export const createUserHandler = (apiConfig: ApiConfig, createUserHandler: CreateUserHandler) => {
+export const createUserHandler = (apiConfig: ApiConfig, createUser: CreateUser) => {
   return async (req: Request<unknown, ResponseBody, RequestBody>, res: Response<ResponseBody>) => {
     const command = mapRequestToCommand(req.body);
-    const item = await createUserHandler.execute(command);
+    const item = await createUser(command);
     res
       .status(201)
       .header('Location', `${apiConfig.host}${apiConfig.adminBasePath}/users/${item.id}`)

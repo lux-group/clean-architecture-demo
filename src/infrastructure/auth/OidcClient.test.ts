@@ -357,7 +357,9 @@ describe('OidcClient', () => {
 
       const callArgs = mockClient.buildEndSessionUrl.mock.calls[0];
       const urlParams = callArgs[1] as URLSearchParams;
-      expect(urlParams.get('post_logout_redirect_uri')).toBe(`${apiConfig.host}${apiConfig.basePath}/external/sign-out-callback`);
+      expect(urlParams.get('post_logout_redirect_uri')).toBe(
+        `${apiConfig.host}${apiConfig.basePath}/external/sign-out-callback`,
+      );
       expect(urlParams.get('logout_hint')).toBe('test@example.com');
       expect(urlParams.get('id_token_hint')).toBeNull();
 

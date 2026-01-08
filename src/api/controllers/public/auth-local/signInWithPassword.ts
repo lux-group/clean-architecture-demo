@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import type { SecureCookieManager } from '~/api/utils/SecureCookieManager';
-import type { SignInWithPasswordHandler } from '~/application/use-cases/public/auth-local/SignInWithPasswordHandler';
+import type { SignInWithPassword } from '~/application/use-cases/public/auth-local/SignInWithPassword';
 
 export const signInWithPasswordSchema = {
   request: {
@@ -24,7 +24,7 @@ type RequestBody = z.infer<typeof signInWithPasswordSchema.request.body>;
 
 export const signInWithPasswordHandler = (
   secureCookieManager: SecureCookieManager,
-  signInWithPasswordHandler: SignInWithPasswordHandler,
+  signInWithPassword: SignInWithPassword,
 ) => {
   return async (req: Request<unknown, unknown, RequestBody>, res: Response) => {
     const command = {
@@ -33,7 +33,7 @@ export const signInWithPasswordHandler = (
       password: req.body.password,
     };
 
-    const session = await signInWithPasswordHandler.execute(command);
+    const session = await signInWithPassword(command);
     secureCookieManager.setSessionCookie(req, res, session);
     res.status(204).send();
   };

@@ -11,9 +11,17 @@ describe('JsonWebTokenIssuer', () => {
   let baseTokenRequest: TokenRequest;
   let signingKey: SigningKey;
 
-  const baseUrl = 'https://auth.example.com';
-  const lifetimeSeconds = 3600;
-  const audience = 'test-audience';
+  const apiConfig = {
+    host: 'https://example.com',
+    basePath: '',
+    adminBasePath: ''
+  };
+
+  const tokenIssuerConfig = {
+    path: '/auth/v2',
+    lifetimeSeconds: 3600,
+    audience: 'test-audience',
+  };
 
   beforeAll(() => {
     const { privateKey: priv, publicKey: pub } = generateKeyPairSync('rsa', {
@@ -29,11 +37,7 @@ describe('JsonWebTokenIssuer', () => {
   });
 
   beforeEach(() => {
-    tokenIssuer = new JsonWebTokenIssuer(
-      baseUrl,
-      { path: '/auth/v2', lifetimeSeconds, audience },
-      mockSigningKeyRepository,
-    );
+    tokenIssuer = new JsonWebTokenIssuer(apiConfig, tokenIssuerConfig, mockSigningKeyRepository);
 
     baseTokenRequest = {
       version: TokenVersion.V2,
@@ -54,7 +58,7 @@ describe('JsonWebTokenIssuer', () => {
     it('should create a valid access token with correct structure', async () => {
       const result = await tokenIssuer.createAccessToken({ ...baseTokenRequest, version: TokenVersion.V1 });
 
-      expect(result.expiresIn).toBe(lifetimeSeconds);
+      expect(result.expiresIn).toBe(tokenIssuerConfig.lifetimeSeconds);
       expect(typeof result.accessToken).toBe('string');
 
       const decoded = decodeToken(result.accessToken);
@@ -64,7 +68,7 @@ describe('JsonWebTokenIssuer', () => {
       expect(decoded.customClaim).toBe('customValue');
       expect(typeof decoded.iat).toBe('number');
       expect(typeof decoded.exp).toBe('number');
-      expect(decoded.exp! - decoded.iat!).toBe(lifetimeSeconds * 1000);
+      expect(decoded.exp! - decoded.iat!).toBe(tokenIssuerConfig.lifetimeSeconds * 1000);
     });
   });
 
@@ -76,21 +80,21 @@ describe('JsonWebTokenIssuer', () => {
     it('should create a valid access token with correct structure', async () => {
       const result = await tokenIssuer.createAccessToken(baseTokenRequest);
 
-      expect(result.expiresIn).toBe(lifetimeSeconds);
+      expect(result.expiresIn).toBe(tokenIssuerConfig.lifetimeSeconds);
       expect(typeof result.accessToken).toBe('string');
 
       const decoded = decodeToken(result.accessToken);
       expect(decoded.ver).toBe('2.0');
       expect(decoded.jti).toBeDefined();
-      expect(decoded.iss).toBe(`${baseUrl}/auth/v2`);
-      expect(decoded.aud).toBe(audience);
+      expect(decoded.iss).toBe(`${apiConfig.host}${apiConfig.basePath}${tokenIssuerConfig.path}`);
+      expect(decoded.aud).toBe(tokenIssuerConfig.audience);
       expect(decoded.sub).toBe(baseTokenRequest.userId);
       expect(decoded.sid).toBe(baseTokenRequest.sessionId);
       expect(decoded.scope).toBe('read write');
       expect(decoded.customClaim).toBe('customValue');
       expect(typeof decoded.iat).toBe('number');
       expect(typeof decoded.exp).toBe('number');
-      expect(decoded.exp! - decoded.iat!).toBe(lifetimeSeconds);
+      expect(decoded.exp! - decoded.iat!).toBe(tokenIssuerConfig.lifetimeSeconds);
     });
 
     it('should use custom audience when provided in request', async () => {
@@ -159,7 +163,7 @@ describe('JsonWebTokenIssuer', () => {
 
       expect(decoded.iat).toBeGreaterThanOrEqual(before);
       expect(decoded.iat).toBeLessThanOrEqual(after);
-      expect(decoded.exp).toBe(decoded.iat! + lifetimeSeconds);
+      expect(decoded.exp).toBe(decoded.iat! + tokenIssuerConfig.lifetimeSeconds);
     });
 
     it('should generate unique JTI for each token', async () => {

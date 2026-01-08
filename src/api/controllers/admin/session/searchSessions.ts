@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
 import { parseQuery } from '~/api/utils/parseQuery';
-import type { SearchSessionsHandler } from '~/application/use-cases/admin/session/SearchSessionsHandler';
+import type { SearchSessions } from '~/application/use-cases/admin/session/SearchSessions';
 import type { Session } from '~/domain/entities';
 import { presentSession, sessionSchema } from './shared';
 
@@ -19,10 +19,10 @@ export const searchSessionsSchema = {
 
 type ResponseBody = z.infer<(typeof searchSessionsSchema.responses)['200']>;
 
-export const searchSessionsHandler = (searchSessionsHandler: SearchSessionsHandler) => {
+export const searchSessionsHandler = (searchSessions: SearchSessions) => {
   return async (req: Request<unknown, ResponseBody>, res: Response<ResponseBody>) => {
     const query = parseQuery<Session>(req.query, ['createdAt'], ['userId', 'identityProviderId']);
-    const result = await searchSessionsHandler.execute(query);
+    const result = await searchSessions(query);
     res.json({
       status: 200,
       message: `${result.total} Sessions found`,

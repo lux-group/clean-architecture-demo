@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import z from 'zod';
-import type { TerminateSessionHandler } from '~/application/use-cases/admin/session/TerminateSessionHandler';
+import type { TerminateSession } from '~/application/use-cases/admin/session/TerminateSession';
 
 export const terminateSessionSchema = {
   request: {
@@ -23,10 +23,10 @@ export const terminateSessionSchema = {
 type RequestParams = z.infer<typeof terminateSessionSchema.request.params>;
 type ResponseBody = z.infer<(typeof terminateSessionSchema.responses)['204']>;
 
-export const terminateSessionHandler = (terminateSessionHandler: TerminateSessionHandler) => {
+export const terminateSessionHandler = (terminateSession: TerminateSession) => {
   return async (req: Request<RequestParams, ResponseBody>, res: Response<ResponseBody>) => {
     const command = { sessionId: req.params.id };
-    await terminateSessionHandler.execute(command);
+    await terminateSession(command);
     res.status(204).send({
       status: 204,
       message: 'Session terminated',
