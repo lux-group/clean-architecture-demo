@@ -1,8 +1,8 @@
 import { AwilixContainer } from 'awilix';
 import { Application } from 'express';
 import { TokenIssuer, TokenRequest, TokenVersion } from '~/application/ports';
-import { TestDataContext } from './TestDataContext';
 import { createContainer } from '~/createContainer';
+import { TestDataContext } from './TestDataContext';
 
 export interface TestContext {
   container: AwilixContainer;

@@ -52,7 +52,9 @@ describe('[GET] /auth/v2/admin/identity-providers/:id (GetIdentityProviderById)'
     it('should return 401 when no access token is provided', async () => {
       const identityProvider = await context.data.createIdentityProvider();
 
-      const response = await request(context.server).get(`/auth/v2/admin/identity-providers/${identityProvider.id}`).send();
+      const response = await request(context.server)
+        .get(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
+        .send();
 
       expect(response.status).toBe(401);
     });

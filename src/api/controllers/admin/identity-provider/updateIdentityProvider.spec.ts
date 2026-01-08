@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)', () => {
+describe('[PUT] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -37,7 +37,7 @@ describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)
       const payload = getPayload();
 
       const response = await request(context.server)
-        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
+        .put(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -66,7 +66,7 @@ describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)
       const payload = getPayload();
 
       const response = await request(context.server)
-        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
+        .put(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -97,7 +97,7 @@ describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
+        .put(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -121,7 +121,9 @@ describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)
       const original = await context.data.createIdentityProvider();
       const payload = getPayload();
 
-      const response = await request(context.server).patch(`/auth/v2/admin/identity-providers/${original.id}`).send(payload);
+      const response = await request(context.server)
+        .put(`/auth/v2/admin/identity-providers/${original.id}`)
+        .send(payload);
 
       expect(response.status).toBe(401);
     });
@@ -132,7 +134,7 @@ describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['identity-provider:read']);
 
       const response = await request(context.server)
-        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
+        .put(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send(payload);
 

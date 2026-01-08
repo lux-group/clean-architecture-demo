@@ -50,17 +50,6 @@ const mount = (container: AwilixContainer, router: RouterAbstraction, basePath: 
     description: 'Update an identity provider',
   });
 
-  // Support PATCH as an alias for update for compatibility
-  router.patch({
-    url: `${basePath}/identity-providers/:id`,
-    operationId: 'updateIdentityProvider',
-    schema: updateIdentityProviderSchema,
-    preHandlers: [authorize({ scopes: ['identity-provider:write'] })],
-    handlers: [container.build(updateIdentityProviderHandler)],
-    summary: 'Update Identity Provider',
-    description: 'Update an identity provider',
-  });
-
   router.delete({
     url: `${basePath}/identity-providers/:id`,
     operationId: 'deleteIdentityProvider',

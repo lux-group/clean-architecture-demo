@@ -3,7 +3,7 @@ import { AwilixContainer, asClass, asFunction } from 'awilix';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import helmet, { HelmetOptions } from 'helmet';
-import { ApiConfig, TokenIssuerConfig } from '~/application/ports';
+import { ApiConfig } from '~/application/ports';
 import identityProviderAdminRoutes from './controllers/admin/identity-provider/routes';
 import sessionAdminRoutes from './controllers/admin/session/routes';
 import signingKeyAdminRoutes from './controllers/admin/signing-key/routes';
@@ -17,7 +17,6 @@ import { SecureCookieManager } from './utils/SecureCookieManager';
 
 export const createRouter = (app: Express, container: AwilixContainer): RouterAbstraction => {
   const apiConfig = container.resolve<ApiConfig>('apiConfig');
-  const tokenIssuerConfig = container.resolve<TokenIssuerConfig>('tokenIssuerConfig');
 
   const routerOptions: RouterOptions = {
     logger: container.resolve('logger'),

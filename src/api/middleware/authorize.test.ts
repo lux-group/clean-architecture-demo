@@ -10,7 +10,7 @@ describe('Authorize Middleware', () => {
   const nextFunction: NextFunction = vi.fn();
   let mockRequest: Request;
   let mockResponse: Response;
-  let apiConfig: ApiConfig; 
+  let apiConfig: ApiConfig;
   let tokenIssuerConfig: TokenIssuerConfig;
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('Authorize Middleware', () => {
     apiConfig = {
       host: 'https://example.com',
       basePath: '',
-      adminBasePath: ''
+      adminBasePath: '',
     };
 
     tokenIssuerConfig = {

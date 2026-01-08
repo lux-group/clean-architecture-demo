@@ -14,7 +14,7 @@ describe('JsonWebTokenIssuer', () => {
   const apiConfig = {
     host: 'https://example.com',
     basePath: '',
-    adminBasePath: ''
+    adminBasePath: '',
   };
 
   const tokenIssuerConfig = {

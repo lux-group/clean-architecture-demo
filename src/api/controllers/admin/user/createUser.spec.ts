@@ -82,7 +82,10 @@ describe('[POST] /auth/v2/admin/users (CreateUser)', () => {
       const eventPublisher: EventPublisher = context.container.resolve('eventPublisher');
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
-      await request(context.server).post('/auth/v2/admin/users').set('Authorization', `Bearer ${accessToken}`).send(payload);
+      await request(context.server)
+        .post('/auth/v2/admin/users')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(payload);
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce();
     });
