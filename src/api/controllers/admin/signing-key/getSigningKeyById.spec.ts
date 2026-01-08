@@ -4,7 +4,7 @@ import { getTestContext, TestContext } from '@test/integration/TestContext';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-describe('[GET] /admin/v2/signing-keys/:id (GetSigningKeyById)', () => {
+describe('[GET] /auth/v2/admin/signing-keys/:id (GetSigningKeyById)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -18,7 +18,7 @@ describe('[GET] /admin/v2/signing-keys/:id (GetSigningKeyById)', () => {
       const signingKey = await context.data.createSigningKey();
 
       const response = await request(context.server)
-        .get(`/admin/v2/signing-keys/${signingKey.id}`)
+        .get(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -30,7 +30,7 @@ describe('[GET] /admin/v2/signing-keys/:id (GetSigningKeyById)', () => {
   describe('when the signing key does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/signing-keys/${randomUUID()}`)
+        .get(`/auth/v2/admin/signing-keys/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -42,7 +42,7 @@ describe('[GET] /admin/v2/signing-keys/:id (GetSigningKeyById)', () => {
     it('should return 401 when no access token is provided', async () => {
       const signingKey = await context.data.createSigningKey();
 
-      const response = await request(context.server).get(`/admin/v2/signing-keys/${signingKey.id}`).send();
+      const response = await request(context.server).get(`/auth/v2/admin/signing-keys/${signingKey.id}`).send();
 
       expect(response.status).toBe(401);
     });
@@ -52,7 +52,7 @@ describe('[GET] /admin/v2/signing-keys/:id (GetSigningKeyById)', () => {
       const nonReadAccessToken = await context.createAccessToken(randomUUID(), ['foo:bar']);
 
       const response = await request(context.server)
-        .get(`/admin/v2/signing-keys/${signingKey.id}`)
+        .get(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${nonReadAccessToken}`)
         .send();
 

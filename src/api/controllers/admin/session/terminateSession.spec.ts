@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
+describe('[POST] /auth/v2/admin/sessions/:id/terminate (TerminateSession)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -20,7 +20,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
       const session = await context.data.createSession({ userId: user.id }, 24);
 
       const response = await request(context.server)
-        .post(`/admin/v2/sessions/${session.id}/terminate`)
+        .post(`/auth/v2/admin/sessions/${session.id}/terminate`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -32,7 +32,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
       const session = await context.data.createSession({ userId: user.id }, 24);
 
       await request(context.server)
-        .post(`/admin/v2/sessions/${session.id}/terminate`)
+        .post(`/auth/v2/admin/sessions/${session.id}/terminate`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -48,7 +48,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .post(`/admin/v2/sessions/${session.id}/terminate`)
+        .post(`/auth/v2/admin/sessions/${session.id}/terminate`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -59,7 +59,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
   describe('when the session does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .post(`/admin/v2/sessions/${randomUUID()}/terminate`)
+        .post(`/auth/v2/admin/sessions/${randomUUID()}/terminate`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -72,7 +72,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
       const user = await context.data.createUser();
       const session = await context.data.createSession({ userId: user.id }, 24);
 
-      const response = await request(context.server).post(`/admin/v2/sessions/${session.id}/terminate`).send();
+      const response = await request(context.server).post(`/auth/v2/admin/sessions/${session.id}/terminate`).send();
 
       expect(response.status).toBe(401);
     });
@@ -83,7 +83,7 @@ describe('[POST] /admin/v2/sessions/:id/terminate (TerminateSession)', () => {
       const nonWriteAccessToken = await context.createAccessToken(user.id, ['session:read']);
 
       const response = await request(context.server)
-        .post(`/admin/v2/sessions/${session.id}/terminate`)
+        .post(`/auth/v2/admin/sessions/${session.id}/terminate`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send();
 

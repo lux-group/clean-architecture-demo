@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () => {
+describe('[PATCH] /auth/v2/admin/identity-providers/:id (UpdateIdentityProvider)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -37,12 +37,28 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
       const payload = getPayload();
 
       const response = await request(context.server)
-        .put(`/admin/v2/identity-providers/${original.id}`)
+        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(expect.objectContaining(payload));
+      expect(response.body.result.name).toBe(payload.name);
+      expect(response.body.result.issuer_url).toBe(payload.issuer_url);
+      expect(response.body.result.audience).toBe(payload.audience);
+      expect(response.body.result.identifier_claim_name).toBe(payload.identifier_claim_name);
+      expect(response.body.result.auth_settings.type).toBe(payload.auth_settings.type);
+      expect(response.body.result.auth_settings.brand).toBe(payload.auth_settings.brand);
+      expect(response.body.result.auth_settings.client_id).toBe(payload.auth_settings.client_id);
+      expect(typeof response.body.result.auth_settings.client_secret).toBe('string');
+      expect(
+        response.body.result.auth_settings.client_secret.endsWith(payload.auth_settings.client_secret.slice(-4)),
+      ).toBe(true);
+      expect(response.body.result.auth_settings.redirect_urls).toEqual(payload.auth_settings.redirect_urls);
+      expect(response.body.result.auth_settings.auto_link_users).toBe(payload.auth_settings.auto_link_users);
+      expect(response.body.result.auth_settings.auto_create_users).toBe(payload.auth_settings.auto_create_users);
+      expect(response.body.result.auth_settings.session_lifetime_hours).toBe(
+        payload.auth_settings.session_lifetime_hours,
+      );
     });
 
     it('should update the identity provider in the database', async () => {
@@ -50,12 +66,27 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
       const payload = getPayload();
 
       const response = await request(context.server)
-        .put(`/admin/v2/identity-providers/${original.id}`)
+        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
       const updated = await context.data.getIdentityProvider(original.id);
-      expect(response).bodyToMatchEntity(updated);
+      // Verify key fields match database and masking rules
+      expect(response.body.result.id).toBe(updated.id);
+      expect(response.body.result.name).toBe(updated.name);
+      expect(response.body.result.issuer_url).toBe(updated.issuerUrl);
+      expect(response.body.result.audience).toBe(updated.audience);
+      expect(response.body.result.identifier_claim_name).toBe(updated.identifierClaimName);
+      if (updated.authSettings) {
+        const resp = response.body.result.auth_settings!;
+        expect(resp.client_id).toBe(updated.authSettings.clientId);
+        // Masked secret: should end with the same last 4 chars
+        expect(resp.client_secret.endsWith(updated.authSettings.clientSecret.slice(-4))).toBe(true);
+        expect(resp.redirect_urls).toEqual(updated.authSettings.redirectUrls);
+        expect(resp.auto_link_users).toBe(updated.authSettings.autoLinkUsers);
+        expect(resp.auto_create_users).toBe(updated.authSettings.autoCreateUsers);
+        expect(resp.session_lifetime_hours).toBe(updated.authSettings.sessionLifetimeHours);
+      }
     });
 
     it('should publish an event', async () => {
@@ -66,7 +97,7 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .put(`/admin/v2/identity-providers/${original.id}`)
+        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -77,7 +108,7 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
   describe('when the identity provider does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .delete(`/admin/v2/identity-providers/${randomUUID()}`)
+        .delete(`/auth/v2/admin/identity-providers/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -90,7 +121,7 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
       const original = await context.data.createIdentityProvider();
       const payload = getPayload();
 
-      const response = await request(context.server).put(`/admin/v2/identity-providers/${original.id}`).send(payload);
+      const response = await request(context.server).patch(`/auth/v2/admin/identity-providers/${original.id}`).send(payload);
 
       expect(response.status).toBe(401);
     });
@@ -101,7 +132,7 @@ describe('[PUT] /admin/v2/identity-providers/:id (UpdateIdentityProvider)', () =
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['identity-provider:read']);
 
       const response = await request(context.server)
-        .put(`/admin/v2/identity-providers/${original.id}`)
+        .patch(`/auth/v2/admin/identity-providers/${original.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send(payload);
 

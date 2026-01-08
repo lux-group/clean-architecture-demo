@@ -40,7 +40,7 @@ export const createRouter = (app: Express, container: AwilixContainer): RouterAb
   authExternalRoutes.mount(container, router, apiConfig.basePath);
   authLocalRoutes.mount(container, router, apiConfig.basePath);
   profileRoutes.mount(container, router, apiConfig.basePath);
-  tokenRoutes.mount(container, router, tokenIssuerConfig.path);
+  tokenRoutes.mount(container, router, apiConfig.basePath);
 
   router.serveSwagger(`${apiConfig.basePath}/docs`);
 

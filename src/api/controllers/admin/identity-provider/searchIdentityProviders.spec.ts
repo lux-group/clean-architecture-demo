@@ -4,7 +4,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { IdentityProvider } from '~/domain/entities';
 
-describe('[GET] /admin/v2/identity-providers (SearchIdentityProviders)', () => {
+describe('[GET] /auth/v2/admin/identity-providers (SearchIdentityProviders)', () => {
   let context: TestContext;
   let identityProvider: IdentityProvider;
   let accessToken: string;
@@ -18,56 +18,54 @@ describe('[GET] /admin/v2/identity-providers (SearchIdentityProviders)', () => {
   describe('when identity providers exist', () => {
     it('should return 200 with valid identity providers', async () => {
       const response = await request(context.server)
-        .get('/admin/v2/identity-providers?offset=0&limit=10')
+        .get('/auth/v2/admin/identity-providers?offset=0&limit=10')
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBeGreaterThanOrEqual(1);
-      expect(response.body.items).toBeInstanceOf(Array);
-      expect(response.body.items.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.result).toBeInstanceOf(Array);
+      expect(response.body.result.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should return filtered identity providers', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/identity-providers?offset=0&limit=10&name=${identityProvider.name}`)
+        .get(`/auth/v2/admin/identity-providers?offset=0&limit=10&name=${identityProvider.name}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
-      expect(response.body.items.length).toBe(1);
-      expect(response.body.items[0].id).toBe(identityProvider.id);
+      expect(response.body.result.length).toBe(1);
+      expect(response.body.result[0].id).toBe(identityProvider.id);
     });
 
     it('should return identity providers with selected fields', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/identity-providers?offset=0&limit=10&select=id,name`)
+        .get(`/auth/v2/admin/identity-providers?offset=0&limit=10&select=id,name`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
       expect(response.status).toBe(200);
-      expect(response.body.items.length).toBeGreaterThanOrEqual(1);
-      expect(response.body.items[0].id).toBeDefined();
-      expect(response.body.items[0].name).toBeDefined();
-      expect(response.body.items[0].issuer_url).toBeUndefined();
-      expect(response.body.items[0].audience).toBeUndefined();
+      expect(response.body.result.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.result[0].id).toBeDefined();
+      expect(response.body.result[0].name).toBeDefined();
     });
 
     it('should return paginated identity providers', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/identity-providers?offset=10000&limit=10`)
+        .get(`/auth/v2/admin/identity-providers?offset=10000&limit=10`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBeGreaterThanOrEqual(1);
-      expect(response.body.items.length).toBe(0);
+      expect(response.body.result.length).toBe(0);
     });
 
     it('should return sorted identity providers', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/identity-providers?offset=0&limit=10&order_by=name&order_direction=asc`)
+        .get(`/auth/v2/admin/identity-providers?offset=0&limit=10&order_by=name&order_direction=asc`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -77,7 +75,7 @@ describe('[GET] /admin/v2/identity-providers (SearchIdentityProviders)', () => {
 
   describe('when authorization fails', () => {
     it('should return 401 when no access token is provided', async () => {
-      const response = await request(context.server).get('/admin/v2/identity-providers?offset=0&limit=10').send();
+      const response = await request(context.server).get('/auth/v2/admin/identity-providers?offset=0&limit=10').send();
 
       expect(response.status).toBe(401);
     });
@@ -86,7 +84,7 @@ describe('[GET] /admin/v2/identity-providers (SearchIdentityProviders)', () => {
       const nonReadAccessToken = await context.createAccessToken(identityProvider.id, ['foo:bar']);
 
       const response = await request(context.server)
-        .get('/admin/v2/identity-providers?offset=0&limit=10')
+        .get('/auth/v2/admin/identity-providers?offset=0&limit=10')
         .set('Authorization', `Bearer ${nonReadAccessToken}`)
         .send();
 

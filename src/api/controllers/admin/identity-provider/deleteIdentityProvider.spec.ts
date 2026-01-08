@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', () => {
+describe('[DELETE] /auth/v2/admin/identity-providers/:id (DeleteIdentityProvider)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -19,7 +19,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
       const identityProvider = await context.data.createIdentityProvider();
 
       const response = await request(context.server)
-        .delete(`/admin/v2/identity-providers/${identityProvider.id}`)
+        .delete(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -30,7 +30,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
       const identityProvider = await context.data.createIdentityProvider();
 
       await request(context.server)
-        .delete(`/admin/v2/identity-providers/${identityProvider.id}`)
+        .delete(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -45,7 +45,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .delete(`/admin/v2/identity-providers/${identityProvider.id}`)
+        .delete(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -56,7 +56,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
   describe('when the identity provider does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .delete(`/admin/v2/identity-providers/${randomUUID()}`)
+        .delete(`/auth/v2/admin/identity-providers/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -69,7 +69,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
       const identityProvider = await context.data.createIdentityProvider();
 
       const response = await request(context.server)
-        .delete(`/admin/v2/identity-providers/${identityProvider.id}`)
+        .delete(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
         .send();
 
       expect(response.status).toBe(401);
@@ -80,7 +80,7 @@ describe('[DELETE] /admin/v2/identity-providers/:id (DeleteIdentityProvider)', (
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['identity-provider:read']);
 
       const response = await request(context.server)
-        .delete(`/admin/v2/identity-providers/${identityProvider.id}`)
+        .delete(`/auth/v2/admin/identity-providers/${identityProvider.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send();
 

@@ -7,9 +7,7 @@ import { identityProviderSchema, presentIdentityProvider } from './shared';
 
 export const searchIdentityProvidersSchema = {
   request: {
-    params: z.object({
-      id: z.uuid(),
-    }),
+    // No params for collection search
   },
   responses: {
     200: z.object({

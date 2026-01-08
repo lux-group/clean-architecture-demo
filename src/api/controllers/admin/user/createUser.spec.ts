@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[POST] /admin/v2/users (CreateUser)', () => {
+describe('[POST] /auth/v2/admin/users (CreateUser)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -40,12 +40,12 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .post('/admin/v2/users')
+        .post('/auth/v2/admin/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
       expect(response.status).toBe(201);
-      expect(response.body).toEqual(
+      expect(response.body.result).toEqual(
         expect.objectContaining({
           is_enabled: payload.is_enabled,
           brand: payload.brand,
@@ -61,18 +61,18 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
           identities: [],
         }),
       );
-      expect(response.headers.location).toMatch(`/admin/v2/users/${response.body.id}`);
+      expect(response.headers.location).toMatch(`/auth/v2/admin/users/${response.body.result.id}`);
     });
 
     it('should create the user in the database', async () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .post('/admin/v2/users')
+        .post('/auth/v2/admin/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
-      const created = await context.data.getUser(response.body.id);
+      const created = await context.data.getUser(response.body.result.id);
       expect(response).bodyToMatchEntity(created);
     });
 
@@ -82,7 +82,7 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
       const eventPublisher: EventPublisher = context.container.resolve('eventPublisher');
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
-      await request(context.server).post('/admin/v2/users').set('Authorization', `Bearer ${accessToken}`).send(payload);
+      await request(context.server).post('/auth/v2/admin/users').set('Authorization', `Bearer ${accessToken}`).send(payload);
 
       expect(eventPublisher.publishEvent).toHaveBeenCalledOnce();
     });
@@ -92,7 +92,7 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
     it('should return 401 when no access token is provided', async () => {
       const payload = getPayload();
 
-      const response = await request(context.server).post('/admin/v2/users').send(payload);
+      const response = await request(context.server).post('/auth/v2/admin/users').send(payload);
 
       expect(response.status).toBe(401);
     });
@@ -102,7 +102,7 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['user:read']);
 
       const response = await request(context.server)
-        .post('/admin/v2/users')
+        .post('/auth/v2/admin/users')
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send(payload);
 

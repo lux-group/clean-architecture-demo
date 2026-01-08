@@ -84,7 +84,7 @@ const mount = (container: AwilixContainer, router: RouterAbstraction, basePath: 
   const authorize = container.build(authorizeMiddlewareFactory);
 
   router.post({
-    url: `${basePath}/admin/v2/users`,
+    url: `${basePath}/auth/v2/admin/users`,
     handlers: [container.build(createUserHandler)],
     preHandlers: [authorize({ scopes: ['user:write'] })],
     // ...

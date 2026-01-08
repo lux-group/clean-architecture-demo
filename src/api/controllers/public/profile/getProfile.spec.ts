@@ -17,7 +17,7 @@ describe('[GET] /v2/profiles (GetProfile)', () => {
       const accessToken = await context.createAccessToken(user.id, []);
 
       const response = await request(context.server)
-        .get('/v2/profiles')
+        .get('/auth/v2/profiles')
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -31,7 +31,7 @@ describe('[GET] /v2/profiles (GetProfile)', () => {
       const accessToken = await context.createAccessToken(randomUUID(), []);
 
       const response = await request(context.server)
-        .get('/v2/profiles')
+        .get('/auth/v2/profiles')
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -41,7 +41,7 @@ describe('[GET] /v2/profiles (GetProfile)', () => {
 
   describe('when the user is not authorized', () => {
     it('should return 401', async () => {
-      const response = await request(context.server).get('/v2/profiles').send();
+      const response = await request(context.server).get('/auth/v2/profiles').send();
 
       expect(response.status).toBe(401);
     });

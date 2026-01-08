@@ -61,7 +61,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[POST] /admin/v2/identity-providers (CreateIdentityProvider)', () => {
+describe('[POST] /auth/v2/admin/identity-providers (CreateIdentityProvider)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -83,7 +83,7 @@ describe('[POST] /admin/v2/identity-providers (CreateIdentityProvider)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .post('/admin/v2/identity-providers')
+        .post('/auth/v2/admin/identity-providers')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -97,7 +97,7 @@ describe('[POST] /admin/v2/identity-providers (CreateIdentityProvider)', () => {
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .post('/admin/v2/identity-providers')
+        .post('/auth/v2/admin/identity-providers')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -108,7 +108,7 @@ describe('[POST] /admin/v2/identity-providers (CreateIdentityProvider)', () => {
   describe('when authorization fails', () => {
     it('should return 401 when no access token is provided', async () => {
       const response = await request(context.server)
-        .post('/admin/v2/identity-providers')
+        .post('/auth/v2/admin/identity-providers')
         .send(getPayload());
 
       expect(response.status).toBe(401);

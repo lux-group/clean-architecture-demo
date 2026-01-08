@@ -25,7 +25,7 @@ export const updateIdentityProviderSchema = {
       result: identityProviderSchema,
     }),
     400: z.object({
-      status: z.literal(404),
+      status: z.literal(400),
       message: z.string(),
     }),
     404: z.object({

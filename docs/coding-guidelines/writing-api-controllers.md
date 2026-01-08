@@ -73,7 +73,7 @@ export const createUserHandler = (
     const item = await createUserHandler.execute(command);
     res
       .status(201)
-      .header('Location', `${apiConfig.host}/${apiConfig.path}/admin/v2/users/${item.id}`)
+      .header('Location', `${apiConfig.host}/${apiConfig.path}/auth/v2/admin/users/${item.id}`)
       .json({
         status: 201,
         message: 'User created',
@@ -126,7 +126,7 @@ const mount = (container: AwilixContainer, router: RouterAbstraction, basePath: 
   const authorize = container.build(authorizeMiddlewareFactory);
 
   router.get({
-    url: `${basePath}/admin/v2/users`,
+    url: `${basePath}/auth/v2/admin/users`,
     operationId: 'searchUsers',
     schema: searchUsersSchema,
     preHandlers: [authorize({ scopes: ['user:read', 'user:write'] })],
@@ -136,7 +136,7 @@ const mount = (container: AwilixContainer, router: RouterAbstraction, basePath: 
   });
 
   router.post({
-    url: `${basePath}/admin/v2/users`,
+    url: `${basePath}/auth/v2/admin/users`,
     operationId: 'createUser',
     schema: createUserSchema,
     preHandlers: [authorize({ scopes: ['user:write'] })],
@@ -208,7 +208,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[POST] /admin/v2/users (CreateUser)', () => {
+describe('[POST] /auth/v2/admin/users (CreateUser)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -230,7 +230,7 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .post('/admin/v2/users')
+        .post('/auth/v2/admin/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -244,7 +244,7 @@ describe('[POST] /admin/v2/users (CreateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .post('/admin/v2/users')
+        .post('/auth/v2/admin/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 

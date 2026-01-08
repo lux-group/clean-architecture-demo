@@ -4,7 +4,7 @@ import { getTestContext, TestContext } from '@test/integration/TestContext';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-describe('[GET] /admin/v2/sessions/:id (GetSessionById)', () => {
+describe('[GET] /auth/v2/admin/sessions/:id (GetSessionById)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -19,7 +19,7 @@ describe('[GET] /admin/v2/sessions/:id (GetSessionById)', () => {
       const session = await context.data.createSession({ userId: user.id }, 24);
 
       const response = await request(context.server)
-        .get(`/admin/v2/sessions/${session.id}`)
+        .get(`/auth/v2/admin/sessions/${session.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -31,7 +31,7 @@ describe('[GET] /admin/v2/sessions/:id (GetSessionById)', () => {
   describe('when the session does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/sessions/${randomUUID()}`)
+        .get(`/auth/v2/admin/sessions/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -44,7 +44,7 @@ describe('[GET] /admin/v2/sessions/:id (GetSessionById)', () => {
       const user = await context.data.createUser();
       const session = await context.data.createSession({ userId: user.id }, 24);
 
-      const response = await request(context.server).get(`/admin/v2/sessions/${session.id}`).send();
+      const response = await request(context.server).get(`/auth/v2/admin/sessions/${session.id}`).send();
 
       expect(response.status).toBe(401);
     });
@@ -55,7 +55,7 @@ describe('[GET] /admin/v2/sessions/:id (GetSessionById)', () => {
       const nonReadAccessToken = await context.createAccessToken(user.id, ['foo:bar']);
 
       const response = await request(context.server)
-        .get(`/admin/v2/sessions/${session.id}`)
+        .get(`/auth/v2/admin/sessions/${session.id}`)
         .set('Authorization', `Bearer ${nonReadAccessToken}`)
         .send();
 

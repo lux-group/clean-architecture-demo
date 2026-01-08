@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
+describe('[PUT] /auth/v2/admin/users/:id (UpdateUser)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -35,12 +35,12 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .put(`/admin/v2/users/${original.id}`)
+        .put(`/auth/v2/admin/users/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(expect.objectContaining(payload));
+      expect(response.body.result).toEqual(expect.objectContaining(payload));
     });
 
     it('should update the user in the database', async () => {
@@ -48,7 +48,7 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .put(`/admin/v2/users/${original.id}`)
+        .put(`/auth/v2/admin/users/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -64,7 +64,7 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .put(`/admin/v2/users/${original.id}`)
+        .put(`/auth/v2/admin/users/${original.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -77,7 +77,7 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       const payload = getPayload();
 
       const response = await request(context.server)
-        .put(`/admin/v2/users/${randomUUID()}`)
+        .put(`/auth/v2/admin/users/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(payload);
 
@@ -90,7 +90,7 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       const original = await context.data.createUser();
       const payload = getPayload();
 
-      const response = await request(context.server).put(`/admin/v2/users/${original.id}`).send(payload);
+      const response = await request(context.server).put(`/auth/v2/admin/users/${original.id}`).send(payload);
 
       expect(response.status).toBe(401);
     });
@@ -101,7 +101,7 @@ describe('[PUT] /admin/v2/users/:id (UpdateUser)', () => {
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['user:read']);
 
       const response = await request(context.server)
-        .put(`/admin/v2/users/${original.id}`)
+        .put(`/auth/v2/admin/users/${original.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send(payload);
 

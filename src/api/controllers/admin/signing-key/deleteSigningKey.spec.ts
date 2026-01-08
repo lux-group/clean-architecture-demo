@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
+describe('[DELETE] /auth/v2/admin/signing-keys/:id (DeleteSigningKey)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -19,7 +19,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null });
 
       const response = await request(context.server)
-        .delete(`/admin/v2/signing-keys/${signingKey.id}`)
+        .delete(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -30,7 +30,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null });
 
       await request(context.server)
-        .delete(`/admin/v2/signing-keys/${signingKey.id}`)
+        .delete(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -45,7 +45,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .delete(`/admin/v2/signing-keys/${signingKey.id}`)
+        .delete(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -58,7 +58,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
       const signingKey = await context.data.createSigningKey();
 
       const response = await request(context.server)
-        .delete(`/admin/v2/signing-keys/${signingKey.id}`)
+        .delete(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -69,7 +69,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
   describe('when the signing key does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .delete(`/admin/v2/signing-keys/${randomUUID()}`)
+        .delete(`/auth/v2/admin/signing-keys/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -81,7 +81,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
     it('should return 401 when no access token is provided', async () => {
       const signingKey = await context.data.createSigningKey({ privateKey: null });
 
-      const response = await request(context.server).delete(`/admin/v2/signing-keys/${signingKey.id}`).send();
+      const response = await request(context.server).delete(`/auth/v2/admin/signing-keys/${signingKey.id}`).send();
 
       expect(response.status).toBe(401);
     });
@@ -91,7 +91,7 @@ describe('[DELETE] /admin/v2/signing-keys/:id (DeleteSigningKey)', () => {
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['signing-key:read']);
 
       const response = await request(context.server)
-        .delete(`/admin/v2/signing-keys/${signingKey.id}`)
+        .delete(`/auth/v2/admin/signing-keys/${signingKey.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send();
 

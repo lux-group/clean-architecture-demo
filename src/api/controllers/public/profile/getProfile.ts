@@ -22,9 +22,11 @@ export const getProfileSchema = {
 type ResponseBody = z.infer<(typeof getProfileSchema.responses)['200']>;
 
 export const getProfileHandler = (getProfileById: GetProfileById) => {
-  return async (_req: Request, res: Response<ResponseBody>) => {
-    const context = getRequestContext();
-    const query = { id: context!.user!.id };
+  return async (req: Request, res: Response<ResponseBody>) => {
+    // Prefer the user ID injected by the authorize middleware; fall back to JWT subject
+    const extensibleRequest = req as any;
+    const userId = extensibleRequest?.user?.id_member ?? extensibleRequest?.jwt?.sub;
+    const query = { id: String(userId) };
     const item = await getProfileById(query);
     res.json({
       status: 200,

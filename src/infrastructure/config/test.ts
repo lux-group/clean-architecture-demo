@@ -3,8 +3,8 @@ import { Config } from './schema';
 export const config: Config = {
   api: {
     host: 'http://localhost:3000',
-    basePath: '/v2',
-    adminBasePath: '/admin/v2',
+    basePath: '/auth/v2',
+    adminBasePath: '/auth/v2/admin',
   },
   postgres: {
     readOnlyUrl: process.env.DATABASE_READONLY_URL,

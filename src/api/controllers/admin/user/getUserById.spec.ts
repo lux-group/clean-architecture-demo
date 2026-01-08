@@ -4,7 +4,7 @@ import { getTestContext, TestContext } from '@test/integration/TestContext';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-describe('[GET] /admin/v2/users/:id (GetUserById)', () => {
+describe('[GET] /auth/v2/admin/users/:id (GetUserById)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -18,7 +18,7 @@ describe('[GET] /admin/v2/users/:id (GetUserById)', () => {
       const user = await context.data.createUser();
 
       const response = await request(context.server)
-        .get(`/admin/v2/users/${user.id}`)
+        .get(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -30,7 +30,7 @@ describe('[GET] /admin/v2/users/:id (GetUserById)', () => {
   describe('when the user does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .get(`/admin/v2/users/${randomUUID()}`)
+        .get(`/auth/v2/admin/users/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -42,7 +42,7 @@ describe('[GET] /admin/v2/users/:id (GetUserById)', () => {
     it('should return 401 when no access token is provided', async () => {
       const user = await context.data.createUser();
 
-      const response = await request(context.server).get(`/admin/v2/users/${user.id}`).send();
+      const response = await request(context.server).get(`/auth/v2/admin/users/${user.id}`).send();
 
       expect(response.status).toBe(401);
     });
@@ -52,7 +52,7 @@ describe('[GET] /admin/v2/users/:id (GetUserById)', () => {
       const nonReadAccessToken = await context.createAccessToken(randomUUID(), ['foo:bar']);
 
       const response = await request(context.server)
-        .get(`/admin/v2/users/${user.id}`)
+        .get(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${nonReadAccessToken}`)
         .send();
 

@@ -49,7 +49,10 @@ expect.extend({
     };
 
     try {
-      const responseBody = response.body;
+      const responseBody =
+        response?.body && typeof response.body === 'object' && 'result' in response.body
+          ? (response.body as any).result
+          : response.body;
       const expected = transformObject(expectedEntity, [toSnakeCase], [toISODateString]);
 
       if (objectMatches(responseBody, expected)) {

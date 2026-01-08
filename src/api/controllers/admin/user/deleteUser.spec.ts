@@ -5,7 +5,7 @@ import request from 'supertest';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { EventPublisher } from '~/application/ports';
 
-describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
+describe('[DELETE] /auth/v2/admin/users/:id (DeleteUser)', () => {
   let context: TestContext;
   let accessToken: string;
 
@@ -19,7 +19,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
       const user = await context.data.createUser();
 
       const response = await request(context.server)
-        .delete(`/admin/v2/users/${user.id}`)
+        .delete(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -30,7 +30,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
       const user = await context.data.createUser();
 
       await request(context.server)
-        .delete(`/admin/v2/users/${user.id}`)
+        .delete(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -45,7 +45,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
       vi.spyOn(eventPublisher, 'publishEvent').mockImplementation(() => {});
 
       await request(context.server)
-        .delete(`/admin/v2/users/${user.id}`)
+        .delete(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -56,7 +56,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
   describe('when the user does not exist', () => {
     it('should return 404', async () => {
       const response = await request(context.server)
-        .delete(`/admin/v2/users/${randomUUID()}`)
+        .delete(`/auth/v2/admin/users/${randomUUID()}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send();
 
@@ -68,7 +68,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
     it('should return 401 when no access token is provided', async () => {
       const user = await context.data.createUser();
 
-      const response = await request(context.server).delete(`/admin/v2/users/${user.id}`).send();
+      const response = await request(context.server).delete(`/auth/v2/admin/users/${user.id}`).send();
 
       expect(response.status).toBe(401);
     });
@@ -78,7 +78,7 @@ describe('[DELETE] /admin/v2/users/:id (DeleteUser)', () => {
       const nonWriteAccessToken = await context.createAccessToken(randomUUID(), ['user:read']);
 
       const response = await request(context.server)
-        .delete(`/admin/v2/users/${user.id}`)
+        .delete(`/auth/v2/admin/users/${user.id}`)
         .set('Authorization', `Bearer ${nonWriteAccessToken}`)
         .send();
 
