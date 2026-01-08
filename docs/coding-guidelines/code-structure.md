@@ -4,18 +4,18 @@
 
 | Folder | Responsibility |
 | --- | --- |
-| 📁 [api](/src/api) | API layer: routes, middleware, and HTTP-related concerns |
+| 📁 [api](/src/api) | API layer: Controllers, routes, middleware, and other HTTP-related concerns |
 | &nbsp;&nbsp; 📁 [controllers](/src/api/controllers) | Feature-organised endpoints grouped by domain area |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [admin](/src/api/controllers/admin) | Admin API endpoints (user, session, signing-key, identity-provider) |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [public](/src/api/controllers/public) | Public API endpoints (auth, profile, token) |
 | &nbsp;&nbsp; 📁 [middleware](/src/api/middleware) | Express middleware (authorization, error handling, etc.) |
 | &nbsp;&nbsp; 📁 [utils](/src/api/utils) | API utilities (query parsing, cookie management, etc.) |
-| 📁 [application](/src/application) | Application layer: use cases and port interfaces |
-| &nbsp;&nbsp; 📁 [ports](/src/application/ports) | Interfaces for infrastructure services used by application layer.<br/>Their implementations can be found in the [infrastructure](/src/infrastructure) folder. |
-| &nbsp;&nbsp; 📁 [use-cases](/src/application/use-cases) | Application use case implementations (command and query handlers) |
+| 📁 [application](/src/application) | Application layer |
+| &nbsp;&nbsp; 📁 [ports](/src/application/ports) | Interfaces for infrastructure services used by the application layer.<br/>Their implementations can be found in the [/infrastructure](/src/infrastructure) folder. |
+| &nbsp;&nbsp; 📁 [use-cases](/src/application/use-cases) | Application Services. Each service orchestrates the activities of a use case across domain and infrastrcuture services (ports). |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [admin](/src/application/use-cases/admin) | Admin use cases (CRUD operations) |
 | &nbsp;&nbsp; &nbsp;&nbsp; 📁 [public](/src/application/use-cases/public) | Public use cases (authentication, tokens, profiles) |
-| 📁 [domain](/src/domain) | The domain (or *core*) contains all the application's business logic.<br/>This project uses [Domain Models](https://aussiecommerce.atlassian.net/wiki/x/FwDx0w). |
+| 📁 [domain](/src/domain) | The domain layer (or core) contains all the application's business logic. |
 | &nbsp;&nbsp; 📁 [entities](/src/domain/entities) | Domain entities as immutable types with companion objects containing business logic. |
 | &nbsp;&nbsp; 📁 [errors](/src/domain/errors) | Domain errors and common error messages |
 | &nbsp;&nbsp; 📁 [events](/src/domain/events) | Domain event messages |
