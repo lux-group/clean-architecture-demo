@@ -9,9 +9,9 @@ Related ADRs:
 
 ## Structure
 
-- Location: `src/application/use-cases/<area>/<feature>/<Name>Handler.ts`
+- Location: `src/application/use-cases/<area>/<feature>/<Action>.ts`
 - Areas: `admin` for admin operations, `public` for public-facing operations
-- Naming: `Create<Name>Handler`, `Get<Name>ByIdHandler`, `Search<Names>Handler`
+- Naming: `Create<Name>`, `Get<Name>ById`, `Search<Names>`
 - Outer factory function for DI returns actual handler function.
 
 ### Sample Handler

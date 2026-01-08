@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { NotFoundError, ValidationError } from '~/domain/errors';
-import { convertKnownErrors } from '../convertKnownErrors';
+import { convertKnownErrors } from './convertKnownErrors';
 
 describe('clients/prisma/extensions.ts', () => {
   const extension = convertKnownErrors();

@@ -1,6 +1,6 @@
-# Application Use Cases (CQRS Handlers)
+# Application Use Cases (CQRS)
 
-This document is generated from the application’s CQRS handlers under `src/api/conttrollers/**/{commands,queries}`.
+This document is generated from the application’s use-case functions under `src/application/use-cases/**`.
 
 - **Commands**: state-changing use cases
 - **Queries**: read-only use cases
@@ -11,7 +11,7 @@ Common cross-cutting rules you’ll see repeatedly:
 
 ## Admin / User
 
-- **Create user** (`CreateUserHandler`)
+- **Create user** (`createUser`)
   - **Description**: Creates a new local user account with a password.
   - **Business logic / rules**:
     - Password is **hashed** before storage (no plaintext persistence).
@@ -23,24 +23,24 @@ Common cross-cutting rules you’ll see repeatedly:
       - `roles[]` entries 1–50 chars.
       - `passwordHash` may be nullable at the domain level, but this use case sets it to a non-null hash.
 
-- **Update user** (`UpdateUserHandler`)
+- **Update user** (`updateUser`)
   - **Description**: Updates mutable user attributes (e.g. names, roles, enabled flag).
   - **Business logic / rules**:
     - Only properties allowed by `UpdateUserProps` are mutable (notably excludes `brand`, `email`, `emailVerified`, `phone`, `passwordHash`, `identities`).
     - Domain validation is re-applied after merge (Zod schema validation).
 
-- **Delete user** (`DeleteUserHandler`)
+- **Delete user** (`deleteUser`)
   - **Description**: Deletes a user by ID.
 
-- **Get user by id** (`GetUserByIdHandler`)
+- **Get user by id** (`getUserById`)
   - **Description**: Fetches a user record by ID.
 
-- **Search users** (`SearchUsersHandler`)
+- **Search users** (`searchUsers`)
   - **Description**: Searches/paginates users via repository query abstraction.
 
 ## Admin / Session
 
-- **Terminate session (admin)** (`TerminateSessionHandler`)
+- **Terminate session (admin)** (`terminateSession`)
   - **Description**: Terminates a session as an admin action.
   - **Business logic / rules**:
     - Session termination rules:
@@ -49,15 +49,15 @@ Common cross-cutting rules you’ll see repeatedly:
       - If the session is already past `expiresAt`, it is marked `EXPIRED` and `terminatedAt = expiresAt`.
       - Otherwise it is marked `TERMINATED_BY_ADMIN` and `terminatedAt = now`.
 
-- **Get session by id** (`GetSessionByIdHandler`)
+- **Get session by id** (`getSessionById`)
   - **Description**: Fetches a session record by ID.
 
-- **Search sessions** (`SearchSessionsHandler`)
+- **Search sessions** (`searchSessions`)
   - **Description**: Searches/paginates sessions via repository query abstraction.
 
 ## Admin / Identity Provider
 
-- **Create identity provider** (`CreateIdentityProviderHandler`)
+- **Create identity provider** (`createIdentityProvider`)
   - **Description**: Creates a new identity provider configuration.
   - **Business logic / rules**:
     - Identity provider attributes are validated (selected highlights):
@@ -68,23 +68,23 @@ Common cross-cutting rules you’ll see repeatedly:
         - `redirectUrls` is 1–20 URLs
         - `sessionLifetimeHours` is 1–8760
 
-- **Update identity provider** (`UpdateIdentityProviderHandler`)
+- **Update identity provider** (`updateIdentityProvider`)
   - **Description**: Updates an existing identity provider configuration.
   - **Business logic / rules**:
     - Domain validation is re-applied after update.
 
-- **Delete identity provider** (`DeleteIdentityProviderHandler`)
+- **Delete identity provider** (`deleteIdentityProvider`)
   - **Description**: Deletes an identity provider by ID.
 
-- **Get identity provider by id** (`GetIdentityProviderByIdHandler`)
+- **Get identity provider by id** (`getIdentityProviderById`)
   - **Description**: Fetches an identity provider record by ID.
 
-- **Search identity providers** (`SearchIdentityProvidersHandler`)
+- **Search identity providers** (`searchIdentityProviders`)
   - **Description**: Searches/paginates identity providers via repository query abstraction.
 
 ## Admin / Signing Key
 
-- **Create new signing key (rotate)** (`CreateNewSigningKeyHandler`)
+- **Create new signing key (rotate)** (`createNewSigningKey`)
   - **Description**: Generates a new signing keypair and rotates out the currently active key (if any).
   - **Business logic / rules**:
     - A new keypair is generated and stored as a new `SigningKey` (public + private).
@@ -92,20 +92,20 @@ Common cross-cutting rules you’ll see repeatedly:
       - Deactivation sets `privateKey = null` (making the key inactive for signing, but still usable for validation).
     - Domain validation enforces key string size limits (public/private key max 10000 chars).
 
-- **Delete signing key** (`DeleteSigningKeyHandler`)
+- **Delete signing key** (`deleteSigningKey`)
   - **Description**: Deletes a signing key by ID.
   - **Business logic / rules**:
     - A signing key **cannot be deleted while active** (i.e. while `privateKey != null`).
 
-- **Get signing key by id** (`GetSigningKeyByIdHandler`)
+- **Get signing key by id** (`getSigningKeyById`)
   - **Description**: Fetches a signing key record by ID.
 
-- **Search signing keys** (`SearchSigningKeysHandler`)
+- **Search signing keys** (`searchSigningKeys`)
   - **Description**: Searches/paginates signing keys via repository query abstraction.
 
 ## Public / Auth (Local)
 
-- **Sign in with password** (`SignInWithPasswordHandler`)
+- **Sign in with password** (`signInWithPassword`)
   - **Description**: Authenticates a user with brand/email/password and creates a local session.
   - **Business logic / rules**:
     - Authentication checks (password flow):
@@ -120,7 +120,7 @@ Common cross-cutting rules you’ll see repeatedly:
     - On `AuthenticationError`:
       - Publishes the failure event derived from the error and rethrows.
 
-- **Sign out (local session)** (`SignOutHandler`)
+- **Sign out (local session)** (`signOut`)
   - **Description**: Terminates an active local session.
   - **Business logic / rules**:
     - If session does not exist or is not active, this use case is a **no-op**.
@@ -131,7 +131,7 @@ Common cross-cutting rules you’ll see repeatedly:
 
 ## Public / Auth (External)
 
-- **Create sign-in request** (`CreateSignInRequestHandler`)
+- **Create sign-in request** (`createSignInRequest`)
   - **Description**: Builds an external IdP authorization URL and state for OIDC sign-in.
   - **Business logic / rules**:
     - Identity provider must exist (lookup by `identityProviderName`).
@@ -139,7 +139,7 @@ Common cross-cutting rules you’ll see repeatedly:
       - Requires IdP `authSettings` to exist.
       - `redirectUrl` must start with one of the configured `redirectUrls`.
 
-- **Process sign-in response** (`ProcessSignInResponseHandler`)
+- **Process sign-in response** (`processSignInResponse`)
   - **Description**: Processes the IdP callback, resolves/creates/links a user, and creates an external session.
   - **Business logic / rules**:
     - Uses the IdP from `state.identityProviderId` and processes the response URL via the IdP client.
@@ -161,7 +161,7 @@ Common cross-cutting rules you’ll see repeatedly:
     - On `AuthenticationError`:
       - Publishes the failure event derived from the error and rethrows.
 
-- **Create sign-out request** (`CreateSignOutRequestHandler`)
+- **Create sign-out request** (`createSignOutRequest`)
   - **Description**: Terminates an external session and (if supported) returns an IdP sign-out URL.
   - **Business logic / rules**:
     - If session does not exist or is not active, returns `{ url: redirectUrl }` (no-op).
@@ -171,7 +171,7 @@ Common cross-cutting rules you’ll see repeatedly:
       - Publishes “session terminated by user”.
     - If the IdP client does not support sign-out, returns `{ url: redirectUrl }`.
 
-- **Front-channel sign-out** (`FrontChannelSignOutHandler`)
+- **Front-channel sign-out** (`frontChannelSignOut`)
   - **Description**: Terminates an external session when the IdP notifies the app (front-channel logout).
   - **Business logic / rules**:
     - Finds session by identity-provider session id (`sid`).
@@ -182,7 +182,7 @@ Common cross-cutting rules you’ll see repeatedly:
 
 ## Public / Token
 
-- **Issue token with active session** (`IssueTokenWithActiveSessionHandler`)
+- **Issue token with active session** (`issueTokenWithActiveSession`)
   - **Description**: Validates an active session (optionally refreshes against IdP), supports impersonation, and issues an access token.
   - **Business logic / rules**:
     - Session validation:
@@ -210,7 +210,7 @@ Common cross-cutting rules you’ll see repeatedly:
     - On `AuthenticationError` or `AuthorizationError`:
       - Publishes the failure event derived from the error and rethrows.
 
-- **Issue token with client credentials** (`IssueTokenWithClientCredentialsHandler`)
+- **Issue token with client credentials** (`issueTokenWithClientCredentials`)
   - **Description**: Authenticates a service account with (clientId, clientSecret) and issues an access token.
   - **Business logic / rules**:
     - Authentication checks (client credentials flow):
@@ -223,7 +223,7 @@ Common cross-cutting rules you’ll see repeatedly:
     - On `AuthenticationError` or `AuthorizationError`:
       - Publishes the failure event derived from the error and rethrows.
 
-- **Issue token with token exchange** (`IssueTokenWithTokenExchangeHandler`)
+- **Issue token with token exchange** (`issueTokenWithTokenExchange`)
   - **Description**: Validates an external token, maps it to a service account identity, and issues a local access token.
   - **Business logic / rules**:
     - External token must decode and validate successfully (via `TokenValidator`).
@@ -238,19 +238,19 @@ Common cross-cutting rules you’ll see repeatedly:
 
 ## Public / Profile
 
-- **Get profile by id** (`GetProfileByIdHandler`)
+- **Get profile by id** (`getProfileById`)
   - **Description**: Fetches a user profile (currently returns the full `User` domain entity) by ID.
 
 ## Public / Well-known
 
-- **Get OpenID configuration** (`GetOpenidConfigurationHandler`)
+- **Get OpenID configuration** (`getOpenidConfiguration`)
   - **Description**: Returns OIDC discovery metadata for this issuer.
   - **Business logic / rules**:
     - Issuer is built from `baseUrl + tokenIssuerConfig.path`.
     - Advertises fixed endpoints (`jwks_uri`, `token_endpoint`) and supported signing alg (`RS256`).
     - Returns a fixed list of supported claims.
 
-- **Get JSON Web Keys (JWKS)** (`GetJsonWebKeysHandler`)
+- **Get JSON Web Keys (JWKS)** (`getJsonWebKeys`)
   - **Description**: Returns the current set of public signing keys for token validation.
   - **Business logic / rules**:
     - Returns up to 10 most recent signing keys (ordered by `createdAt desc`).

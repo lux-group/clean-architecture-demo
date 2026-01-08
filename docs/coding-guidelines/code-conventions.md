@@ -29,10 +29,10 @@ The project uses [Biome](https://biomejs.dev/) for linting and formatting. Check
 
 - **Files**:
   - Endpoint files use camelCase: `createUser.ts`, `getUserById.ts`, `searchUsers.ts`
-  - Handler classes use PascalCase: `CreateUserHandler.ts`, `GetUserByIdHandler.ts`
+  - Use-case files use PascalCase: `CreateUser.ts`, `GetUserById.ts`
   - Utilities use camelCase: `parseQuery.ts`, `SecureCookieManager.ts`
 - **Directories**: Feature folders use kebab-case (e.g., `identity-provider`, `auth-external`).
-- **Handlers**: CQRS handlers end with `Handler` and expose an `execute` method.
+- **Handlers**: CQRS handlers are functions; inject with DI and call directly.
 - **Routes**: Route files are named `routes.ts` and export a `{ mount }` object.
 - **Shared**: Shared schemas and mappers go in `shared.ts`.
 
@@ -44,7 +44,12 @@ The project uses [Biome](https://biomejs.dev/) for linting and formatting. Check
 - **Co-located tests**: Test files use `.spec.ts` suffix and sit next to implementation files.
 
 ```ts
-// Endpoint file structure
+// Endpoint file structure (excerpt)
+import type { Request, Response } from 'express';
+import z from 'zod';
+import type { CreateUser, CreateUserCommand } from '~/application/use-cases/admin/user/CreateUser';
+import { userSchema } from './shared';
+
 export const createUserSchema = {
   request: { body: z.object({ /* ... */ }) },
   responses: {
@@ -52,9 +57,10 @@ export const createUserSchema = {
   },
 };
 
-export const createUserHandler = (createUserHandler: CreateUserHandler) => {
-  return async (req: Request, res: Response) => {
-    // ...
+export const createUserHandler = (createUser: CreateUser) => {
+  return async (req: Request<unknown, any, CreateUserCommand>, res: Response) => {
+    const created = await createUser(req.body);
+    res.status(201).json({ status: 201, message: 'User created', result: created });
   };
 };
 ```
@@ -75,7 +81,7 @@ export const createUserHandler = (createUserHandler: CreateUserHandler) => {
 
 ## Application Layer
 
-- **Handler patterns**: Use either class-based handlers with `execute` method or functional factory pattern.
+- **Handler patterns**: Prefer functional factory pattern for use cases (no classes).
 - **Thin orchestration**: Handlers orchestrate domain logic but don't contain business rules.
 - **CQRS**: Separate commands (state changes) and queries (reads) into distinct handlers.
 

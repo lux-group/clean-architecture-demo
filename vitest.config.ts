@@ -37,7 +37,7 @@ export default defineConfig({
         test: {
           name: "integration",
           include: ["src/**/*.spec.ts"],
-          globalSetup: "test/integration/vitest-setup.ts",
+          globalSetup: "test/integration/vitest.setup.ts",
           testTimeout: 30000,
         }
       },

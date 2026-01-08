@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Logger } from '~/application/ports';
-import { logFailedQueryDetails } from '../logFailedQueryDetails';
+import { logFailedQueryDetails } from './logFailedQueryDetails';
 
 describe('clients/prisma/extensions.ts', () => {
   const mockQuery = vi.fn();
