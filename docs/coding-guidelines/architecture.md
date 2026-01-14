@@ -12,7 +12,7 @@ Related ADRs:
 ### Single Responsibility Principle (SRP)
 
 - **Domain Entities**: Each entity (`User`, `Session`, `IdentityProvider`, `SigningKey`) has a single responsibility - managing its own business rules and state
-- **Domain Services**: `AuthenticationService`, `AuthorizationService`, and `SessionService` each handle specific domain concerns
+- **Domain Services**: `AuthenticationService` and `AuthorizationService` each handle specific domain concerns
 - **Use Cases**: Use-case functions like `createUser` have a single responsibility - orchestrating one specific business flow
 - **API Endpoints**: Each endpoint file handles a single operation (create, read, update, delete)
 - **Adapters**: Each adapter interface (`TokenIssuer`, `PasswordVerifier`, `EventPublisher`) has one clear purpose

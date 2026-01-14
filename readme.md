@@ -40,7 +40,7 @@ To achieve this structure, we rely on proven design principles such as the Depen
 
 ### Single Responsibility Principle (SRP)
 - **Domain Entities**: Each entity (`User`, `Session`, `IdentityProvider`, `SigningKey`) has a single responsibility - managing its own business rules and state
-- **Domain Services**: `AuthenticationService`, `AuthorizationService`, and `SessionService` each handle specific domain concerns
+- **Domain Services**: `AuthenticationService` and `AuthorizationService` each handle specific domain concerns
 - **Use Cases**: Application services like `CreateUserHandler` have a single responsibility - orchestrating one specific business flow
 - **API Endpoints**: Each endpoint file handles a single operation with its schema and handler
 - **Adapters**: Each adapter interface (`TokenIssuer`, `PasswordVerifier`, `EventPublisher`) has one clear purpose
