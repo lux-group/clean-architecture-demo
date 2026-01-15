@@ -24,17 +24,19 @@ This project started as a POC for [Auth Service V2](https://aussiecommerce.atlas
 - The API does not contain much data validation because we already have a framework for that in our standard template. But the domain entities fully validate all inputs using Zod.
 - Four well-known libraries are used to read, write, and validate JWTs and interact with OIDC providers. There is some overlap between them because the OIDC client contains its own JWT validation. The *TokenValidator.ts* class is only used for the token exchange grant.
 <br/><br/>
-# Clean Architecture
+# Clean Architecture / Onion Architecture
 ## Introduction
-The key difference between the traditional layered architecture usually adopted at Luxury Escapes and [Clean Architecture](https://www.amazon.com.au/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164/ref=pd_bxgy_d_sccl_1/358-2171586-5171204) (aka Onion Architecture) lies in the direction of dependencies.
+The key difference between the traditional layered architecture usually adopted at Luxury Escapes and [Clean Architecture](https://www.amazon.com.au/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164/ref=pd_bxgy_d_sccl_1/358-2171586-5171204) or [Onion Architecture](https://marcoatschaefer.medium.com/onion-architecture-explained-building-maintainable-software-54996ff8e464) lies in the direction of dependencies.
 
 In traditional layered architectures, dependencies flow downward — from core domain logic to external components like databases, caches, or third-party APIs. As a result, the domain layer must orchestrate every dependency directly, in addition to handling business rules. This tight coupling can lead to bloated, unfocused code that becomes increasingly difficult to understand, test, and maintain as complexity grows.
 
-**Clean Architecture reverses this flow: dependencies point inward toward the core domain, ensuring it remains fully independent of external frameworks, infrastructure, and services.** Instead of the domain logic driving its dependencies, the dependencies are shaped to serve the domain. This shift leads to components with higher cohesion, reduced coupling, and well-defined boundaries — making the codebase more maintainable and testable.
+**Clean and Onion Architecture reversesthis flow: dependencies point inward toward the core domain, ensuring it remains fully independent of external frameworks, infrastructure, and services.** Instead of the domain logic driving its dependencies, the dependencies are shaped to serve the domain. This shift leads to components with higher cohesion, reduced coupling, and well-defined boundaries — making the codebase more maintainable and testable.
 
 To achieve this structure, we rely on proven design principles such as the Dependency Inversion Principle, and apply patterns like the Adapter Pattern to decouple interactions across architectural boundaries.
 
 ![Clean Architecture Diagram](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
+![Onion Architecture Diagram](https://miro.medium.com/v2/1*0Pg6_UsaKiiEqUV3kf2HXg.png)
+
 
 ## SOLID Principles Applied
 
