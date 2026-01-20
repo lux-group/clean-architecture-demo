@@ -1,6 +1,9 @@
 # Introduction
 This project started as a POC for [Auth Service V2](https://aussiecommerce.atlassian.net/wiki/x/wQES3g). However, it has evolved into a demo project for [Clean Architecture](https://www.amazon.com.au/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164/ref=pd_bxgy_d_sccl_1/358-2171586-5171204), demonstrating numerous design principles and patterns in action.
 
+> [!IMPORTANT]  
+> The repository is not intended to be a template. Its purpose is to explain and demonstrate software architecture principles, patterns, and best practices to engineers who are interested in learning about the topic and improve the quality of their own code.
+
 # Auth Service V2
 ### Demonstrated features
 - Sign-up, sign-in, and sign-out with Entra ID
@@ -110,9 +113,12 @@ Multiple implementations can be used, such as [Prisma Repositories](/src/infrast
 - **Domain Events**: `EventPublisher` allows multiple subscribers to domain events
 - **Event Bus**: Decoupled event handling for audit logging and other cross-cutting concerns
 
-### Command Pattern & CQRS
-- **[Command Query Responsibility Segregation (CQRS)](https://aussiecommerce.atlassian.net/wiki/x/BwC01)**: Each use case implemented as a dedicated command handler (changes state) or query handler (does not change state) with clear segregation between them.
-- **Input/Output DTOs**: Clear command/query interfaces with typed inputs/outputs
+## Services
+The term “service” is often ambiguous and heavily overused in software development. In this project, we explicitly distinguish between three distinct types of services:
+
+- **Application Service**: Coordinates a use case by orchestrating domain and infrastructure services.
+- **Domain Service**: Encapsulates business logic that is completely independent of infrastructure concerns.
+- **Infrastructure Service**: Integrates the application with external systems such as databases, caches, third‑party APIs, observability platforms, security providers, and more. They always adopt the Adapter pattern and the Inversion of Control principle.
 
 # AI-Friendly Code Architecture
 
