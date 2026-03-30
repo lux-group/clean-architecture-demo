@@ -19,7 +19,7 @@
   "dependencies": {
     "@luxuryescapes/lib-request-context": "^2.0.0",
     "@luxuryescapes/router": "^3.0.0",
-    "@prisma/client": "^6.14.0",
+    "@prisma/client": "^7.6.0",
     "@prisma/extension-read-replicas": "^0.4.1",
     "awilix": "^12.0.5",
     "bcryptjs": "^3.0.2",
